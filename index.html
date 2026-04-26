@@ -419,7 +419,6 @@
     .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
       border:1px solid var(--border);border-radius:10px;text-align:center;}
     .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
-    /* 잠긴 카드 스타일 */
     .card-locked{position:relative;opacity:.72;pointer-events:none;}
     .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
       font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
@@ -436,10 +435,10 @@
   <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
   <div class="nav-links">
     <a href="index.html" class="active">홈</a>
-    <a href="intro-01-what-is-claude.html">입문</a>
-    <a href="usage-01-project-setup.html">활용</a>
-    <a href="advanced-01-git.html">고급</a>
-    <a href="walkthrough-index.html">따라하기</a>
+    <a href="pages/intro-01-what-is-claude.html">입문</a>
+    <a href="pages/usage-01-project-setup.html">활용</a>
+    <a href="pages/advanced-01-git.html">고급</a>
+    <a href="pages/walkthrough-index.html">따라하기</a>
   </div>
 </nav>
 
@@ -450,7 +449,7 @@
     <p class="hero-label">교육학 · 사회과학 연구자를 위한 실전 참고서</p>
     <h1>Claude로 연구하는<br>새로운 방법</h1>
     <p>선행연구 검색부터 데이터 분석, 논문 작성까지 — Claude를 처음 접하는 연구자도 이 가이드를 따라하면 고급 활용까지 도달할 수 있습니다.</p>
-    <a href="intro-01-what-is-claude.html" class="hero-cta">입문부터 시작하기 →</a>
+    <a href="pages/intro-01-what-is-claude.html" class="hero-cta">입문부터 시작하기 →</a>
     <div style="position:absolute;bottom:1rem;right:1.4rem;font-size:0.7rem;color:rgba(255,255,255,0.45);letter-spacing:0.04em;">최근수정일 · 2026.04.25</div>
   </div>
 
@@ -530,22 +529,22 @@
   <p>입문 파트는 아래 순서로 읽어주세요. 각 섹션은 15~30분이면 충분합니다.</p>
 
   <div class="card-grid">
-    <a href="intro-01-what-is-claude.html" class="card">
+    <a href="pages/intro-01-what-is-claude.html" class="card">
       <div class="card-num">입문 01</div>
       <div class="card-title">Claude란 무엇인가</div>
       <div class="card-desc">채팅봇과의 차이, 교육학 연구 활용 사례, AI의 한계, 학술 윤리</div>
     </a>
-    <a href="intro-02-plans-platforms.html" class="card">
+    <a href="pages/intro-02-plans-platforms.html" class="card">
       <div class="card-num">입문 02</div>
       <div class="card-title">요금제 및 플랫폼</div>
       <div class="card-desc">Free / Pro / Max 비교, claude.ai · Claude Code · API 차이, 연구자 추천 선택</div>
     </a>
-    <a href="intro-03-installation.html" class="card">
+    <a href="pages/intro-03-installation.html" class="card">
       <div class="card-num">입문 03</div>
       <div class="card-title">설치 및 첫 실행</div>
       <div class="card-desc">Mac · Windows 설치 가이드, 로그인, 첫 명령어, 트러블슈팅</div>
     </a>
-    <a href="intro-04-concepts.html" class="card">
+    <a href="pages/intro-04-concepts.html" class="card">
       <div class="card-num">입문 04</div>
       <div class="card-title">핵심 개념 용어집</div>
       <div class="card-desc">Context · 세션 · CLAUDE.md · Skill · MCP · API — 연구자 관점 해설</div>
@@ -557,53 +556,53 @@
   <!-- ===== 활용 파트 ===== -->
   <h2>활용 파트</h2>
   <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin:1rem 0;">
-    <a href="usage-01-project-setup.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-01-project-setup.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 01</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">연구 프로젝트 세팅</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">폴더 구조, Claude Code 시작, CLAUDE.md 작성</div>
     </a>
-    <a href="usage-02-shortcuts.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-02-shortcuts.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 02</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">단축키 및 기본 조작</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">핵심 단축키, 슬래시 명령어, 작업 흐름</div>
     </a>
-    <a href="usage-03-literature.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-03-literature.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 03</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">선행연구 검색</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">Google Scholar·RISS·DBpia, APA 인용, 팩트체크</div>
     </a>
-    <a href="usage-04a-literature-analysis.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-04a-literature-analysis.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 04a</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">연구방법: 문헌분석</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">논문 요약·분류·종합, 연구 공백, 문헌고찰 작성</div>
     </a>
-    <a href="usage-04b-quantitative_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-04b-quantitative_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 04b</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">연구방법: 양적분석</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">R·SPSS 코드, CFA·LPA·HLM, APA 표 작성</div>
     </a>
-    <a href="usage-04c-qualitative_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-04c-qualitative_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 04c</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">연구방법: 질적분석</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">전사 정제, 코딩, 주제 도출, 결과 서술</div>
     </a>
-    <a href="usage-05-model-effort.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-05-model-effort.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 05</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">모델 선택과 사고 깊이</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">/model · /effort · opusplan · ultrathink 완전 가이드</div>
     </a>
-    <a href="usage-06-ingredients.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-06-ingredients.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 06</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">Claude가 만들 수 있는 것들</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">입력 재료 · 출력 파일 6종 · 작업 방식 · 나만의 조합 설계</div>
     </a>
-    <a href="usage-07-writing-setup.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-07-writing-setup.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 07</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">논문작성 세팅</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">문체 지정, Skill 설치, 출력 형식, CLAUDE.md 설정</div>
       <div style="margin-top:0.4rem;"><span style="background:#1e3d7a;color:#fff;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;">📦 73종 연구 스킬 포함!</span></div>
     </a>
-    <a href="usage-08-paper-writing_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/usage-08-paper-writing_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">활용 08</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">논문작성 실전</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">서론~참고문헌 장별 작성 전략과 프롬프트</div>
@@ -613,32 +612,32 @@
   <!-- ===== 고급 파트 ===== -->
   <h2>고급 파트</h2>
   <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin:1rem 0;">
-    <a href="advanced-01-git.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-01-git.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 01</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">Git 기초</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">버전 관리, 커밋, 브랜치, 연구 이력 보존</div>
     </a>
-    <a href="advanced-02-worktree.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-02-worktree.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 02</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">Worktree 병렬 작업</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">여러 분석을 동시에, 실험적 작업 분리</div>
     </a>
-    <a href="advanced-03-custom-skill_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-03-custom-skill_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 03</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">커스텀 Skill 제작</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">반복 프롬프트 자동화, APA·질적코딩 Skill</div>
     </a>
-    <a href="advanced-04-mcp_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-04-mcp_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 04</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">MCP 고급 설정</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">Filesystem·Brave Search·SQLite 연동</div>
     </a>
-    <a href="advanced-05-automation_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-05-automation_v2.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 05</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">Hooks &amp; 자동화</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">자동 Git 커밋, 완료 알림, 작업 로그</div>
     </a>
-    <a href="advanced-06-api.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/advanced-06-api.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 06</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">Claude API 시작하기</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">API 키 발급, Python SDK, 논문 배치 자동 분류</div>
@@ -651,64 +650,64 @@
   <h2>따라하기 파트</h2>
   <p>실제 연구 시나리오를 단계별로 따라가며 Claude 활용법을 익힙니다. 입문·활용·고급 내용을 일부 이해한 분께 적합합니다.</p>
   <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin:1rem 0;">
-    <a href="walkthrough-01-survey.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-01-survey.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-intro); letter-spacing:0.05em; margin-bottom:0.3rem;">초급 01 · 30분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">설문지 만들기</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">연구 변수 → Likert 문항 → 내용타당도 검토</div>
     </a>
-    <a href="walkthrough-02-abstract.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-02-abstract.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-intro); letter-spacing:0.05em; margin-bottom:0.3rem;">초급 02 · 20분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">영문 초록 번역·교정</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">한국어 초록 → 저널 스타일 영문 초록</div>
     </a>
-    <a href="walkthrough-03-interview.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-03-interview.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-intro); letter-spacing:0.05em; margin-bottom:0.3rem;">초급 03 · 40분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">인터뷰 전사 → 질적 코딩</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">전사본 정제 → 개방코딩 → 주제 범주화</div>
     </a>
-    <a href="walkthrough-04-proposal.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-04-proposal.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-intro); letter-spacing:0.05em; margin-bottom:0.3rem;">초급 04 · 60분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">연구계획서 하루 만에</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">아이디어 → 연구 질문 → 6절 계획서 초안</div>
     </a>
-    <a href="walkthrough-05-literature-codebook.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-05-literature-codebook.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">중급 05 · 50분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">선행연구 코드북 만들기</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">문헌 수집 → 정보 추출 기준 → CSV 코드북</div>
     </a>
-    <a href="walkthrough-06-panel-data.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-06-panel-data.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">중급 06 · 60분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">패널데이터 분석</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">종단 데이터 구조화 → LGM/GMM → R 코드</div>
     </a>
-    <a href="walkthrough-07-review-response.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-07-review-response.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">중급 07 · 45분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">논문 심사 대응 전략</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">심사 의견 분류 → 반박/수용 전략 → 답변서</div>
     </a>
-    <a href="walkthrough-08-meta-analysis.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-08-meta-analysis.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-mid); letter-spacing:0.05em; margin-bottom:0.3rem;">중급 08 · 50분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">문헌 메타분석 코딩</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">PRISMA 선별 → 효과크기 추출 → 코딩 시트</div>
     </a>
-    <a href="walkthrough-09-r-debugging.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-09-r-debugging.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 09 · 30분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">R 분석 코드 디버깅</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">오류 메시지 → 원인 진단 → 수정 코드</div>
     </a>
-    <a href="walkthrough-10-hlm.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-10-hlm.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 10 · 90분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">다층모형(HLM) 분석</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">ICC → 단계적 모형 구축 → 교차효과 → 논문 작성</div>
     </a>
-    <a href="walkthrough-11-api-batch.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
+    <a href="pages/walkthrough-11-api-batch.html" class="card-link" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; text-decoration:none; color:var(--text); display:block;">
       <div style="font-size:0.7rem; font-weight:700; color:var(--b-adv); letter-spacing:0.05em; margin-bottom:0.3rem;">고급 11 · 45분</div>
       <div style="font-weight:700; font-size:0.92rem; color:var(--primary); margin-bottom:0.25rem;">논문 50편 자동 분류</div>
       <div style="font-size:0.8rem; color:var(--text-muted);">API + Python으로 CSV 논문 목록 자동 주제 분류</div>
     </a>
   </div>
   <div style="text-align:right; margin-top:0.5rem;">
-    <a href="walkthrough-index.html" class="card-link" style="font-size:0.85rem; color:var(--primary-light); font-weight:600; text-decoration:none;">따라하기 전체 목록 →</a>
+    <a href="pages/walkthrough-index.html" class="card-link" style="font-size:0.85rem; color:var(--primary-light); font-weight:600; text-decoration:none;">따라하기 전체 목록 →</a>
   </div>
 
   <hr class="divider">
@@ -753,7 +752,7 @@
 
   <div class="callout callout-warn">
     <div class="callout-title">⚠️ 주의</div>
-    <p>이 가이드는 Claude Code를 중심으로 작성되었습니다. 일부 기능(Skill, MCP 등)은 유료 플랜에서만 사용 가능합니다. 요금제 비교는 <a href="intro-02-plans-platforms.html">입문 02</a>를 참고하세요.</p>
+    <p>이 가이드는 Claude Code를 중심으로 작성되었습니다. 일부 기능(Skill, MCP 등)은 유료 플랜에서만 사용 가능합니다. 요금제 비교는 <a href="pages/intro-02-plans-platforms.html">입문 02</a>를 참고하세요.</p>
   </div>
 
 </main>

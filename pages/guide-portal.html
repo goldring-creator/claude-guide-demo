@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] Claude 연구 활용 가이드 — 전체 목차</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:            #f8f6f1;
+      --surface:       #ffffff;
+      --surface-2:     #f1ece3;
+      --border:        #ddd8cf;
+      --text:          #1c1b28;
+      --text-muted:    #6b6578;
+      --primary:       #1e3d7a;
+      --primary-light: #2a56ad;
+      --primary-pale:  #e5eaf6;
+      --accent:        #c0891f;
+      --accent-pale:   #fdf2de;
+      --b-intro:       #27ae60;
+      --b-mid:         #2980b9;
+      --b-adv:         #8e44ad;
+      --font-serif: 'Noto Serif KR', Georgia, serif;
+      --font-sans:  'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --max-w: 900px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; }
+
+    /* ── Header ── */
+    .portal-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+    }
+    .portal-header h1 {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+    .portal-header p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .portal-header .index-link {
+      display: inline-block;
+      margin-top: 1.2rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .portal-header .index-link:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Main layout ── */
+    main { max-width: var(--max-w); margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+    /* ── Part headings ── */
+    .part-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 2.5rem 0 1rem;
+    }
+    .part-label:first-child { margin-top: 0; }
+    .part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.25em 0.75em;
+      border-radius: 20px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .part-badge.intro { background: var(--b-intro); }
+    .part-badge.usage { background: var(--b-mid); }
+    .part-badge.adv   { background: var(--b-adv); }
+    .part-title {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .part-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Card grid ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.3rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .card:hover {
+      box-shadow: 0 4px 18px rgba(30,61,122,0.12);
+      transform: translateY(-2px);
+      border-color: var(--primary-light);
+    }
+    .card.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .card-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .card-num.intro { color: var(--b-intro); }
+    .card-num.usage { color: var(--b-mid); }
+    .card-num.adv   { color: var(--b-adv); }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-top: 0.1rem;
+    }
+
+    .card-arrow {
+      margin-top: auto;
+      padding-top: 0.6rem;
+      font-size: 0.78rem;
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+    .card.disabled .card-arrow { color: var(--text-muted); }
+
+    /* ── Upcoming badge ── */
+    .card-soon {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 20px;
+      padding: 0.15em 0.6em;
+    }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    /* ── Footer ── */
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    @media (max-width: 580px) {
+      .portal-header h1 { font-size: 1.6rem; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      main { padding: 2rem 1.25rem 4rem; }
+    }
+    @media (max-width: 400px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .portal-header { background: var(--primary); -webkit-print-color-adjust: exact; }
+      main { padding: 1cm 1.5cm; max-width: none; }
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<header class="portal-header">
+  <h1>Claude 연구 활용 가이드</h1>
+  <p>교육학 및 사회과학 연구자를 위한 Claude Code 실전 참고서</p>
+  <a href="../index.html" class="index-link">학습 로드맵 보기 →</a>
+</header>
+
+<main>
+
+  <!-- ===== 입문 파트 ===== -->
+  <div class="part-label">
+    <span class="part-badge intro">입문</span>
+    <span class="part-title">Claude를 처음 접하는 연구자를 위한 기초</span>
+    <span class="part-line"></span>
+  </div>
+
+  <div class="card-grid">
+    <a href="intro-01-what-is-claude.html" class="card">
+      <span class="card-num intro">입문 01</span>
+      <span class="card-title">Claude란 무엇인가</span>
+      <span class="card-desc">챗봇과의 차이, 연구 활용 사례, 환각 한계, 학술 윤리</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="intro-02-plans-platforms.html" class="card">
+      <span class="card-num intro">입문 02</span>
+      <span class="card-title">요금제 및 플랫폼 비교</span>
+      <span class="card-desc">Free/Pro/Max 차이, claude.ai · Code · API · Coworker 비교</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="intro-03-installation.html" class="card">
+      <span class="card-num intro">입문 03</span>
+      <span class="card-title">설치 및 첫 실행</span>
+      <span class="card-desc">Mac · Windows 탭 분할 설치 가이드, 트러블슈팅</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="intro-04-concepts.html" class="card">
+      <span class="card-num intro">입문 04</span>
+      <span class="card-title">핵심 개념 용어집</span>
+      <span class="card-desc">Context · 세션 · CLAUDE.md · Skill · MCP · API 카드</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 활용 파트 ===== -->
+  <div class="part-label">
+    <span class="part-badge usage">활용</span>
+    <span class="part-title">연구 단계별 Claude 실전 활용법</span>
+    <span class="part-line"></span>
+  </div>
+
+  <div class="card-grid">
+    <a href="usage-01-project-setup.html" class="card">
+      <span class="card-num usage">활용 01</span>
+      <span class="card-title">프로젝트 세팅</span>
+      <span class="card-desc">터미널 시작, 폴더 구조, CLAUDE.md 작성, 세션 루틴</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-02-shortcuts.html" class="card">
+      <span class="card-num usage">활용 02</span>
+      <span class="card-title">단축키 및 기본 조작</span>
+      <span class="card-desc">Enter · Ctrl+C · Shift+Tab, 슬래시 명령어, 컨텍스트 관리</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-03-literature.html" class="card">
+      <span class="card-num usage">활용 03</span>
+      <span class="card-title">선행연구 검색</span>
+      <span class="card-desc">Google Scholar · RISS · DBpia, APA 인용, 팩트체크</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-04a-literature-analysis.html" class="card">
+      <span class="card-num usage">활용 04A</span>
+      <span class="card-title">연구방법: 문헌분석</span>
+      <span class="card-desc">체계적 문헌 분석, 코딩 프레임, 내용 요약 자동화</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-04b-quantitative_v2.html" class="card">
+      <span class="card-num usage">활용 04B</span>
+      <span class="card-title">연구방법: 양적 분석</span>
+      <span class="card-desc">R · SPSS · Python 연동, CFA · HLM · LPA 코드 생성</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-04c-qualitative_v2.html" class="card">
+      <span class="card-num usage">활용 04C</span>
+      <span class="card-title">연구방법: 질적 분석</span>
+      <span class="card-desc">주제 분석(Braun &amp; Clarke), 인터뷰 코딩, 범주화</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-06-ingredients.html" class="card">
+      <span class="card-num usage">활용 06</span>
+      <span class="card-title">Claude가 만들 수 있는 것들</span>
+      <span class="card-desc">입력 재료 · 출력 파일 6종 · 작업 방식 · 나만의 조합 설계</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-07-writing-setup.html" class="card">
+      <span class="card-num usage">활용 07</span>
+      <span class="card-title">논문 작성 세팅</span>
+      <span class="card-desc">문체 설정, Skill 설치, 출력 형식 지정, CLAUDE.md 확장</span>
+      <span style="display:inline-block;margin-top:0.5rem;background:#1e3d7a;color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">📦 73종 연구 스킬 포함!</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="usage-08-paper-writing_v2.html" class="card">
+      <span class="card-num usage">활용 08</span>
+      <span class="card-title">논문 작성 실전</span>
+      <span class="card-desc">서론~결론 장별 프롬프트, 인용 삽입, 수정 루프</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 고급 파트 ===== -->
+  <div class="part-label">
+    <span class="part-badge adv">고급</span>
+    <span class="part-title">워크플로우 자동화 및 고급 설정 (완료)</span>
+    <span class="part-line"></span>
+  </div>
+
+  <div class="card-grid">
+    <a href="advanced-01-git.html" class="card">
+      <span class="card-num adv">고급 01</span>
+      <span class="card-title">Git 기초 (연구자용)</span>
+      <span class="card-desc">버전 관리 최소 설정, 커밋·로그·복구, Claude 연동</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="advanced-02-worktree.html" class="card">
+      <span class="card-num adv">고급 02</span>
+      <span class="card-title">Worktree 병렬 작업</span>
+      <span class="card-desc">메인/브랜치 분리로 동시 작업, 실험적 초안 관리</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="advanced-03-custom-skill_v2.html" class="card">
+      <span class="card-num adv">고급 03</span>
+      <span class="card-title">커스텀 Skill 제작</span>
+      <span class="card-desc">반복 프롬프트를 Skill로 저장, APA·초록·코딩 예제</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="advanced-04-mcp_v2.html" class="card">
+      <span class="card-num adv">고급 04</span>
+      <span class="card-title">MCP 고급 설정</span>
+      <span class="card-desc">외부 도구 연결, Filesystem·Brave Search·SQLite 설정</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="advanced-05-automation_v2.html" class="card">
+      <span class="card-num adv">고급 05</span>
+      <span class="card-title">Hooks &amp; 자동화</span>
+      <span class="card-desc">PreToolUse·PostToolUse, 자동 Git 커밋, 완료 알림</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+    <a href="advanced-06-api.html" class="card">
+      <span class="card-num adv">고급 06</span>
+      <span class="card-title">Claude API 시작하기</span>
+      <span class="card-desc">API 키 발급, Python SDK, 논문 배치 자동 분류</span>
+      <span class="card-arrow">읽기 →</span>
+    </a>
+  </div>
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 전체 목차 포털</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+</body>
+</html>

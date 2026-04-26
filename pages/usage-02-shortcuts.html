@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 단축키 및 기본 조작 — Claude 연구 활용 가이드 활용 02</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:            #f8f6f1;
+      --surface:       #ffffff;
+      --surface-2:     #f1ece3;
+      --border:        #ddd8cf;
+      --text:          #1c1b28;
+      --text-muted:    #6b6578;
+      --primary:       #1e3d7a;
+      --primary-light: #2a56ad;
+      --primary-pale:  #e5eaf6;
+      --accent:        #c0891f;
+      --accent-pale:   #fdf2de;
+      --c-prompt-bg: #e8f0fb; --c-prompt: #1d4fad; --c-prompt-bd: #3b6fd4;
+      --c-result-bg: #e6f5ec; --c-result: #176338; --c-result-bd: #27ae60;
+      --c-tip-bg:    #fef9e6; --c-tip:    #8a5f00; --c-tip-bd:    #d4a017;
+      --c-warn-bg:   #fdecea; --c-warn:   #b01c1c; --c-warn-bd:   #e53935;
+      --b-intro: #27ae60; --b-mid: #2980b9; --b-adv: #8e44ad;
+      --font-serif: 'Noto Serif KR', Georgia, serif;
+      --font-sans:  'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+      --max-w: 860px; --nav-h: 60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.85; padding-top: var(--nav-h); }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); background: var(--primary); display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+    .nav-logo { font-family: var(--font-serif); color: #fff; font-size: 0.95rem; font-weight: 700; text-decoration: none; margin-right: auto; white-space: nowrap; }
+    .nav-links { display: flex; gap: 0.15rem; }
+    .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 5px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .nav-links a:hover  { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.active { background: rgba(255,255,255,0.2);  color: #fff; }
+    .nav-links a.dim    { color: rgba(255,255,255,0.35); cursor: default; pointer-events: none; }
+
+    main { max-width: var(--max-w); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .breadcrumb a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.35rem; }
+
+    .sub-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2.5rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .sub-nav a { font-size: 0.78rem; text-decoration: none; padding: 0.3rem 0.7rem; border-radius: 4px; color: var(--primary-light); transition: all 0.15s; }
+    .sub-nav a:hover  { background: var(--primary-pale); }
+    .sub-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+
+    h1 { font-family: var(--font-serif); font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.25; margin-bottom: 0.4rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; }
+    h2 { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: var(--primary); margin: 3rem 0 1.1rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 1.75rem 0 0.7rem; }
+    p  { margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a  { color: var(--primary-light); }
+    strong { color: var(--text); }
+
+    kbd { display: inline-flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); border-bottom: 3px solid #bbb; border-radius: 5px; padding: 0.12em 0.5em; font-family: var(--font-mono); font-size: 0.82em; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.1); white-space: nowrap; }
+
+    .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.18em 0.6em; border-radius: 3px; color: #fff; letter-spacing: 0.05em; vertical-align: middle; }
+    .badge-intro { background: var(--b-intro); } .badge-mid { background: var(--b-mid); } .badge-adv { background: var(--b-adv); }
+
+    .callout { padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0; border-left: 4px solid; }
+    .callout-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .callout-prompt { background: var(--c-prompt-bg); border-color: var(--c-prompt-bd); color: var(--c-prompt); }
+    .callout-result { background: var(--c-result-bg); border-color: var(--c-result-bd); color: var(--c-result); }
+    .callout-tip    { background: var(--c-tip-bg);    border-color: var(--c-tip-bd);    color: var(--c-tip);    }
+    .callout-warn   { background: var(--c-warn-bg);   border-color: var(--c-warn-bd);   color: var(--c-warn);   }
+    .callout p { color: var(--text); margin-bottom: 0.5rem; } .callout p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1.25rem 0; background: var(--surface); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    th { background: var(--primary); color: #fff; padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: var(--surface-2); }
+    tr:last-child td { border-bottom: none; }
+
+    code { font-family: var(--font-mono); font-size: 0.84em; background: var(--surface-2); padding: 0.15em 0.4em; border-radius: 3px; border: 1px solid var(--border); }
+    pre { background: #1b2035; color: #cdd6f4; padding: 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.6; position: relative; }
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: rgba(255,255,255,0.65); cursor: pointer; font-size: 0.78rem; padding: 0.2em 0.55em; transition: all 0.15s; font-family: var(--font-sans); line-height: 1.4; }
+    .copy-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .copy-btn.copied { background: rgba(39,174,96,0.35); color: #a6e3a1; border-color: rgba(39,174,96,0.4); }
+
+    .page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+    .page-nav a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; text-decoration: none; color: var(--primary); font-size: 0.875rem; font-weight: 600; transition: all 0.15s; }
+    .page-nav a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .page-nav .next { margin-left: auto; }
+
+    /* SHORTCUT CARDS */
+    .shortcut-grid { display: grid; gap: 0.6rem; margin: 1.25rem 0; }
+    .shortcut-row { display: grid; grid-template-columns: 220px 1fr; gap: 1rem; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; }
+    .shortcut-row.highlight { border-color: var(--primary); border-left: 4px solid var(--primary); background: var(--primary-pale); }
+    .shortcut-key { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .shortcut-desc strong { font-size: 0.9rem; display: block; margin-bottom: 0.2rem; color: var(--primary); }
+    .shortcut-desc p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+    .shortcut-fn { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; }
+    .shortcut-fn sup { cursor: help; color: var(--primary-light); font-weight: 700; }
+
+    /* FOOTNOTE TOOLTIP */
+    .fn-tooltip {
+      position: fixed; z-index: 9999; pointer-events: none;
+      background: #1b2035; color: #cdd6f4;
+      padding: 0.85rem 1.1rem; border-radius: 8px;
+      font-size: 0.82rem; line-height: 1.7; max-width: 340px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: none; opacity: 0; transition: opacity 0.12s;
+    }
+    .fn-tooltip.visible { display: block; opacity: 1; }
+    .fn-tooltip kbd { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); border-bottom-color: rgba(255,255,255,0.4); color: #fff; }
+    .fn-tooltip code { background: rgba(255,255,255,0.12); border: none; color: #a6e3a1; padding: 0.1em 0.35em; border-radius: 3px; }
+    .fn-tooltip strong { color: #fff; }
+
+    /* COMMAND CARDS */
+    .cmd-grid { display: grid; gap: 0.6rem; margin: 1.25rem 0; }
+    .cmd-row { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+    .cmd-tag { font-family: var(--font-mono); font-size: 0.83rem; background: var(--primary); color: #fff; padding: 0.25em 0.6em; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+    .cmd-info strong { font-size: 0.88rem; display: block; margin-bottom: 0.2rem; color: var(--primary); }
+    .cmd-info p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+    .cmd-info .example { font-family: var(--font-mono); font-size: 0.8rem; color: var(--c-prompt); margin-top: 0.3rem; }
+
+    /* FOOTNOTES */
+    .footnotes { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .footnotes h3 { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .footnote-item { display: flex; gap: 0.75rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.5; }
+    .footnote-num { font-weight: 700; color: var(--primary-light); flex-shrink: 0; }
+
+    /* CHEATSHEET */
+    .cheatsheet { background: var(--primary); color: #fff; border-radius: 10px; padding: 1.5rem; margin: 1.25rem 0; }
+    .cheatsheet h3 { font-family: var(--font-serif); color: #fff; margin-bottom: 1rem; font-size: 1rem; }
+    .cheatsheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .cheat-item { display: flex; gap: 0.5rem; align-items: baseline; font-size: 0.82rem; }
+    .cheat-item kbd { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); border-bottom-color: rgba(255,255,255,0.5); color: #fff; font-size: 0.75em; }
+    .cheat-item span { color: rgba(255,255,255,0.85); }
+
+    /* FLOW DIAGRAM */
+    .flow-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin: 1.25rem 0; }
+    .flow-step { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+    .flow-step:last-child { margin-bottom: 0; }
+    .flow-arrow { color: var(--text-muted); font-size: 1.1rem; }
+    .flow-label { background: var(--primary-pale); color: var(--primary); font-size: 0.82rem; font-weight: 600; padding: 0.3em 0.8em; border-radius: 5px; white-space: nowrap; }
+    .flow-desc { font-size: 0.83rem; color: var(--text-muted); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    @media print {
+      .site-nav, .page-nav { display: none; }
+      body { padding-top: 0; background: #fff; }
+      main { padding: 1cm 1.5cm; max-width: none; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: auto; }
+      .callout, table, .shortcut-grid, .cheatsheet { page-break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      h1 { font-size: 1.7rem; }
+      .shortcut-row { grid-template-columns: 1fr; }
+      .cheatsheet-grid { grid-template-columns: 1fr; }
+      main { padding: 2rem 1.25rem 4rem; }
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="../index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="../index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html" class="active">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+  <div class="breadcrumb">
+    <a href="../index.html">홈</a><span>›</span>
+    <a href="usage-01-project-setup.html">활용</a><span>›</span>
+    단축키 및 기본 조작
+  </div>
+
+  <div class="sub-nav">
+    <a href="usage-01-project-setup.html">01. 프로젝트 세팅</a>
+    <a href="usage-02-shortcuts.html" class="active">02. 단축키</a>
+    <a href="usage-03-literature.html">03. 선행연구 검색</a>
+    <a href="usage-04a-literature-analysis.html">04a. 문헌분석</a>
+    <a href="usage-04b-quantitative_v2.html">04b. 양적분석</a>
+    <a href="usage-04c-qualitative_v2.html">04c. 질적분석</a>
+    <a href="usage-05-model-effort.html">05. 모델 선택</a>
+    <a href="usage-06-ingredients.html">06. Claude 산출물</a>
+    <a href="usage-07-writing-setup.html">07. 논문작성 세팅</a>
+    <a href="usage-08-paper-writing_v2.html">08. 논문작성 실전</a>
+  </div>
+
+  <h1>단축키 및 기본 조작</h1>
+  <p class="page-subtitle"><span class="badge badge-mid">활용 02</span> &nbsp;Claude Code 터미널 조작에 필요한 핵심 단축키와 슬래시 명령어</p>
+
+  <p>Claude Code는 터미널에서 실행되므로 마우스 대신 키보드로 대부분을 조작합니다. 자주 쓰는 단축키 10여 개와 슬래시 명령어를 익혀두면 작업 속도가 크게 달라집니다.</p>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 읽는 방법</div>
+    <p>이 페이지의 단축키는 운영체제별로 표기합니다. <kbd>Cmd</kbd>는 Mac의 ⌘ 키이고, <kbd>Ctrl</kbd>은 Windows/Linux의 Control 키입니다. 각주<sup>*</sup>는 페이지 하단 주석을 참고하세요.</p>
+  </div>
+
+  <!-- ===== 1. 입력 중 단축키 ===== -->
+  <h2>1. 프롬프트 입력 중 단축키</h2>
+  <p>Claude에게 메시지를 작성하는 도중에 사용하는 단축키입니다.</p>
+
+  <div class="shortcut-grid">
+    <div class="shortcut-row highlight">
+      <div class="shortcut-key">
+        <kbd>Enter</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>메시지 전송</strong>
+        <p>작성한 프롬프트를 Claude에게 보냅니다. 기본 전송 키입니다.</p>
+      </div>
+    </div>
+
+    <div class="shortcut-row highlight">
+      <div class="shortcut-key">
+        <kbd>Shift</kbd> + <kbd>Enter</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>줄바꿈 (전송 없이)</strong>
+        <p>프롬프트 안에서 줄바꿈을 합니다. 긴 프롬프트를 여러 줄로 정리할 때 사용합니다. <span class="shortcut-fn"><sup data-fn="fn-1">①</sup></span></p>
+      </div>
+    </div>
+
+    <div class="shortcut-row">
+      <div class="shortcut-key">
+        <kbd>↑</kbd> / <kbd>↓</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>이전/다음 프롬프트 이동</strong>
+        <p>이전에 입력한 프롬프트 내역을 불러옵니다. 비슷한 작업을 반복할 때 편리합니다.</p>
+      </div>
+    </div>
+
+    <div class="shortcut-row">
+      <div class="shortcut-key">
+        <kbd>Esc</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>입력 취소 / 모드 나가기</strong>
+        <p>작성 중이던 내용을 지웁니다. Claude가 작업 중일 때 누르면 현재 작업을 중단할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. Claude 응답 중 단축키 ===== -->
+  <h2>2. Claude가 응답·작업 중일 때 단축키</h2>
+  <p>Claude가 파일을 수정하거나 긴 답변을 생성하는 도중에 사용합니다.</p>
+
+  <div class="shortcut-grid">
+    <div class="shortcut-row highlight">
+      <div class="shortcut-key">
+        <kbd>Ctrl</kbd> + <kbd>C</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>작업 즉시 중단</strong>
+        <p>Claude가 현재 수행 중인 작업을 즉시 멈춥니다. 잘못된 방향으로 가고 있을 때 사용하세요. <span class="shortcut-fn"><sup data-fn="fn-2">②</sup></span></p>
+      </div>
+    </div>
+
+    <div class="shortcut-row highlight">
+      <div class="shortcut-key">
+        <kbd>Shift</kbd> + <kbd>Tab</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>모드 순환 전환 <span class="shortcut-fn"><sup data-fn="fn-3">③</sup></span></strong>
+        <p>누를 때마다 아래 세 가지 모드를 순서대로 전환합니다. 현재 모드는 프롬프트 입력창 왼쪽에 표시됩니다.</p>
+        <table style="margin:0.6rem 0 0; font-size:0.8rem; border-radius:6px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <thead>
+            <tr>
+              <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">표시</th>
+              <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">모드 이름</th>
+              <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">동작</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);"><em>(빈칸)</em></td>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">일반 모드 <strong>(기본)</strong></td>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">파일 수정마다 직접 수락/거절</td>
+            </tr>
+            <tr>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);"><code style="font-size:0.75rem;">accept edits on</code></td>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">자동 수락 모드</td>
+              <td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">수정 제안을 확인 없이 자동 적용 ⚠️</td>
+            </tr>
+            <tr>
+              <td style="padding:0.4rem 0.7rem;"><code style="font-size:0.75rem;">plan mode on</code></td>
+              <td style="padding:0.4rem 0.7rem;">계획 모드</td>
+              <td style="padding:0.4rem 0.7rem;">파일을 실제로 건드리지 않고 계획만 설명</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="shortcut-row">
+      <div class="shortcut-key">
+        <kbd>Tab</kbd>
+      </div>
+      <div class="shortcut-desc">
+        <strong>제안 수락</strong>
+        <p>Claude가 파일 수정 내용을 보여줄 때 "수락"을 선택합니다. 하나씩 확인하며 진행할 때 사용합니다. <kbd>Enter</kbd>도 동일하게 수락으로 작동합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 Shift+Tab 계획 모드 × /model opusplan 연계</div>
+    <p><kbd>Shift</kbd>+<kbd>Tab</kbd>으로 <code>plan mode on</code>을 켠 상태에서 <code>/model opusplan</code>을 설정하면, 계획 단계는 Opus(더 깊은 추론)가, 실행 단계는 Sonnet(빠르고 효율적)이 자동으로 담당합니다. 복잡한 분석 설계나 다단계 논문 작업에서 품질과 비용을 동시에 잡는 조합입니다. 자세한 내용은 <a href="usage-05-model-effort.html">활용 05 — 모델 선택과 사고 깊이</a>를 참고하세요.</p>
+  </div>
+
+  <!-- ===== 3. 슬래시 명령어 ===== -->
+  
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>3. 슬래시 명령어 (/) — 도구 모음</h2>
+
+  <p>프롬프트 창에 <code>/</code>로 시작하는 명령어를 입력하면 Claude Code의 내장 기능을 실행할 수 있습니다. 대화 내용을 다루거나 설정을 변경할 때 사용합니다.</p>
+
+  <h3>자주 쓰는 슬래시 명령어</h3>
+
+  <div class="cmd-grid">
+    <div class="cmd-row">
+      <div class="cmd-tag">/help</div>
+      <div class="cmd-info">
+        <strong>명령어 목록 보기</strong>
+        <p>사용 가능한 모든 슬래시 명령어 목록을 표시합니다. 처음 사용할 때 먼저 실행해보세요.</p>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/clear</div>
+      <div class="cmd-info">
+        <strong>대화 내역 초기화</strong>
+        <p>현재 세션의 대화 내역을 전부 지웁니다. 새로운 주제로 전환할 때 사용하면 Claude의 컨텍스트가 새로 시작됩니다. <span class="shortcut-fn"><sup data-fn="fn-4">④</sup></span></p>
+        <div class="example">/clear</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/compact</div>
+      <div class="cmd-info">
+        <strong>컨텍스트 압축</strong>
+        <p>대화가 길어져 컨텍스트 창이 가득 찰 때, 이전 내용을 요약해서 공간을 확보합니다. 작업의 흐름은 유지됩니다. <span class="shortcut-fn"><sup data-fn="fn-5">⑤</sup></span></p>
+        <div class="example">/compact</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/cost</div>
+      <div class="cmd-info">
+        <strong>누적 비용 확인</strong>
+        <p>이번 세션에서 사용한 토큰 수와 예상 비용($)을 표시합니다. "얼마나 썼나?"를 확인하는 명령어입니다.</p>
+        <div class="example">/cost</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/context</div>
+      <div class="cmd-info">
+        <strong>컨텍스트 창 사용률 확인</strong>
+        <p>현재 컨텍스트 창이 얼마나 채워졌는지 퍼센트로 표시합니다. Claude Code는 창이 가득 차면 자동으로 정리하므로 평소에는 신경 쓰지 않아도 됩니다.</p>
+        <div class="example">/context</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/status</div>
+      <div class="cmd-info">
+        <strong>현재 상태 확인</strong>
+        <p>Claude Code 버전, 현재 작업 폴더, 모델 정보 등을 표시합니다.</p>
+        <div class="example">/status</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/memory</div>
+      <div class="cmd-info">
+        <strong>메모리(CLAUDE.md) 편집</strong>
+        <p>CLAUDE.md 파일을 빠르게 열어 편집할 수 있습니다. 프로젝트 맥락을 업데이트할 때 사용합니다.</p>
+        <div class="example">/memory</div>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/model</div>
+      <div class="cmd-info">
+        <strong>AI 모델 변경</strong>
+        <p>사용할 Claude 모델을 별칭(alias)으로 간편하게 지정합니다. 인수 없이 <code>/model</code>만 입력하면 피커가 열립니다. 피커에서 좌우 방향키로 effort 슬라이더도 함께 조정할 수 있습니다.</p>
+        <table style="margin:0.6rem 0 0;font-size:0.8rem;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <thead><tr>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">별칭</th>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">동작</th>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">추천 상황</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);"><code>sonnet</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">최신 Sonnet — 빠르고 균형 잡힘</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">일상적 연구 작업</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);"><code>opus</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">최신 Opus — 가장 강력한 추론</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--surface-2);background:var(--surface-2);">복잡한 분석·설계</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);"><code>haiku</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">빠르고 저렴한 경량 모델</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">단순 요약·번역</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);font-weight:700;color:var(--primary);"><code>opusplan</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">계획=Opus, 실행=Sonnet 자동 전환</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--surface-2);background:var(--surface-2);">복잡한 다단계 작업</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;"><code>opus[1m]</code></td><td style="padding:0.4rem 0.7rem;">Opus + 100만 토큰 컨텍스트</td><td style="padding:0.4rem 0.7rem;">매우 긴 문서 분석</td></tr>
+          </tbody>
+        </table>
+        <div class="example">/model opusplan&nbsp;&nbsp;&nbsp;# 계획=Opus, 실행=Sonnet
+/model sonnet&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Sonnet으로 돌아오기</div>
+        <p style="margin-top:0.5rem;font-size:0.82rem;">→ 더 자세한 설명: <a href="usage-05-model-effort.html">활용 05 — 모델 선택과 사고 깊이</a></p>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/effort</div>
+      <div class="cmd-info">
+        <strong>사고 깊이(Effort) 조절</strong>
+        <p>Claude가 얼마나 깊이 생각할지를 설정합니다. 높을수록 품질이 높아지지만 토큰(비용)이 더 소모됩니다. <code>low</code>·<code>medium</code>·<code>high</code>·<code>xhigh</code>는 세션 간 유지되며, <code>max</code>는 현재 세션에만 적용됩니다.</p>
+        <table style="margin:0.6rem 0 0;font-size:0.8rem;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <thead><tr>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">레벨</th>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">의미</th>
+            <th style="background:var(--primary);color:#fff;padding:0.4rem 0.7rem;font-size:0.75rem;">추천 상황</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);"><code>low</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">빠른 응답, 최소 추론</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">단순 번역·형식 변환</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);"><code>medium</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">균형 잡힌 추론</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">비용 절감이 중요할 때</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);"><code>high</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">기본값(Opus 4.6/Sonnet)</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);">일반 연구 작업</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);font-weight:700;color:var(--primary);"><code>xhigh</code></td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">기본값(Opus 4.7) — 대부분 최적</td><td style="padding:0.4rem 0.7rem;border-bottom:1px solid var(--border);background:var(--surface-2);">복잡한 분석·논문 작성</td></tr>
+            <tr><td style="padding:0.4rem 0.7rem;"><code>max</code></td><td style="padding:0.4rem 0.7rem;">제한 없는 최대 추론 (세션한정)</td><td style="padding:0.4rem 0.7rem;">가장 까다로운 작업</td></tr>
+          </tbody>
+        </table>
+        <div class="example">/effort xhigh&nbsp;&nbsp;&nbsp;# 직접 설정
+/effort&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 슬라이더로 선택
+/effort auto&nbsp;&nbsp;&nbsp;&nbsp;# 모델 기본값으로 리셋</div>
+        <div class="callout callout-tip" style="margin-top:0.75rem;">
+          <div class="callout-title">💡 ultrathink — 일회성 최대 추론</div>
+          <p style="margin:0;">프롬프트에 <strong>ultrathink</strong>를 포함하면 effort 설정을 바꾸지 않고 그 답변에서만 최대로 깊이 생각합니다. 예: <em>"이 연구 방법론의 한계를 ultrathink로 검토해줘"</em></p>
+        </div>
+        <p style="margin-top:0.5rem;font-size:0.82rem;">→ 시나리오별 추천 설정: <a href="usage-05-model-effort.html">활용 05 — 모델 선택과 사고 깊이</a></p>
+      </div>
+    </div>
+
+    <div class="cmd-row">
+      <div class="cmd-tag">/exit</div>
+      <div class="cmd-info">
+        <strong>Claude Code 종료</strong>
+        <p>Claude Code를 종료하고 터미널로 돌아옵니다. <kbd>Ctrl</kbd>+<kbd>D</kbd>로도 종료할 수 있습니다.</p>
+        <div class="example">/exit</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- /cost vs /context 비교 -->
+  <h3>/cost vs /context — 헷갈리는 두 명령어 차이</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th><code>/cost</code></th>
+        <th><code>/context</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>묻는 질문</strong></td>
+        <td>이번 세션에 돈(토큰)을 얼마나 썼나?</td>
+        <td>컨텍스트 창이 얼마나 찼나?</td>
+      </tr>
+      <tr>
+        <td><strong>표시 내용</strong></td>
+        <td>입력·출력 토큰 수, 예상 비용($)</td>
+        <td>컨텍스트 창 사용률 (%)</td>
+      </tr>
+      <tr>
+        <td><strong>비유</strong></td>
+        <td>택시 요금계 (누적 금액)</td>
+        <td>연료 게이지 (현재 잔량)</td>
+      </tr>
+      <tr>
+        <td><strong>언제 확인</strong></td>
+        <td>긴 작업 후 비용 파악할 때</td>
+        <td>대화가 길어져 느려질 것 같을 때</td>
+      </tr>
+      <tr>
+        <td><strong>한계 도달 시</strong></td>
+        <td>Pro 플랜 사용량 초과 위험</td>
+        <td><code>/compact</code> 또는 <code>/clear</code> 권장</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 상태창(Status Bar)에서 실시간 확인</div>
+    <p>Claude Code 화면 하단의 상태창(status bar)에는 현재 세션의 <strong>컨텍스트 사용률 %가 실시간</strong>으로 표시됩니다. 별도 명령어 없이도 항상 볼 수 있습니다.</p>
+    <p>상태창에 표시되는 숫자가 <strong>70% 이상</strong>이 되면 슬슬 <code>/compact</code>를 실행하는 것이 좋습니다. <strong>90% 이상</strong>이 되면 Claude 응답이 느려지거나 맥락을 잃기 시작합니다.</p>
+    <p>상태창이 보이지 않는다면: Claude Code 실행 후 화면 맨 아래 줄을 확인하세요. <code>/status</code> 명령어로도 현재 컨텍스트 상태를 확인할 수 있습니다.</p>
+  </div>
+
+  <!-- ===== 4. 파일 참조 방법 ===== -->
+  <h2>4. 파일·폴더 참조하기</h2>
+
+  <p>Claude에게 특정 파일이나 폴더를 작업하도록 지시할 때는 아래 방법을 사용합니다.</p>
+
+  <h3>방법 A — @ 기호로 파일 지정</h3>
+  <p>프롬프트 안에서 <code>@</code>를 입력하면 파일 자동완성이 나타납니다.</p>
+
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 프롬프트 예시</div>
+    <p>@04_writing/draft_intro.md 를 읽고 서론의 연구 목적 단락이 APA 7판 형식에 맞는지 확인해줘.</p>
+  </div>
+
+  <h3>방법 B — 파일 경로 직접 입력</h3>
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 프롬프트 예시</div>
+    <p>03_analysis/cfa_results.csv 파일의 요인부하량 값들을 보고 APA 형식 표로 만들어줘. 표를 04_writing/table2_cfa.md로 저장해줘.</p>
+  </div>
+
+  <h3>방법 C — 여러 파일 동시에</h3>
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 프롬프트 예시</div>
+    <p>01_literature 폴더의 PDF들을 모두 확인하고, 각 논문의 제목·저자·연도·핵심 주장을 정리해서 references.md 파일로 만들어줘.</p>
+  </div>
+
+  <!-- ===== 5. 작업 흐름 ===== -->
+  <h2>5. 일반적인 작업 흐름</h2>
+
+  <p>Claude와 함께 작업할 때의 전형적인 흐름입니다. 파일 수정 제안이 나타나면 반드시 내용을 확인한 후 수락하세요.</p>
+
+  <div class="flow-box">
+    <div class="flow-step">
+      <div class="flow-label">① 프롬프트 작성</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-desc">작업 내용을 구체적으로 입력합니다</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-label">② Enter 전송</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-desc">Claude가 파일을 읽고 분석을 시작합니다</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-label">③ 작업 확인</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-desc">Claude가 수정 내용을 보여줍니다 (diff 형식)</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-label">④ Tab으로 수락</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-desc">내용이 마음에 들면 Tab 키로 수락합니다</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-label">⑤ 추가 지시</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-desc">수정이 필요하면 보완 지시를 입력합니다</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 수락 전에 반드시 확인</div>
+    <p>Claude가 제안한 파일 수정 내용은 반드시 읽어보고 수락하세요. 특히 데이터 파일이나 분석 코드는 의도치 않은 변경이 생길 수 있습니다. CLAUDE.md에 "수정 금지" 파일을 명시해두는 것이 안전합니다.</p>
+  </div>
+
+  <!-- ===== 6. 빠른 참조 치트시트 ===== -->
+  <h2>6. 빠른 참조 — 단축키 치트시트</h2>
+
+  <div class="cheatsheet">
+    <h3>핵심 단축키 한눈에 보기</h3>
+    <div class="cheatsheet-grid">
+      <div class="cheat-item"><kbd>Enter</kbd><span>메시지 전송</span></div>
+      <div class="cheat-item"><kbd>Shift</kbd>+<kbd>Enter</kbd><span>줄바꿈</span></div>
+      <div class="cheat-item"><kbd>Ctrl</kbd>+<kbd>C</kbd><span>작업 중단</span></div>
+      <div class="cheat-item"><kbd>Shift</kbd>+<kbd>Tab</kbd><span>자동 수락 전환</span></div>
+      <div class="cheat-item"><kbd>Tab</kbd><span>제안 수락</span></div>
+      <div class="cheat-item"><kbd>Esc</kbd><span>입력 취소</span></div>
+      <div class="cheat-item"><kbd>↑</kbd><kbd>↓</kbd><span>이전 명령 탐색</span></div>
+      <div class="cheat-item"><kbd>Ctrl</kbd>+<kbd>D</kbd><span>Claude Code 종료</span></div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>슬래시 명령어</th>
+        <th>기능</th>
+        <th>사용 빈도</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/help</code></td>
+        <td>전체 명령어 목록</td>
+        <td>처음에 한 번</td>
+      </tr>
+      <tr>
+        <td><code>/clear</code></td>
+        <td>대화 초기화</td>
+        <td>주제 전환 시</td>
+      </tr>
+      <tr>
+        <td><code>/compact</code></td>
+        <td>컨텍스트 압축</td>
+        <td>작업이 길어질 때</td>
+      </tr>
+      <tr>
+        <td><code>/cost</code></td>
+        <td>사용량 확인</td>
+        <td>필요 시</td>
+      </tr>
+      <tr>
+        <td><code>/memory</code></td>
+        <td>CLAUDE.md 편집</td>
+        <td>프로젝트 상태 변경 시</td>
+      </tr>
+      <tr>
+        <td><code>/status</code></td>
+        <td>현재 상태 확인</td>
+        <td>필요 시</td>
+      </tr>
+      <tr>
+        <td><code>/exit</code></td>
+        <td>Claude Code 종료</td>
+        <td>작업 완료 후</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 각주 ===== -->
+  <div class="footnotes">
+    <h3>주석</h3>
+    <div class="footnote-item" id="fn-1">
+      <div class="footnote-num">①</div>
+      <div>터미널에 따라 <kbd>Shift</kbd>+<kbd>Enter</kbd> 대신 <kbd>Option</kbd>+<kbd>Enter</kbd>(Mac) 또는 <kbd>Alt</kbd>+<kbd>Enter</kbd>(Windows)가 줄바꿈으로 동작하는 경우가 있습니다. 설정되지 않은 경우 그냥 <kbd>Enter</kbd>를 치면 전송되므로, 긴 프롬프트는 텍스트 에디터(메모장, 메모)에서 먼저 작성한 후 붙여넣는 방법도 있습니다.</div>
+    </div>
+    <div class="footnote-item" id="fn-2">
+      <div class="footnote-num">②</div>
+      <div><kbd>Ctrl</kbd>+<kbd>C</kbd>는 터미널의 표준 인터럽트 신호입니다. Claude가 작업 중일 때 누르면 현재 수행 중인 도구 호출을 중단하고 프롬프트 입력 상태로 돌아옵니다. 파일에 부분적으로 저장이 이루어진 경우 확인이 필요합니다.</div>
+    </div>
+    <div class="footnote-item" id="fn-3">
+      <div class="footnote-num">③</div>
+      <div><kbd>Shift</kbd>+<kbd>Tab</kbd>을 누를 때마다 모드가 순서대로 바뀝니다: <strong>일반 → 자동 수락 → 계획 → 일반 …</strong> 현재 모드는 프롬프트 입력창 왼쪽에 표시됩니다. 아무것도 표시되지 않으면 일반 모드(기본)입니다. <strong>자동 수락(accept edits on) 모드는 파일 수정을 확인 없이 바로 적용</strong>하므로, 중요한 파일을 다룰 때는 주의하세요. <strong>계획(plan mode on) 모드</strong>는 Claude가 실제로 파일을 수정하지 않고 무엇을 할지 설명만 하는 상태입니다. "이렇게 수정해도 될까?"를 먼저 확인하고 싶을 때 유용합니다.</div>
+    </div>
+    <div class="footnote-item" id="fn-4">
+      <div class="footnote-num">④</div>
+      <div><code>/clear</code>는 현재 세션의 대화 내역만 지웁니다. CLAUDE.md 파일은 그대로 남아 있어 다음 메시지부터 다시 읽힙니다. 따라서 프로젝트 맥락은 유지되면서 대화를 새로 시작할 수 있습니다.</div>
+    </div>
+    <div class="footnote-item" id="fn-5">
+      <div class="footnote-num">⑤</div>
+      <div>Claude Code의 컨텍스트 창은 Pro 플랜 기준 약 200,000 토큰입니다. 한 세션에서 긴 논문 초안을 여러 번 주고받다 보면 가득 찰 수 있습니다. <code>/compact</code>를 실행하면 이전 대화를 요약해서 공간을 확보하므로 작업 흐름을 유지하면서 계속할 수 있습니다.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 이 장을 마쳤다면</div>
+    <p>Enter/Ctrl+C/Shift+Tab의 역할을 알고 있으며, <code>/clear</code>와 <code>/compact</code>의 차이를 이해하고 있어야 합니다. 또한 <code>/model opusplan</code>으로 계획과 실행 모델을 분리하는 전략, <code>/effort</code>로 사고 깊이를 조절하는 방법을 익혔습니다. 모델 선택과 effort 설정을 더 깊이 이해하려면 <a href="usage-05-model-effort.html">활용 05 — 모델 선택과 사고 깊이</a>를 읽어보세요.</p>
+  </div>
+
+  
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 활용 02. 단축키 및 기본 조작</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+<script>
+  // ===== 각주 hover 툴팁 =====
+  (function() {
+    var tooltip = document.createElement('div');
+    tooltip.className = 'fn-tooltip';
+    document.body.appendChild(tooltip);
+
+    document.querySelectorAll('sup[data-fn]').forEach(function(sup) {
+      sup.addEventListener('mouseenter', function(e) {
+        var fnItem = document.getElementById(this.dataset.fn);
+        if (!fnItem) return;
+        var content = fnItem.querySelector('div:last-child');
+        if (!content) return;
+        tooltip.innerHTML = content.innerHTML;
+        tooltip.classList.add('visible');
+        positionTooltip(e);
+      });
+      sup.addEventListener('mousemove', positionTooltip);
+      sup.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+      });
+    });
+
+    function positionTooltip(e) {
+      var tw = 340;
+      var x = e.clientX + 14;
+      var y = e.clientY + 18;
+      if (x + tw > window.innerWidth - 12) x = e.clientX - tw - 14;
+      if (y + 200 > window.innerHeight) y = e.clientY - 200;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top  = y + 'px';
+    }
+  })();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre').forEach(function(pre) {
+      pre.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = '복사';
+      btn.title = '클립보드에 복사';
+      btn.addEventListener('click', function() {
+        var code = pre.querySelector('code');
+        var text = (code ? code.innerText : pre.innerText).replace(/복사$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = '✓ 완료';
+          btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  });
+</script>
+</body>
+</html>

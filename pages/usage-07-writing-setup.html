@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 논문작성 세팅 — Claude 연구 활용 가이드 활용 07</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:            #f8f6f1;
+      --surface:       #ffffff;
+      --surface-2:     #f1ece3;
+      --border:        #ddd8cf;
+      --text:          #1c1b28;
+      --text-muted:    #6b6578;
+      --primary:       #1e3d7a;
+      --primary-light: #2a56ad;
+      --primary-pale:  #e5eaf6;
+      --accent:        #c0891f;
+      --accent-pale:   #fdf2de;
+      --c-prompt-bg: #e8f0fb; --c-prompt: #1d4fad; --c-prompt-bd: #3b6fd4;
+      --c-result-bg: #e6f5ec; --c-result: #176338; --c-result-bd: #27ae60;
+      --c-tip-bg:    #fef9e6; --c-tip:    #8a5f00; --c-tip-bd:    #d4a017;
+      --c-warn-bg:   #fdecea; --c-warn:   #b01c1c; --c-warn-bd:   #e53935;
+      --b-intro: #27ae60; --b-mid: #2980b9; --b-adv: #8e44ad;
+      --font-serif: 'Noto Serif KR', Georgia, serif;
+      --font-sans:  'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+      --max-w: 860px; --nav-h: 60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.85; padding-top: var(--nav-h); }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); background: var(--primary); display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+    .nav-logo { font-family: var(--font-serif); color: #fff; font-size: 0.95rem; font-weight: 700; text-decoration: none; margin-right: auto; white-space: nowrap; }
+    .nav-links { display: flex; gap: 0.15rem; }
+    .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 5px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .nav-links a:hover  { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.active { background: rgba(255,255,255,0.2);  color: #fff; }
+    .nav-links a.dim    { color: rgba(255,255,255,0.35); cursor: default; pointer-events: none; }
+
+    main { max-width: var(--max-w); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .breadcrumb a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.35rem; }
+
+    .sub-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2.5rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .sub-nav a { font-size: 0.78rem; text-decoration: none; padding: 0.3rem 0.7rem; border-radius: 4px; color: var(--primary-light); transition: all 0.15s; }
+    .sub-nav a:hover  { background: var(--primary-pale); }
+    .sub-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+
+    h1 { font-family: var(--font-serif); font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.25; margin-bottom: 0.4rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; }
+    h2 { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: var(--primary); margin: 3rem 0 1.1rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 1.75rem 0 0.7rem; }
+    p  { margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a  { color: var(--primary-light); }
+    strong { color: var(--text); }
+
+    .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.18em 0.6em; border-radius: 3px; color: #fff; letter-spacing: 0.05em; vertical-align: middle; }
+    .badge-intro { background: var(--b-intro); } .badge-mid { background: var(--b-mid); } .badge-adv { background: var(--b-adv); }
+
+    .callout { padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0; border-left: 4px solid; }
+    .callout-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .callout-prompt { background: var(--c-prompt-bg); border-color: var(--c-prompt-bd); color: var(--c-prompt); }
+    .callout-result { background: var(--c-result-bg); border-color: var(--c-result-bd); color: var(--c-result); }
+    .callout-tip    { background: var(--c-tip-bg);    border-color: var(--c-tip-bd);    color: var(--c-tip);    }
+    .callout-warn   { background: var(--c-warn-bg);   border-color: var(--c-warn-bd);   color: var(--c-warn);   }
+    .callout p { color: var(--text); margin-bottom: 0.5rem; } .callout p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1.25rem 0; background: var(--surface); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    th { background: var(--primary); color: #fff; padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: var(--surface-2); }
+    tr:last-child td { border-bottom: none; }
+
+    code { font-family: var(--font-mono); font-size: 0.84em; background: var(--surface-2); padding: 0.15em 0.4em; border-radius: 3px; border: 1px solid var(--border); }
+
+    .page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+    .page-nav a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; text-decoration: none; color: var(--primary); font-size: 0.875rem; font-weight: 600; transition: all 0.15s; }
+    .page-nav a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .page-nav .next { margin-left: auto; }
+
+    /* CLAUDEMD BOX */
+    .claudemd-box { background: #1b2035; border-radius: 10px; overflow: hidden; margin: 1.25rem 0; }
+    .claudemd-bar { background: #2a2f45; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+    .claudemd-bar-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .claudemd-bar-dot.r { background: #e53935; }
+    .claudemd-bar-dot.y { background: #f6c026; }
+    .claudemd-bar-dot.g { background: #27ae60; }
+    .claudemd-filename { font-family: var(--font-mono); font-size: 0.78rem; color: #89b4fa; }
+    .claudemd-body { padding: 1.5rem; font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.7; color: #cdd6f4; white-space: pre; }
+    .md-h1 { color: #cba6f7; font-weight: 700; }
+    .md-h2 { color: #89b4fa; font-weight: 700; }
+    .md-comment { color: #6a7499; font-style: italic; }
+    .md-bullet { color: #a6e3a1; }
+    .md-value  { color: #f9e2af; }
+    .md-code   { color: #fab387; }
+
+    /* SKILL BOX */
+    .skill-box { background: var(--surface); border: 2px solid var(--primary-pale); border-radius: 10px; padding: 1.25rem; margin: 1.25rem 0; }
+    .skill-box-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .skill-icon { font-size: 1.5rem; }
+    .skill-name { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+    .skill-purpose { font-size: 0.78rem; color: var(--text-muted); }
+    .skill-content { font-size: 0.85rem; }
+    .skill-content p { margin-bottom: 0.4rem; }
+
+    /* OUTPUT FORMAT CARDS */
+    .output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+    .output-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    .output-format { font-family: var(--font-mono); font-size: 0.82rem; color: var(--c-prompt); font-weight: 700; margin-bottom: 0.4rem; }
+    .output-desc { font-size: 0.8rem; color: var(--text-muted); }
+    .output-best { font-size: 0.72rem; background: var(--c-result-bg); color: var(--c-result); padding: 0.15em 0.5em; border-radius: 3px; display: inline-block; margin-top: 0.3rem; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    pre { position: relative; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: rgba(255,255,255,0.65); cursor: pointer; font-size: 0.78rem; padding: 0.2em 0.55em; transition: all 0.15s; font-family: var(--font-sans); line-height: 1.4; }
+    .copy-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .copy-btn.copied { background: rgba(39,174,96,0.35); color: #a6e3a1; border-color: rgba(39,174,96,0.4); }
+    .path-var { background: #fff8e1; border: 1.5px dashed var(--accent); border-radius: 3px; color: var(--accent); padding: 0.05em 0.35em; font-family: var(--font-mono); font-size: 0.88em; }
+    .path-var-note { display: block; font-size: 0.78rem; color: var(--accent); margin-top: 0.4rem; }
+
+    @media print {
+      .site-nav, .page-nav { display: none; }
+      body { padding-top: 0; background: #fff; }
+      main { padding: 1cm 1.5cm; max-width: none; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: auto; }
+      .callout, table, .claudemd-box { page-break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      h1 { font-size: 1.7rem; }
+      .output-grid { grid-template-columns: 1fr; }
+      main { padding: 2rem 1.25rem 4rem; }
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="../index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="../index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html" class="active">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+  <div class="breadcrumb">
+    <a href="../index.html">홈</a><span>›</span>
+    <a href="usage-01-project-setup.html">활용</a><span>›</span>
+    논문작성 세팅
+  </div>
+
+  <div class="sub-nav">
+    <a href="usage-01-project-setup.html">01. 프로젝트 세팅</a>
+    <a href="usage-02-shortcuts.html">02. 단축키</a>
+    <a href="usage-03-literature.html">03. 선행연구 검색</a>
+    <a href="usage-04a-literature-analysis.html">04a. 문헌분석</a>
+    <a href="usage-04b-quantitative_v2.html">04b. 양적분석</a>
+    <a href="usage-04c-qualitative_v2.html">04c. 질적분석</a>
+    <a href="usage-05-model-effort.html">05. 모델 선택</a>
+    <a href="usage-06-ingredients.html">06. Claude 산출물</a>
+    <a href="usage-07-writing-setup.html" class="active">07. 논문작성 세팅</a>
+    <a href="usage-08-paper-writing_v2.html">08. 논문작성 실전</a>
+  </div>
+
+  <h1>논문작성 세팅</h1>
+  <p class="page-subtitle"><span class="badge badge-mid">활용 07</span> &nbsp;문체 지정, Skill 설치, 출력 형식, CLAUDE.md 논문 특화 설정</p>
+
+  <p>논문 작성에 Claude를 본격적으로 투입하기 전에 <strong>문체, 형식, 출력 방식</strong>을 미리 설정해두면 매번 같은 지시를 반복할 필요가 없습니다. 이 장에서는 논문 작성을 위한 최적 환경을 구성하는 방법을 다룹니다.</p>
+
+  <!-- ===== 1. 논문 작성용 CLAUDE.md 업그레이드 ===== -->
+  <h2>1. 논문 작성용 CLAUDE.md 업그레이드</h2>
+
+  <p>활용 01에서 작성한 기본 CLAUDE.md에 논문 작성 관련 지시사항을 추가합니다. 아래 내용을 기존 CLAUDE.md에 붙여넣거나, 처음부터 논문 특화 버전으로 작성하세요.</p>
+
+  <div class="claudemd-box">
+    <div class="claudemd-bar">
+      <div class="claudemd-bar-dot r"></div><div class="claudemd-bar-dot y"></div><div class="claudemd-bar-dot g"></div>
+      <div class="claudemd-filename">CLAUDE.md — 논문 작성 섹션 추가</div>
+    </div>
+    <div class="claudemd-body"><span class="md-h2">## 논문 작성 설정</span>
+
+<span class="md-h2">### 문체 규칙</span>
+<span class="md-bullet">-</span> <span class="md-value">서술 인칭:</span> 3인칭 (연구자는 → 본 연구는, 연구자가 → 본 연구에서)
+<span class="md-bullet">-</span> <span class="md-value">시제:</span> 현재형 원칙 (결과 서술은 과거형 허용)
+<span class="md-bullet">-</span> <span class="md-value">수동태:</span> 지양 (능동 구문 선호)
+<span class="md-bullet">-</span> <span class="md-value">문단:</span> 4-8문장, 각 문단은 주제문으로 시작
+<span class="md-bullet">-</span> <span class="md-value">AI 문체 지양:</span> "흥미롭게도", "중요하게도", "~라고 할 수 있다" 등 반복 금지
+<span class="md-bullet">-</span> <span class="md-value">한자어:</span> 과도한 한자어 사용 자제, 한글 풀어쓰기 우선
+
+<span class="md-h2">### 인용 형식</span>
+<span class="md-bullet">-</span> <span class="md-value">스타일:</span> APA 7판
+<span class="md-bullet">-</span> <span class="md-value">본문 인용:</span> (저자, 연도) 또는 저자(연도) 형식
+<span class="md-bullet">-</span> <span class="md-value">직접 인용:</span> 40자 이상이면 블록 인용 처리
+<span class="md-bullet">-</span> <span class="md-value">참고문헌:</span> 알파벳/가나다 순 혼합 — 한국어 먼저, 영어 다음
+<span class="md-bullet">-</span> <span class="md-value">참고문헌 파일:</span> <span class="md-code">01_literature/references.bib</span>
+
+<span class="md-h2">### 출력 형식</span>
+<span class="md-bullet">-</span> <span class="md-value">초안:</span> 마크다운 (.md) → <span class="md-code">04_writing/</span> 폴더에 저장
+<span class="md-bullet">-</span> <span class="md-value">표:</span> 마크다운 파이프 표 형식
+<span class="md-bullet">-</span> <span class="md-value">수식:</span> LaTeX 수식 표기 (<span class="md-code">$...$</span> 또는 <span class="md-code">$$...$$</span>)
+<span class="md-bullet">-</span> <span class="md-value">최종 제출:</span> Word (.docx) 변환은 Pandoc 사용
+
+<span class="md-h2">### 논문 현재 상태</span>
+<span class="md-bullet">-</span> <span class="md-value">완료:</span> 1장 서론, 2장 이론적 배경
+<span class="md-bullet">-</span> <span class="md-value">진행중:</span> 3장 연구방법
+<span class="md-bullet">-</span> <span class="md-value">미작성:</span> 4장 결과, 5장 논의, 참고문헌
+
+<span class="md-h2">### 목표 학술지 투고 규정</span>
+<span class="md-bullet">-</span> <span class="md-value">학술지:</span> 교육학연구 (한국교육학회)
+<span class="md-bullet">-</span> <span class="md-value">글자수:</span> 본문 20,000자 이내
+<span class="md-bullet">-</span> <span class="md-value">표/그림:</span> 본문에 삽입, APA 형식 번호 및 제목
+<span class="md-bullet">-</span> <span class="md-value">초록:</span> 한국어 600자 + 영문 250 words</div>
+  </div>
+
+  <!-- ===== 2. 학술 문체 설정 ===== -->
+  
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>2. 학술 문체 교정 설정</h2>
+
+  <p>Claude가 생성한 텍스트에는 종종 "AI 문체"가 섞입니다. CLAUDE.md에 구체적인 금지 표현을 명시하면 더 자연스러운 학술 문체가 나옵니다.</p>
+
+  <h3>피해야 할 AI 문체 패턴</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>AI 문체 표현</th>
+        <th>자연스러운 학술 표현</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>"흥미롭게도", "주목할 만하게도"</td>
+        <td>삭제하거나 해당 내용 자체로 표현</td>
+      </tr>
+      <tr>
+        <td>"중요하게도", "특히 중요한 것은"</td>
+        <td>삭제 (독자가 스스로 중요성 판단)</td>
+      </tr>
+      <tr>
+        <td>"~라고 할 수 있다", "~로 볼 수 있다"</td>
+        <td>"~이다", "~나타났다" (단정적 표현)</td>
+      </tr>
+      <tr>
+        <td>"본 연구는 매우 중요한 시사점을"</td>
+        <td>구체적으로 어떤 시사점인지 서술</td>
+      </tr>
+      <tr>
+        <td>"먼저 ... 다음으로 ... 마지막으로"</td>
+        <td>부제목이나 번호로 구조화</td>
+      </tr>
+      <tr>
+        <td>과도한 반복 (같은 표현 3회 이상)</td>
+        <td>유의어 활용 또는 문장 재구성</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 문체 교정 프롬프트 예시</div>
+    <p>04_writing/draft_intro.md 를 읽고 AI 문체("흥미롭게도", "주목할 만하게도", "~라고 할 수 있다" 등)를 자연스러운 학술 문체로 교정해줘. 내용은 바꾸지 말고 표현만 수정해줘. 수정 전/후를 비교해서 보여준 다음에 파일을 업데이트해줘.</p>
+  </div>
+
+  <!-- ===== 3. Skill 설치 ===== -->
+  <h2>3. 논문 작성 Skill 활용</h2>
+
+  <p>Skill은 Claude에게 특정 작업 방식을 알려주는 지침 파일입니다. 이미 설치된 학술 관련 Skill을 활용하면 논문 작성 품질이 높아집니다. <span style="font-size:0.88rem;color:var(--text-muted);">Skill이 처음이라면 → <a href="advanced-03-custom-skill_v2.html">고급 03 커스텀 Skill 제작</a>에서 개념을 먼저 확인하세요.</span></p>
+
+  <div style="position:relative;background:linear-gradient(135deg,#1a3468 0%,#2a5298 60%,#1e3d7a 100%);border-radius:14px;padding:1.6rem 1.8rem 1.4rem;margin:1.5rem 0;overflow:hidden;box-shadow:0 4px 20px rgba(30,61,122,0.25);">
+    <!-- 배경 장식 -->
+    <div style="position:absolute;top:-10px;right:20px;font-size:5rem;opacity:0.07;line-height:1;pointer-events:none;">🎓</div>
+    <div style="position:absolute;bottom:-8px;right:120px;font-size:3.5rem;opacity:0.06;pointer-events:none;">✦</div>
+    <div style="position:absolute;top:10px;right:80px;font-size:1.2rem;opacity:0.15;pointer-events:none;">✦</div>
+    <!-- 상단 뱃지 -->
+    <div style="margin-bottom:0.7rem;">
+      <span style="background:rgba(192,137,31,0.9);color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:20px;letter-spacing:0.03em;">📦 연구용 스킬 패키지</span>
+    </div>
+    <!-- 메인 카피 -->
+    <div style="color:#fff;font-size:1.15rem;font-weight:700;margin-bottom:0.35rem;font-family:'Noto Serif KR',serif;line-height:1.4;">
+      이 패키지 하나면 당신도 연구 마스터! 🎓 <span style="font-size:0.85rem;opacity:0.75;font-weight:400;">(아마도?)</span>
+    </div>
+    <div style="color:rgba(255,255,255,0.78);font-size:0.82rem;margin-bottom:1rem;line-height:1.6;">
+      문헌 조사부터 논문 작성 · 검토 · 방법론 · 인용까지 — 연구의 모든 단계를 Claude와 함께.
+    </div>
+    <!-- 카테고리 pill 배지들 -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.1rem;">
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">연구 시작 7</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">문헌 조사 12</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">논문 작성 8</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">검토·수정 12</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">방법론 9</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">분석·종합 7</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">인용 5</span>
+      <span style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;padding:0.18rem 0.6rem;border-radius:20px;border:1px solid rgba(255,255,255,0.2);">+ 더보기</span>
+    </div>
+    <!-- 하단 액션 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+      <div style="color:rgba(255,255,255,0.55);font-size:0.75rem;">총 <span class="skill-count">73</span>개 스킬 · ZIP 2.4MB · 무료</div>
+      <a href="https://github.com/goldring-creator/reserch-skills/raw/main/research-skills.zip"
+         download
+         style="background:#c0891f;color:#fff;font-weight:700;font-size:0.88rem;padding:0.6rem 1.3rem;border-radius:8px;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(192,137,31,0.4);transition:opacity .2s;"
+         onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        ⬇ ZIP 다운로드
+      </a>
+    </div>
+  </div>
+
+  <!-- 스킬 목록 아코디언 -->
+  <details id="skill-accordion" style="margin-top:-0.6rem;margin-bottom:1.5rem;border:1px solid #c8d3e8;border-radius:0 0 12px 12px;overflow:hidden;">
+    <summary style="list-style:none;cursor:pointer;padding:0.75rem 1.5rem;background:#eef1f8;color:#1e3d7a;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:space-between;user-select:none;"
+      onmouseover="this.style.background='#e2e8f4'" onmouseout="this.style.background='#eef1f8'">
+      <span>📋 <span class="skill-count">73</span>개 스킬 전체 목록 보기</span>
+      <span style="font-size:0.75rem;opacity:0.6;">클릭해서 펼치기 ▾</span>
+    </summary>
+    <div style="padding:1.2rem 1.5rem;background:#fff;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;">
+
+      <!-- 연구 시작 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#1e3d7a;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">연구 시작 · 7</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/research-develop</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">막연한 아이디어 → 구체적 연구 설계</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/research</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">멀티에이전트 연구 프로젝트 오케스트레이터</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/research-manager</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">복잡한 다단계 연구 워크플로우 관리</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/deep-research</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">13-에이전트 심층 연구 파이프라인</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/research-ideation</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">5W1H 기반 연구 아이디어 브레인스토밍</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/idea-to-proposal</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구 아이디어 → 출판 품질 제안서</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#1e3d7a;font-weight:600;white-space:nowrap;">/brainstorming</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">새 방향 구상 전 필수 브레인스토밍</td></tr>
+        </table>
+      </div>
+
+      <!-- 문헌 조사 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#2a6496;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">문헌 조사 · 12</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">★ /riss-literature <span style="background:#c0891f;color:#fff;font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:4px;vertical-align:middle;">도서관 계정 필요</span></td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">RISS 논문 검색·PDF 다운로드·주제 자동 분류 <span style="color:#999;font-size:0.75rem;">(RISS 지원 대학 도서관 계정 필요)</span></td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/literature-review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">문헌 종합 · 연구 공백 파악 · 흐름 추적</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/literature-survey</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">주제별 문헌 조사 (arXiv, Semantic Scholar)</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/paper-triggered-survey</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">특정 논문 기반 관련 문헌 탐색</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-search</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">구글 스칼라 키워드 검색</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-advanced-search</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">저자·저널·날짜 고급 필터 검색</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-cited-by</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">특정 논문 피인용 논문 추적</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-fulltext</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">논문 원문 링크 획득 (PDF/DOI)</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-export</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">구글 스칼라 → Zotero BibTeX 내보내기</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/gs-navigate-pages</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">검색 결과 페이지 탐색</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/content-access</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">페이월 합법적 우회 (Unpaywall, CORE)</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2a6496;font-weight:600;white-space:nowrap;">/daily-paper-generator</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">매일 최신 논문 자동 검색·생성</td></tr>
+        </table>
+      </div>
+
+      <!-- 논문 작성 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#5a7a3a;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">논문 작성 · 8</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/academic-paper</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">12-에이전트 학술 논문 작성 파이프라인</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/academic-writing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">서론·방법론·토론 등 연구 산문 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/ml-paper-writing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">NeurIPS/ICML/ICLR 등 ML 논문 특화</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/paper-strategist</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">저널 스타일 분석 + 35점 평가 아웃라인</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/paper-composer</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">논문 초안 작성 + 품질 체크포인트</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/survey-writing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">체계적 문헌 리뷰 논문 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/doc-coauthoring</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">제안서·보고서 공동 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a7a3a;font-weight:600;white-space:nowrap;">/academic-pipeline</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구→집필→검토→출판 전 과정 자동화</td></tr>
+        </table>
+      </div>
+
+      <!-- 검토·수정 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#8b4513;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">검토·수정 · 12</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/paper-reviewing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">학회 스타일 동료 심사</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/review-paper</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">6-에이전트 사전 제출 심사 보고서</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/review-paper-light</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">빠른 2-에이전트 논문 검토</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/review-paper-code</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구 코드 재현성 검증</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/paper-polishing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">ICML 메타리뷰 스타일 피드백</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/paper-self-review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">논문 완성도 자기 점검</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/academic-paper-reviewer</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">5인 심사위원 시뮬레이션</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">PhD 수준 원고 및 제안서 리뷰</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/peer-review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">학술 원고 방법론적 엄밀성 평가</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/writing-anti-ai</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">AI 문체 제거 → 자연스러운 학술 문체</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/rebuttal</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">학회 리뷰 반박 파이프라인</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#8b4513;font-weight:600;white-space:nowrap;">/review-response</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">심사 의견 → 전문적 반박문 작성</td></tr>
+        </table>
+      </div>
+
+      <!-- 방법론 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#5c4a8a;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">방법론 · 9</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/research-methodology</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구 설계·샘플링·타당도 매칭</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/methodology</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">방법론 선택 및 검증 가이드</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/qualitative-research</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">질적 연구 설계·테마 분석·코딩</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/quantitative-analysis</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">통계 검정·효과크기·검정력 분석</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/hypothesis-testing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">가설 수립·실험 통제 설계</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/systematic-review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">PRISMA 기준 체계적 문헌 검토</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/prisma-compliant-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">PRISMA 검색 프로토콜 및 Boolean 검색식</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/ethics</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구 윤리·데이터 프라이버시</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5c4a8a;font-weight:600;white-space:nowrap;">/ethics-review</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">IRB 윤리 심사·개인정보 보호</td></tr>
+        </table>
+      </div>
+
+      <!-- 연구비·제안서 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#b07000;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">연구비·제안서 · 4</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#b07000;font-weight:600;white-space:nowrap;">/grant</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">NSF/NIH/ERC 연구비 신청서 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#b07000;font-weight:600;white-space:nowrap;">/grant-writing</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">제안서 작성·기관 우선순위 정렬</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#b07000;font-weight:600;white-space:nowrap;">/review-grant</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">6-에이전트 연구비 신청서 사전 심사</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#b07000;font-weight:600;white-space:nowrap;">/review-pap</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">사전분석계획서(PAP) 6-에이전트 심사</td></tr>
+        </table>
+      </div>
+
+      <!-- 분석·종합 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#2e7d6e;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">분석·종합 · 7</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/results-analysis</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">실험 결과 통계 분석</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/results-report</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">실험 보고서 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/research-synthesis</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">다중 연구 결과 통합 서사 작성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/synthesize</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">다중 출처 결과 종합</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/analyze</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">주장·증거·논증 비판적 분석</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/critical-analysis</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">논리 오류·증거 평가</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#2e7d6e;font-weight:600;white-space:nowrap;">/csv-data-summarizer</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">CSV 데이터 자동 통계·시각화</td></tr>
+        </table>
+      </div>
+
+      <!-- 인용·참고문헌 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#3d6b8a;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">인용·참고문헌 · 5</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#3d6b8a;font-weight:600;white-space:nowrap;">/citation-assistant</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">LaTeX 원고 자동 인용 삽입</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#3d6b8a;font-weight:600;white-space:nowrap;">/citation-verification</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">인용 정확성 검증</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#3d6b8a;font-weight:600;white-space:nowrap;">/bibliography</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">다양한 학술 스타일 참고문헌 생성</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#3d6b8a;font-weight:600;white-space:nowrap;">/zotero-obsidian-bridge</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">Zotero 논문 → Obsidian 노트 연결</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#3d6b8a;font-weight:600;white-space:nowrap;">/obsidian-literature-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">Obsidian 문헌 워크플로우</td></tr>
+        </table>
+      </div>
+
+      <!-- 발표 자료 + 전문가 에이전트 -->
+      <div>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#7a5c2a;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">발표 자료 · 2</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin-bottom:0.8rem;">
+          <tr><td style="padding:0.22rem 0;color:#7a5c2a;font-weight:600;white-space:nowrap;">/academic-pptx</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">학술 발표 자료 (논증 중심 구조)</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#7a5c2a;font-weight:600;white-space:nowrap;">/poster-slides-maker</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">학회 포스터·슬라이드 생성</td></tr>
+        </table>
+        <div style="font-weight:700;font-size:0.78rem;color:#fff;background:#5a3f6e;padding:0.25rem 0.7rem;border-radius:6px;margin-bottom:0.5rem;display:inline-block;">전문가 에이전트 · 7</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/domain-synthesis-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">연구 분야 학파·개념 진화 지도화</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/evidence-rigor-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">비뚤림 위험(RoB) 평가 프로토콜 설계</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/meta-analysis-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">PRISMA 기반 메타분석 통계 계획 수립</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/senior-qualitative-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">PRISMA-Eth 질적 합성 프로토콜 설계</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/contribution-architect</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">문헌 한계 → 연구 공백 매트릭스 도출</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/prisma-publication-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">체계적 문헌고찰 결과 → 출판 원고 프레임</td></tr>
+          <tr><td style="padding:0.22rem 0;color:#5a3f6e;font-weight:600;white-space:nowrap;">/literature-infra-…</td><td style="padding:0.22rem 0 0.22rem 0.6rem;color:#444;">Zotero/Obsidian 인용 관리 워크플로우</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </details>
+
+  <div class="skill-box">
+    <div class="skill-box-header">
+      <div class="skill-icon">📝</div>
+      <div>
+        <div class="skill-name">academic-writing</div>
+        <div class="skill-purpose">연구 산문 작성 — 서론, 방법론, 토론 등</div>
+      </div>
+    </div>
+    <div class="skill-content">
+      <p>학술 논문의 각 섹션 특성에 맞는 글쓰기 방식을 안내합니다. 서론의 깔때기 구조, 방법론의 재현 가능성, 논의의 기여점 서술 등을 포함합니다.</p>
+      <div class="callout callout-prompt" style="margin:0.5rem 0 0">
+        <div class="callout-title">✍️ 사용법</div>
+        <p>academic-writing 스킬을 활용해서 04_writing/draft_discussion.md 의 논의 섹션을 개선해줘. 연구 결과의 의미, 선행연구와의 비교, 실천적 시사점 순으로 구성해줘.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="skill-box">
+    <div class="skill-box-header">
+      <div class="skill-icon">🔍</div>
+      <div>
+        <div class="skill-name">writing-anti-ai</div>
+        <div class="skill-purpose">AI 문체 제거, 자연스러운 학술 문체로 변환</div>
+      </div>
+    </div>
+    <div class="skill-content">
+      <p>Claude가 생성한 텍스트의 AI 특유 패턴을 감지하고 사람이 쓴 듯한 학술 문체로 변환합니다. 최종 원고 제출 전 교정에 활용하세요.</p>
+      <div class="callout callout-prompt" style="margin:0.5rem 0 0">
+        <div class="callout-title">✍️ 사용법</div>
+        <p>writing-anti-ai 스킬을 활용해서 04_writing/chapter2_theory.md 를 검토하고 AI 문체를 제거해줘.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="skill-box">
+    <div class="skill-box-header">
+      <div class="skill-icon">📚</div>
+      <div>
+        <div class="skill-name">citation-assistant</div>
+        <div class="skill-purpose">논문 원고에 인용 자동 삽입</div>
+      </div>
+    </div>
+    <div class="skill-content">
+      <p>01_literature/references.bib의 BibTeX 파일을 참조해서 초안에 빠진 인용을 추가하거나, 인용 형식을 교정합니다.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 커스텀 Skill 만들기</div>
+    <p>나만의 논문 문체, 특정 학술지 규정, 반복되는 작업을 Skill로 만들면 매번 프롬프트를 작성하지 않아도 됩니다. 커스텀 Skill 제작 방법은 <a href="advanced-03-custom-skill_v2.html">고급 03 — 나만의 커스텀 Skill 만들기</a>에서 자세히 다룹니다.</p>
+  </div>
+
+  <!-- ===== 4. 출력 형식 설정 ===== -->
+  <h2>4. 출력 형식 설정</h2>
+
+  <p>논문 작성 흐름에 따라 최적의 출력 형식이 다릅니다. 아래를 참고해서 작업 단계별로 적절한 형식을 사용하세요.</p>
+
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-format">.md (Markdown)</div>
+      <div class="output-desc">초안 작성·수정에 최적. Claude가 기본으로 생성. 표, 제목, 인용 형식 유지.</div>
+      <div class="output-best">초안 단계 권장</div>
+    </div>
+    <div class="output-card">
+      <div class="output-format">.docx (Word)</div>
+      <div class="output-desc">최종 제출용. Pandoc으로 .md에서 변환. 학술지 제출 형식.</div>
+      <div class="output-best">최종 제출 전</div>
+    </div>
+    <div class="output-card">
+      <div class="output-format">.tex (LaTeX)</div>
+      <div class="output-desc">수식이 많은 논문에 적합. Claude가 LaTeX 코드를 직접 생성.</div>
+      <div class="output-best">수식 중심 논문</div>
+    </div>
+    <div class="output-card">
+      <div class="output-format">.csv / .md (표)</div>
+      <div class="output-desc">APA 형식 표. CSV는 Excel에서 편집 가능, MD는 논문 직접 삽입.</div>
+      <div class="output-best">분석 결과 표</div>
+    </div>
+  </div>
+
+  <h3>마크다운 → Word 변환 (Pandoc)</h3>
+
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 프롬프트 예시 — Word 변환</div>
+    <p>04_writing/draft_full.md 를 Word 파일로 변환하는 Pandoc 명령어를 만들어줘. APA 형식 참고문헌을 자동으로 처리하고, 01_literature/references.bib 을 사용해줘. 결과 파일은 04_writing/submission_draft.docx 로 저장.</p>
+  </div>
+
+  <div class="callout callout-result">
+    <div class="callout-title">📋 Claude가 생성하는 명령어 예시</div>
+    <p>터미널에서 아래 명령어를 실행하세요. (Pandoc이 설치되어 있어야 합니다)</p>
+    <pre style="margin:0.5rem 0"><code>pandoc 04_writing/draft_full.md \
+  --bibliography=01_literature/references.bib \
+  --csl=apa.csl \
+  -o 04_writing/submission_draft.docx \
+  --reference-doc=template.docx</code></pre>
+    <p>Pandoc 설치: <code>brew install pandoc</code> (Mac) 또는 pandoc.org에서 다운로드 (Windows)</p>
+  </div>
+
+  <!-- ===== 5. 논문 작성 시작 전 체크리스트 ===== -->
+  <h2>5. 논문 작성 시작 전 체크리스트</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>확인 항목</th>
+        <th>방법</th>
+        <th>완료</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CLAUDE.md에 논문 작성 설정 추가</td>
+        <td>이 페이지 섹션 1의 템플릿 적용</td>
+        <td>☐</td>
+      </tr>
+      <tr>
+        <td>01_literature/references.bib 파일 준비</td>
+        <td>Zotero에서 BibTeX 내보내기</td>
+        <td>☐</td>
+      </tr>
+      <tr>
+        <td>04_writing 폴더 구조 생성</td>
+        <td>장별 마크다운 파일 준비</td>
+        <td>☐</td>
+      </tr>
+      <tr>
+        <td>목표 학술지 투고 규정 CLAUDE.md에 기재</td>
+        <td>학술지 홈페이지에서 확인</td>
+        <td>☐</td>
+      </tr>
+      <tr>
+        <td>분석 결과 파일 03_analysis에 저장</td>
+        <td>R/SPSS 결과 CSV/MD 형태로 정리</td>
+        <td>☐</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 이 장을 마쳤다면</div>
+    <p>CLAUDE.md에 논문 작성 설정이 추가되어 있고, AI 문체 방지 규칙을 이해하고 있으며, 마크다운으로 초안을 작성하고 Word로 변환하는 흐름을 알고 있어야 합니다.</p>
+  </div>
+
+  
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 활용 07. 논문작성 세팅</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre').forEach(function(pre) {
+      pre.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = '복사';
+      btn.title = '클립보드에 복사';
+      btn.addEventListener('click', function() {
+        var code = pre.querySelector('code');
+        var text = (code ? code.innerText : pre.innerText).replace(/복사$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = '✓ 완료';
+          btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  });
+</script>
+<script>
+  // 아코디언 내 <tr> 수를 세어 .skill-count 요소를 자동 갱신
+  // 스킬 추가 시 <tr> 한 줄만 추가하면 숫자가 자동으로 반영됩니다
+  document.addEventListener('DOMContentLoaded', function () {
+    var accordion = document.getElementById('skill-accordion');
+    if (!accordion) return;
+    var count = accordion.querySelectorAll('table tr').length;
+    document.querySelectorAll('.skill-count').forEach(function (el) {
+      el.textContent = count;
+    });
+  });
+</script>
+</body>
+</html>
