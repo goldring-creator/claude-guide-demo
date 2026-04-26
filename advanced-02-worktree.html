@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] Worktree 병렬 작업 — Claude 연구 활용 가이드 고급 02</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#f8f6f1;--surface:#ffffff;--surface-2:#f1ece3;--border:#ddd8cf;
+      --text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;
+      --primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;
+      --c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;
+      --c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;
+      --c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;
+      --c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;
+      --b-adv:#8e44ad;
+      --font-serif:'Noto Serif KR',Georgia,serif;
+      --font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+      --font-mono:'JetBrains Mono','Courier New',monospace;
+      --max-w:860px;--nav-h:60px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background .15s,color .15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .breadcrumb span{margin:0 0.35rem;}
+    .sub-nav{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:0.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+    .sub-nav a{font-size:0.78rem;text-decoration:none;padding:0.3rem 0.7rem;border-radius:4px;color:var(--primary-light);transition:all .15s;}
+    .sub-nav a:hover{background:var(--primary-pale);}
+    .sub-nav a.active{background:var(--primary);color:#fff;font-weight:600;}
+    h1{font-family:var(--font-serif);font-size:2.1rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:2rem;}
+    h2{font-family:var(--font-serif);font-size:1.45rem;font-weight:700;color:var(--primary);margin:3rem 0 1.1rem;padding-bottom:0.45rem;border-bottom:2px solid var(--border);}
+    h3{font-size:1.05rem;font-weight:700;color:var(--text);margin:1.75rem 0 0.7rem;}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    kbd{background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:0.1em 0.4em;font-family:var(--font-mono);font-size:0.82em;}
+    .badge{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.18em 0.6em;border-radius:3px;color:#fff;letter-spacing:0.05em;vertical-align:middle;}
+    .badge-adv{background:var(--b-adv);}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.75rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.7rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    pre{background:#1b2035;color:#cdd6f4;padding:1.25rem;border-radius:8px;overflow-x:auto;margin:1rem 0;font-family:var(--font-mono);font-size:0.875rem;line-height:1.6;position:relative;}
+    pre code{background:none;border:none;padding:0;color:inherit;}
+    .cmd-comment{color:#6a7499;} .cmd-out{color:#a6e3a1;}
+    .page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all .15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+    .steps{counter-reset:step;list-style:none;padding-left:0;}
+    .steps>li{counter-increment:step;display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-start;}
+    .steps>li::before{content:counter(step);background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;margin-top:0.1rem;}
+    .steps>li>div{flex:1;}
+    .steps>li h4{font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:0.4rem;}
+    .steps>li p{font-size:0.9rem;margin-bottom:0.5rem;}
+    .copy-btn{position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:rgba(255,255,255,0.65);cursor:pointer;font-size:0.78rem;padding:0.2em 0.55em;transition:all .15s;font-family:var(--font-sans);line-height:1.4;}
+    .copy-btn:hover{background:rgba(255,255,255,0.22);color:#fff;}
+    .copy-btn.copied{background:rgba(39,174,96,0.35);color:#a6e3a1;border-color:rgba(39,174,96,0.4);}
+    .path-var{background:#fff8e1;border:1.5px dashed var(--accent);border-radius:3px;color:var(--accent);padding:0.05em 0.35em;font-family:var(--font-mono);font-size:0.88em;}
+    .path-var-note{display:block;font-size:0.78rem;color:var(--accent);margin-top:0.4rem;}
+    /* WORKTREE DIAGRAM */
+    .wt-diagram{display:flex;gap:1rem;margin:1.5rem 0;flex-wrap:wrap;}
+    .wt-box{flex:1;min-width:180px;background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;}
+    .wt-box.main{border-color:var(--primary);}
+    .wt-box.branch{border-color:var(--b-adv);}
+    .wt-box-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;}
+    .wt-box.main .wt-box-label{color:var(--primary);}
+    .wt-box.branch .wt-box-label{color:var(--b-adv);}
+    .wt-box-path{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem;}
+    .wt-box-desc{font-size:0.82rem;color:var(--text-muted);}
+    .wt-arrow{display:flex;align-items:center;color:var(--text-muted);font-size:1.2rem;padding-top:1.5rem;}
+    /* USE CASE CARDS */
+    .use-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.25rem 0;}
+    .use-case{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;}
+    .use-case-icon{font-size:1.5rem;margin-bottom:0.5rem;}
+    .use-case-title{font-weight:700;font-size:0.92rem;color:var(--primary);margin-bottom:0.35rem;}
+    .use-case-desc{font-size:0.82rem;color:var(--text-muted);line-height:1.6;}
+    .divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+    .parallel-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0;}
+    .parallel-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1rem;}
+    .parallel-box .pb-label{font-weight:700;font-size:0.88rem;color:var(--primary);margin-bottom:0.5rem;}
+    .parallel-box .pb-badge{display:inline-block;font-size:0.7rem;font-weight:700;padding:0.15em 0.55em;border-radius:3px;color:#fff;margin-bottom:0.6rem;}
+    .pb-no{background:#e53935;} .pb-partial{background:#f57c00;} .pb-yes{background:#27ae60;}
+    .parallel-box ul{padding-left:1.2rem;font-size:0.82rem;color:var(--text-muted);line-height:1.65;}
+    @media(max-width:640px){.parallel-compare{grid-template-columns:1fr;}}
+    @media print{
+      .site-nav,.page-nav{display:none;}
+      body{padding-top:0;background:#fff;}
+      main{padding:1cm 1.5cm;max-width:none;}
+      h2{page-break-before:always;}
+      h2:first-of-type{page-break-before:auto;}
+      .callout,table,.use-cases{page-break-inside:avoid;}
+    }
+    @media(max-width:640px){
+      h1{font-size:1.7rem;}
+      .wt-diagram{flex-direction:column;}
+      .wt-arrow{transform:rotate(90deg);margin:0 auto;}
+      main{padding:2rem 1.25rem 4rem;}
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html" class="active">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+  <div class="breadcrumb">
+    <a href="index.html">홈</a><span>›</span>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a><span>›</span>
+    Worktree 병렬 작업
+  </div>
+
+  <div class="sub-nav">
+    <a href="advanced-01-git.html">01. Git 기초</a>
+    <a href="advanced-02-worktree.html" class="active">02. Worktree</a>
+    <a href="advanced-03-custom-skill_v2.html">03. 커스텀 Skill</a>
+    <a href="advanced-04-mcp_v2.html">04. MCP 설정</a>
+    <a href="advanced-05-automation_v2.html">05. 자동화</a>
+  </div>
+
+  <h1>Worktree 병렬 작업</h1>
+  <p class="page-subtitle"><span class="badge badge-adv">고급 02</span> &nbsp;같은 저장소를 두 폴더에서 동시에 작업 — 메인 논문과 실험적 초안을 분리</p>
+
+  <p>Git Worktree는 같은 프로젝트를 <strong>두 개의 독립된 작업 공간(폴더)에서 동시에 열 수 있는</strong> 기능입니다. 메인 논문을 건드리지 않고 실험적인 구조 변경을 시도하거나, A안과 B안을 나란히 써보고 싶을 때 유용합니다.</p>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 선행 조건</div>
+    <p>Worktree는 Git이 초기화된 저장소에서만 사용할 수 있습니다. <a href="advanced-01-git.html">고급 01 Git 기초</a>를 먼저 완료하세요.</p>
+  </div>
+
+  <!-- ===== 0. 병렬 작업 방식 이해 ===== -->
+  <h2>1. 병렬 작업 방식 이해</h2>
+  <p>Worktree를 본격적으로 다루기 전에, Claude를 병렬로 활용하는 세 가지 방식의 차이를 먼저 짚어봅니다.</p>
+
+  <div class="parallel-compare">
+    <div class="parallel-box">
+      <div class="pb-label">Claude Web</div>
+      <span class="pb-badge pb-no">병렬 불가</span>
+      <ul>
+        <li>대화창 1개 = 독립 세션</li>
+        <li>대화창 간 연결 없음</li>
+        <li>도구 없이 LLM이 직접 응답</li>
+        <li>항상 순차 처리</li>
+      </ul>
+    </div>
+    <div class="parallel-box">
+      <div class="pb-label">단일 CLI (터미널 1개)</div>
+      <span class="pb-badge pb-partial">내부 병렬</span>
+      <ul>
+        <li>Claude가 도구(파일 읽기·명령 실행 등)를 동시에 여러 개 호출 가능</li>
+        <li>사용자 대화 흐름은 순차</li>
+        <li>독립 하위 작업을 한 번에 지시하면 자동 병렬화</li>
+      </ul>
+    </div>
+    <div class="parallel-box">
+      <div class="pb-label">다중 CLI (터미널 N개)</div>
+      <span class="pb-badge pb-yes">완전 병렬</span>
+      <ul>
+        <li>각 터미널이 독립된 Claude 프로세스</li>
+        <li>완전히 다른 작업을 진짜 동시에 진행</li>
+        <li>같은 파일 동시 편집 시 충돌 위험</li>
+        <li>→ Worktree로 해결</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 단일 CLI에서 병렬 유도 프롬프트</div>
+    <p>독립적인 작업을 한 번에 지시하면 Claude가 내부적으로 병렬 처리합니다.</p>
+    <p><strong>✓</strong> "paper1.pdf, paper2.pdf, paper3.pdf 세 파일을 동시에 읽고 각각의 연구방법론을 정리해줘"<br>
+    <strong>✗</strong> "paper1.pdf 읽어줘" → (완료 후) "paper2.pdf 읽어줘" (순차 처리)</p>
+  </div>
+
+  <h3>실제 다중 CLI 화면</h3>
+  <p>아래는 터미널 3개에서 각각 다른 작업을 동시에 진행하는 실제 화면입니다.</p>
+  <div style="margin:1rem 0;">
+    <img src="../images/multi-session.png" alt="3개 터미널에서 Claude 병렬 실행 화면" style="width:100%; border-radius:10px; border:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,0.12);">
+    <div style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:0.5rem;">좌상: 교육 뉴스 검색 · 좌하: 프로젝트 셋업 · 우: 가이드 HTML 편집 — 3개의 독립 세션이 동시에 실행 중</div>
+  </div>
+
+  <p>터미널을 여러 개 열어 진짜 병렬 작업을 할 때는 같은 파일에 동시에 쓰는 충돌 문제가 생깁니다. 이를 해결하는 것이 <strong>Git Worktree</strong>입니다.</p>
+
+  <!-- ===== 1. Worktree란 ===== -->
+  <h2>2. Worktree란 무엇인가</h2>
+
+  <p>일반적인 Git 저장소는 폴더 하나에 하나의 작업 공간만 존재합니다. Worktree를 추가하면 <strong>같은 커밋 이력을 공유하면서 서로 다른 브랜치를 각자의 폴더에서 독립적으로 작업</strong>할 수 있습니다.</p>
+
+  <div class="wt-diagram">
+    <div class="wt-box main">
+      <div class="wt-box-label">메인 워크트리 (main)</div>
+      <div class="wt-box-path">~/Desktop/my-research/</div>
+      <div class="wt-box-desc">현재 제출용 논문 작업. 안정적인 버전.</div>
+    </div>
+    <div class="wt-arrow">⟷</div>
+    <div class="wt-box branch">
+      <div class="wt-box-label">추가 워크트리 (experiment)</div>
+      <div class="wt-box-path">~/Desktop/my-research-exp/</div>
+      <div class="wt-box-desc">대담한 구조 변경 실험. 실패해도 메인에 영향 없음.</div>
+    </div>
+  </div>
+
+  <p>두 폴더는 <strong>같은 Git 저장소</strong>를 가리킵니다. 한쪽에서 커밋하면 그 이력은 다른 쪽에서도 보입니다. 하지만 파일 내용은 각 브랜치에서 독립적으로 관리됩니다.</p>
+
+  <!-- ===== 2. 활용 사례 ===== -->
+  
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>3. 연구자 활용 사례</h2>
+
+  <div class="use-cases">
+    <div class="use-case">
+      <div class="use-case-icon">📝</div>
+      <div class="use-case-title">논문 구조 A/B 비교</div>
+      <div class="use-case-desc">서론을 이론 선행연구 먼저 vs 현장 문제 먼저로 쓰는 두 버전을 나란히 작성하고 비교합니다.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon">🔬</div>
+      <div class="use-case-title">분석 코드 실험</div>
+      <div class="use-case-desc">현재 R 코드를 메인으로 유지하면서, 새로운 분석 방법(예: LPA 추가)을 별도 워크트리에서 시험합니다.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon">🔄</div>
+      <div class="use-case-title">리뷰어 수정과 차기 논문 병행</div>
+      <div class="use-case-desc">투고된 논문의 리뷰어 수정은 메인에서, 다음 논문 초안은 새 워크트리에서 동시에 진행합니다.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon">🤖</div>
+      <div class="use-case-title">Claude 병렬 작업</div>
+      <div class="use-case-desc">터미널을 두 개 열어 각 워크트리에서 Claude를 독립적으로 실행, 서로 다른 작업을 동시에 진행합니다.</div>
+    </div>
+  </div>
+
+  <!-- ===== 3. 기본 명령어 ===== -->
+  <h2>4. Worktree 기본 명령어</h2>
+
+  <table>
+    <thead>
+      <tr><th>명령어</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>git worktree add &lt;경로&gt; &lt;브랜치&gt;</code></td><td>새 워크트리 생성</td></tr>
+      <tr><td><code>git worktree list</code></td><td>현재 워크트리 목록 확인</td></tr>
+      <tr><td><code>git worktree remove &lt;경로&gt;</code></td><td>워크트리 제거</td></tr>
+      <tr><td><code>git branch -d &lt;브랜치명&gt;</code></td><td>완료된 브랜치 삭제</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 4. 실전 워크플로우 ===== -->
+  <h2>5. 실전 워크플로우</h2>
+
+  <ol class="steps">
+    <li>
+      <div>
+        <h4>메인 저장소에서 새 브랜치 + 워크트리 생성</h4>
+        <p>메인 프로젝트 폴더에서 실험용 브랜치와 워크트리를 한 번에 만듭니다.</p>
+        <pre><code><span class="cmd-comment"># 메인 폴더로 이동</span>
+cd ~/Desktop/<span class="path-var" title="본인 프로젝트 폴더 이름으로 변경">my-research</span>
+
+<span class="cmd-comment"># experiment 브랜치를 만들고 ../my-research-exp 폴더에 체크아웃</span>
+git worktree add ../my-research-exp experiment
+
+<span class="cmd-out"># Preparing worktree (new branch 'experiment')
+# HEAD is now at a3f9c12 2장 선행연구 검토 완료</span></code></pre>
+        <span class="path-var-note">💡 <code class="path-var">my-research</code>는 본인 프로젝트 폴더명으로 바꾸세요.</span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h4>두 터미널에서 각각 작업</h4>
+        <p>터미널을 두 개 열고, 각각 메인과 experiment 폴더에서 Claude를 실행합니다.</p>
+        <pre><code><span class="cmd-comment"># 터미널 1 — 메인 (제출용 논문)</span>
+cd ~/Desktop/my-research
+claude
+
+<span class="cmd-comment"># 터미널 2 — 실험 (새 구조 시도)</span>
+cd ~/Desktop/my-research-exp
+claude</code></pre>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h4>워크트리 목록 확인</h4>
+        <p>현재 어떤 워크트리가 활성화되어 있는지 확인합니다.</p>
+        <pre><code>git worktree list
+<span class="cmd-out">/Users/goldring/Desktop/my-research      a3f9c12 [main]
+/Users/goldring/Desktop/my-research-exp  a3f9c12 [experiment]</span></code></pre>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h4>실험이 성공하면 메인에 병합</h4>
+        <p>실험 결과가 마음에 들면 메인 브랜치로 병합합니다.</p>
+        <pre><code><span class="cmd-comment"># 메인 폴더에서</span>
+cd ~/Desktop/my-research
+git merge experiment
+
+<span class="cmd-comment"># 병합 완료 후 워크트리 제거</span>
+git worktree remove ../my-research-exp
+git branch -d experiment</code></pre>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h4>실험을 버리고 싶다면</h4>
+        <p>실험이 실패했거나 필요 없어지면 워크트리만 삭제하면 됩니다. 메인 브랜치는 전혀 영향을 받지 않습니다.</p>
+        <pre><code><span class="cmd-comment"># 변경사항 강제 삭제 후 워크트리 제거</span>
+git worktree remove --force ../my-research-exp
+git branch -D experiment</code></pre>
+      </div>
+    </li>
+  </ol>
+
+  <!-- ===== 5. 주의사항 ===== -->
+  <h2>6. 주의사항</h2>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 같은 브랜치를 두 워크트리에서 동시에 사용할 수 없음</div>
+    <p>Git Worktree는 <strong>각 워크트리마다 다른 브랜치</strong>를 사용합니다. 같은 브랜치를 두 폴더에서 동시에 체크아웃하는 것은 허용되지 않습니다.</p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 CLAUDE.md 공유 여부</div>
+    <p>같은 저장소에서 분기하므로 <code>CLAUDE.md</code>는 공유됩니다. 실험 브랜치에서 다른 지시가 필요하다면 해당 브랜치에서 <code>CLAUDE.md</code>를 별도로 수정하세요. 브랜치별로 파일이 독립적으로 관리됩니다.</p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 Claude Code의 <code>--worktree</code> 옵션</div>
+    <p>Claude Code에는 격리된 작업을 위한 내장 worktree 기능이 있습니다. 복잡한 수정을 안전하게 시도할 때 Claude가 자동으로 임시 worktree를 만들어 작업하고, 성공하면 메인에 병합하도록 요청할 수 있습니다.</p>
+    <pre><code><span class="cmd-comment"># Claude에게 worktree 격리 작업 요청 예시</span>
+claude --worktree "3장 연구방법 전체를 APA 스타일로 재작성해줘"</code></pre>
+  </div>
+
+  <hr class="divider">
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 이 장을 마쳤다면</div>
+    <p><code>git worktree add</code>로 실험용 폴더를 만들고, 실험이 성공하면 <code>git merge</code>로 메인에 통합하거나, 실패하면 워크트리를 삭제하는 흐름을 이해하고 있어야 합니다.</p>
+  </div>
+
+  
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 고급 02. Worktree 병렬 작업</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+<script>
+  function initCopyButtons() {
+    document.querySelectorAll('pre').forEach(function(pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn'; btn.textContent = '복사'; btn.title = '클립보드에 복사';
+      btn.addEventListener('click', function() {
+        var code = pre.querySelector('code');
+        var text = (code ? code.innerText : pre.innerText).replace(/복사$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = '✓ 완료'; btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initCopyButtons);
+</script>
+
+</body>
+</html>

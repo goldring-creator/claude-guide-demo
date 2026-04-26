@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 중급 06 — 패널데이터 분석하기 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--b-intro:#27ae60;--b-mid:#2980b9;--b-adv:#8e44ad;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb span{margin:0 0.35rem;}
+    h1{font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:1rem;}
+    h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;color:var(--primary);margin:3rem 0 1rem;padding-bottom:0.4rem;border-bottom:2px solid var(--border);}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    pre{background:#1e1e2e;color:#cdd6f4;padding:1rem 1.25rem;border-radius:8px;overflow-x:auto;font-family:var(--font-mono);font-size:0.82rem;margin:1rem 0;}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    .page-nav{display:flex;justify-content:space-between;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;flex-wrap:wrap;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.7rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+
+    .page-meta{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
+    .meta-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;font-weight:600;padding:0.25em 0.75em;border-radius:20px;}
+    .meta-mid{background:#e5eaf6;color:#1e3d7a;border:1px solid #b0c4e8;}
+    .meta-time{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);}
+
+    .wt-subnav{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.45rem;}
+    .wt-group{display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;}
+    .wt-group-label{font-size:0.68rem;font-weight:700;letter-spacing:0.07em;white-space:nowrap;min-width:32px;}
+    .wt-group-label.bg{color:var(--b-intro);}.wt-group-label.mid{color:var(--b-mid);}.wt-group-label.adv{color:var(--b-adv);}
+    .wt-group-links{display:flex;gap:0.25rem;flex-wrap:wrap;}
+    .wt-group-links a{font-size:0.76rem;text-decoration:none;padding:0.18rem 0.55rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .wt-group-links a:hover{background:var(--primary-pale);}
+    .wt-group-links a.active{background:var(--b-mid);color:#fff;font-weight:600;}
+
+    .flow-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;text-align:center;}
+    .flow-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .flow-row{display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;}
+    .flow-box{background:var(--primary-pale);border:1.5px solid #b0c4e8;border-radius:8px;padding:0.5rem 0.9rem;font-size:0.82rem;font-weight:600;color:var(--primary);text-align:center;min-width:80px;}
+    .flow-box.green{background:#e6f9ee;border-color:#a5d6a7;color:#176338;}
+    .flow-box.you{background:var(--surface-2);border-color:var(--border);color:var(--text-muted);}
+    .flow-sub{font-size:0.65rem;font-weight:400;color:var(--text-muted);margin-top:0.1rem;}
+    .flow-arr{color:var(--text-muted);font-size:1.3rem;line-height:1;}
+
+    .prep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin:1rem 0;}
+    .prep-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.9rem;}
+    .prep-icon{font-size:1.3rem;margin-bottom:0.3rem;}
+    .prep-name{font-size:0.85rem;font-weight:700;color:var(--primary);margin-bottom:0.15rem;}
+    .prep-desc{font-size:0.75rem;color:var(--text-muted);}
+
+    .wt-steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0;}
+    .wt-step{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
+    .wt-step-header{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.2rem;background:var(--surface-2);border-bottom:1px solid var(--border);}
+    .wt-step-num{width:30px;height:30px;border-radius:50%;background:var(--b-mid);color:#fff;font-weight:700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .wt-step-title{font-size:0.98rem;font-weight:700;color:var(--primary);}
+    .step-tag{font-size:0.67rem;font-weight:700;padding:0.13em 0.5em;border-radius:20px;margin-left:0.3rem;}
+    .tag-you{background:var(--accent-pale);color:#6b3a00;border:1px solid #d4b07a;}
+    .tag-claude{background:var(--primary-pale);color:var(--primary);border:1px solid #b0c4e8;}
+    .wt-step-body{padding:1.1rem 1.2rem;}
+
+    .terminal-mock{background:#1e1e2e;border-radius:10px;overflow:hidden;margin:1rem 0;}
+    .t-bar{background:#313244;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.35rem;}
+    .t-dot{width:11px;height:11px;border-radius:50%;}
+    .t-dot.r{background:#f38ba8;}.t-dot.y{background:#f9e2af;}.t-dot.g{background:#a6e3a1;}
+    .t-title-bar{margin-left:auto;font-size:0.7rem;color:#9399b2;font-family:var(--font-mono);}
+    .t-body{padding:0.9rem 1.1rem;display:flex;flex-direction:column;gap:0.5rem;}
+    .t-user{background:rgba(137,180,250,0.12);border-left:3px solid #89b4fa;padding:0.5rem 0.75rem;border-radius:0 5px 5px 0;}
+    .t-user .t-who{font-size:0.65rem;color:#89b4fa;margin-bottom:0.25rem;font-family:var(--font-mono);}
+    .t-user p{color:#cdd6f4;font-size:0.8rem;margin:0;font-family:var(--font-mono);white-space:pre-wrap;}
+    .t-claude{background:rgba(166,227,161,0.1);border-left:3px solid #a6e3a1;padding:0.5rem 0.75rem;border-radius:0 5px 5px 0;}
+    .t-claude .t-who{font-size:0.65rem;color:#a6e3a1;margin-bottom:0.25rem;font-family:var(--font-mono);}
+    .t-claude p{color:#cdd6f4;font-size:0.8rem;margin:0;font-family:var(--font-mono);white-space:pre-wrap;}
+
+    .check-list{list-style:none;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;}
+    .check-list li{display:flex;align-items:flex-start;gap:0.65rem;padding:0.7rem 1rem;border-bottom:1px solid var(--border);font-size:0.88rem;}
+    .check-list li:last-child{border-bottom:none;}
+    .check-box{width:17px;height:17px;border:2px solid #b0c4e8;border-radius:3px;flex-shrink:0;margin-top:0.22rem;}
+
+    /* PANEL DIAGRAM */
+    .panel-diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1.25rem 0;overflow-x:auto;}
+    .pd-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .pd-grid{display:grid;grid-template-columns:auto repeat(3,1fr);gap:0;min-width:380px;}
+    .pd-header{background:var(--primary);color:#fff;font-size:0.75rem;font-weight:700;padding:0.5rem 0.75rem;text-align:center;}
+    .pd-row-label{background:var(--surface-2);font-size:0.75rem;font-weight:600;color:var(--primary);padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);border-right:2px solid var(--border);display:flex;align-items:center;}
+    .pd-cell{font-size:0.75rem;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);border-right:1px solid var(--border);text-align:center;color:var(--text-muted);}
+    .pd-cell.hi{background:var(--primary-pale);color:var(--primary);font-weight:600;}
+
+    @media(max-width:640px){h1{font-size:1.65rem;}main{padding:2rem 1.25rem 4rem;}.flow-row{flex-direction:column;}}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html" class="active">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="walkthrough-index.html">따라하기</a><span>›</span>
+  중급 06 — 패널데이터 분석하기
+</div>
+
+<div class="wt-subnav">
+  <div class="wt-group">
+    <span class="wt-group-label bg">초급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-01-survey.html">①설문지</a>
+      <a href="walkthrough-02-abstract.html">②영문초록</a>
+      <a href="walkthrough-03-interview.html">③인터뷰코딩</a>
+      <a href="walkthrough-04-proposal.html">④연구계획서</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label mid">중급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-05-literature-codebook.html">⑤문헌코드북</a>
+      <a href="walkthrough-06-panel-data.html" class="active">⑥패널데이터</a>
+      <a href="walkthrough-07-review-response.html">⑦심사대응</a>
+      <a href="walkthrough-08-meta-analysis.html">⑧메타분석</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label adv">고급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-09-r-debugging.html">⑨R디버깅</a>
+      <a href="walkthrough-10-hlm.html">⑩HLM분석</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-meta">
+  <span class="meta-tag meta-mid">중급</span>
+  <span class="meta-tag meta-time">⏱ 약 60분</span>
+  <span class="meta-tag meta-time">📊 R 또는 SPSS 기본 조작 가능</span>
+</div>
+
+<h1>패널데이터 분석하기</h1>
+<p class="page-subtitle">데이터 구조 파악 → 기술통계 → 패널분석 코드 작성 → APA 결과표 자동 생성</p>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 관련 가이드</div>
+  <p>R 코드 작성 및 양적 분석 전반은 <a href="usage-04b-quantitative_v2.html">활용 04b — 연구방법: 양적분석</a>에서 자세히 다룹니다.</p>
+</div>
+
+<!-- 패널데이터 구조 다이어그램 -->
+
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>패널데이터란?</h2>
+<p>패널데이터는 <strong>같은 개인(또는 집단)을 여러 시점에 걸쳐 반복 측정한 데이터</strong>입니다. 횡단면 데이터(1회 측정)와 달리 시간의 흐름에 따른 변화를 분석할 수 있습니다.</p>
+
+<div class="panel-diagram">
+  <div class="pd-title">패널데이터 구조 예시 (3시점 × 5명)</div>
+  <div class="pd-grid">
+    <div class="pd-header">개인ID</div>
+    <div class="pd-header">1차년도</div>
+    <div class="pd-header">2차년도</div>
+    <div class="pd-header">3차년도</div>
+    <div class="pd-row-label">참여자 001</div>
+    <div class="pd-cell hi">측정값</div><div class="pd-cell hi">측정값</div><div class="pd-cell hi">측정값</div>
+    <div class="pd-row-label">참여자 002</div>
+    <div class="pd-cell">측정값</div><div class="pd-cell">측정값</div><div class="pd-cell">측정값</div>
+    <div class="pd-row-label">참여자 003</div>
+    <div class="pd-cell">측정값</div><div class="pd-cell">측정값</div><div class="pd-cell">결측(NA)</div>
+    <div class="pd-row-label">참여자 004</div>
+    <div class="pd-cell">측정값</div><div class="pd-cell">측정값</div><div class="pd-cell">측정값</div>
+    <div class="pd-row-label">참여자 005</div>
+    <div class="pd-cell">측정값</div><div class="pd-cell">결측(NA)</div><div class="pd-cell">측정값</div>
+  </div>
+  <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.75rem;">※ 결측(NA)이 있는 불균형 패널(unbalanced panel)도 분석 가능합니다.</p>
+</div>
+
+<h2>전체 워크플로우</h2>
+<div class="flow-wrap">
+  <div class="flow-title">패널데이터 분석 플로우</div>
+  <div class="flow-row">
+    <div class="flow-box you">
+      데이터 파일 준비
+      <div class="flow-sub">연구자</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      구조 파악·탐색
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      기술통계
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      패널분석 코드
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box green">
+      APA 결과표
+      <div class="flow-sub">Claude</div>
+    </div>
+  </div>
+</div>
+
+<h2>준비물</h2>
+<div class="prep-grid">
+  <div class="prep-card">
+    <div class="prep-icon">📊</div>
+    <div class="prep-name">패널 데이터 파일</div>
+    <div class="prep-desc">CSV, SPSS(.sav), Excel 등. Wide format 또는 Long format 모두 가능.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📋</div>
+    <div class="prep-name">변수 목록·코드북</div>
+    <div class="prep-desc">변수명, 측정 시점, 척도 정보. 없으면 데이터 상단 10행으로 대체.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">💻</div>
+    <div class="prep-name">R 설치</div>
+    <div class="prep-desc">패키지: <code>lavaan</code>, <code>tidyverse</code>, <code>lme4</code>. <a href="intro-03-installation.html">입문 03</a> 참고.</div>
+  </div>
+</div>
+
+<h2>단계별 실습</h2>
+
+<div class="wt-steps">
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">1</div>
+    <div class="wt-step-title">데이터 구조 설명 및 파악<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>데이터 파일 일부(상단 10~20행)와 변수 목록을 공유하면 Claude가 구조를 파악하고 분석 전략을 제안합니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>아래는 패널 데이터의 변수 목록과 상위 10행입니다. 데이터 구조를 파악하고 다음을 알려주세요:<br><br>
+      1. 현재 Wide format인지 Long format인지<br>
+      2. 패널의 시점 수와 개인 수 (파악 가능한 수준에서)<br>
+      3. 결측값(NA)이 있는 변수와 비율 추정<br>
+      4. 제가 하려는 연구문제 "[연구문제 입력]"에 맞는 분석 방법 추천<br><br>
+      [변수 목록 또는 데이터 상위 10행 붙여넣기]</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">2</div>
+    <div class="wt-step-title">데이터 전처리 코드 작성<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>분석 전에 Wide → Long 변환, 변수명 정리, 결측값 처리 코드가 필요합니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>R 코드를 작성해 주세요. 데이터는 Wide format이며 Long format으로 변환이 필요합니다.<br><br>
+      - 파일명: panel_data.csv<br>
+      - ID 변수: id<br>
+      - 시점 변수: y1_, y2_, y3_ 접두사로 구분<br>
+      - 변환 후 시점 변수 이름: wave (1, 2, 3)<br>
+      - 필요 패키지: tidyverse<br><br>
+      변환 후 각 시점별 결측값 수를 출력하는 코드도 추가해 주세요.</p>
+    </div>
+    <div class="terminal-mock">
+      <div class="t-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="t-title-bar">Claude — R 코드 예시</span></div>
+      <div class="t-body">
+        <div class="t-claude">
+          <div class="t-who">Claude</div>
+          <p>library(tidyverse)
+
+# 데이터 로드
+df <- read.csv("panel_data.csv")
+
+# Wide → Long 변환
+df_long <- df %>%
+  pivot_longer(
+    cols = starts_with(c("y1_", "y2_", "y3_")),
+    names_to = c("wave", ".value"),
+    names_pattern = "(y\\d+)_(.*)"
+  ) %>%
+  mutate(wave = as.integer(str_extract(wave, "\\d+")))
+
+# 시점별 결측값 확인
+df_long %>%
+  group_by(wave) %>%
+  summarise(across(everything(), ~sum(is.na(.))))</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">3</div>
+    <div class="wt-step-title">기술통계 및 시점별 변화 분석<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>변환된 Long format 데이터를 사용하여 다음 분석 코드를 작성해 주세요:<br><br>
+      1. 시점별 주요 변수의 기술통계 (M, SD, min, max)<br>
+      2. 시점 간 주요 변수의 변화 추이 선 그래프 (ggplot2 사용)<br>
+      3. 시점별 상관관계 행렬<br><br>
+      분석 대상 변수: [변수명들 입력]</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">4</div>
+    <div class="wt-step-title">패널분석 모형 실행<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>연구문제에 따라 적합한 패널분석 방법이 다릅니다.</p>
+    <table>
+      <tr><th>연구 목적</th><th>적합한 방법</th><th>R 패키지</th></tr>
+      <tr><td>시간 변화 추적 (성장 궤적)</td><td>잠재성장모형(LGM)</td><td><code>lavaan</code></td></tr>
+      <tr><td>집단 간 변화 패턴 차이</td><td>성장혼합모형(GMM)</td><td><code>tidySEM</code></td></tr>
+      <tr><td>반복 측정 평균 차이</td><td>반복측정 ANOVA</td><td><code>rstatix</code></td></tr>
+      <tr><td>시간 고정효과 통제</td><td>고정효과(FE) 모형</td><td><code>plm</code></td></tr>
+    </table>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트 (잠재성장모형 예시)</div>
+      <p>lavaan 패키지로 잠재성장모형(Latent Growth Model) 코드를 작성해 주세요.<br><br>
+      - 결과 변수: [변수명], 3시점 측정 (w1, w2, w3)<br>
+      - 무조건 모형 먼저, 이후 예측 변수 [변수명] 추가한 조건 모형<br>
+      - 절편(intercept)과 기울기(slope) 모두 추정<br>
+      - 모형 적합도 지수 (CFI, RMSEA, SRMR) 출력 포함</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">5</div>
+    <div class="wt-step-title">APA 결과표 자동 생성<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>아래 R 분석 출력 결과를 APA 7판 형식의 표로 정리해 주세요:<br><br>
+      - 표 제목 포함 (예: Table 1. Latent Growth Model Results)<br>
+      - 모수 추정치, SE, z값, p값, 95% CI 포함<br>
+      - p < .001, p < .01, p < .05 기호 표시<br>
+      - 모형 적합도 지수를 표 아래 각주에 추가<br><br>
+      [R 출력 결과 붙여넣기]</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wt-steps -->
+
+<h2>완료 체크리스트</h2>
+<ul class="check-list">
+  <li><span class="check-box"></span>데이터가 Long format으로 변환되고 구조가 확인됨</li>
+  <li><span class="check-box"></span>결측값 비율이 파악되고 처리 방법이 결정됨</li>
+  <li><span class="check-box"></span>시점별 기술통계 표가 완성됨</li>
+  <li><span class="check-box"></span>패널분석 모형이 실행되고 결과가 수렴됨</li>
+  <li><span class="check-box"></span>APA 형식의 결과표가 완성됨</li>
+  <li><span class="check-box"></span>결과 해석 문장이 작성됨</li>
+</ul>
+
+
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 교육학·사회과학 연구자를 위한 참고서</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+    <p style="margin:0;font-size:0.8rem;color:var(--text-muted);">문의 · 피드백 &nbsp;·&nbsp; <a href="mailto:goldringedu@gmail.com" style="color:var(--primary-light);text-decoration:none;font-weight:500;">goldringedu@gmail.com</a> &nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+    <p style="margin:0;font-size:0.78rem;color:var(--text-muted);">© 2026 Claude 연구 활용 가이드. 출처 표기 시 자유롭게 활용 가능합니다.</p>
+  </div>
+</footer>
+
+</body>
+</html>

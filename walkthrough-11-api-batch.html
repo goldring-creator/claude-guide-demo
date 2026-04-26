@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 고급 11 — 논문 50편 자동 분류하기 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--b-intro:#27ae60;--b-mid:#2980b9;--b-adv:#8e44ad;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .breadcrumb span{margin:0 0.35rem;}
+    h1{font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:1rem;}
+    h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;color:var(--primary);margin:3rem 0 1rem;padding-bottom:0.4rem;border-bottom:2px solid var(--border);}
+    h3{font-size:1.02rem;font-weight:700;color:var(--text);margin:1.5rem 0 0.6rem;}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    pre{background:#1b2035;color:#cdd6f4;padding:1.25rem;border-radius:8px;overflow-x:auto;margin:1rem 0;font-family:var(--font-mono);font-size:0.875rem;line-height:1.6;position:relative;}
+    pre code{background:none;border:none;padding:0;color:inherit;}
+    .py-kw{color:#cba6f7;} .py-str{color:#a6e3a1;} .py-cmt{color:#6a7499;font-style:italic;}
+    .py-fn{color:#89b4fa;} .py-num{color:#fab387;}
+    .cmd-comment{color:#6a7499;} .cmd-out{color:#a6e3a1;}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    .page-nav{display:flex;justify-content:space-between;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;flex-wrap:wrap;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.7rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+
+    /* WALKTHROUGH COMPONENTS */
+    .page-meta{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
+    .meta-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;font-weight:600;padding:0.25em 0.75em;border-radius:20px;}
+    .meta-adv{background:#f0e6fa;color:#6b2da8;border:1px solid #ce93d8;}
+    .meta-time{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);}
+
+    /* SUB-NAV */
+    .wt-subnav{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.45rem;}
+    .wt-group{display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;}
+    .wt-group-label{font-size:0.68rem;font-weight:700;letter-spacing:0.07em;white-space:nowrap;min-width:32px;}
+    .wt-group-label.bg{color:var(--b-intro);}
+    .wt-group-label.mid{color:var(--b-mid);}
+    .wt-group-label.adv{color:var(--b-adv);}
+    .wt-group-links{display:flex;gap:0.25rem;flex-wrap:wrap;}
+    .wt-group-links a{font-size:0.76rem;text-decoration:none;padding:0.18rem 0.55rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .wt-group-links a:hover{background:var(--primary-pale);}
+    .wt-group-links a.active{background:var(--primary);color:#fff;font-weight:600;}
+
+    /* FLOW DIAGRAM */
+    .flow-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;text-align:center;}
+    .flow-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .flow-row{display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;}
+    .flow-box{background:var(--primary-pale);border:1.5px solid #b0c4e8;border-radius:8px;padding:0.5rem 0.9rem;font-size:0.82rem;font-weight:600;color:var(--primary);text-align:center;min-width:80px;}
+    .flow-box.green{background:#e6f9ee;border-color:#a5d6a7;color:#176338;}
+    .flow-box.gold{background:var(--accent-pale);border-color:var(--accent);color:#5a3e00;}
+    .flow-box.adv{background:#f0e6fa;border-color:#ce93d8;color:#6b2da8;}
+    .flow-sub{font-size:0.65rem;font-weight:400;color:var(--text-muted);margin-top:0.1rem;}
+    .flow-arr{color:var(--text-muted);font-size:1.3rem;line-height:1;}
+
+    /* PREP GRID */
+    .prep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin:1rem 0;}
+    .prep-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.9rem;}
+    .prep-icon{font-size:1.3rem;margin-bottom:0.3rem;}
+    .prep-name{font-size:0.85rem;font-weight:700;color:var(--primary);margin-bottom:0.15rem;}
+    .prep-desc{font-size:0.75rem;color:var(--text-muted);}
+
+    /* STEPS */
+    .wt-steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0;}
+    .wt-step{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
+    .wt-step-header{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.2rem;background:var(--surface-2);border-bottom:1px solid var(--border);}
+    .wt-step-num{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .wt-step-title{font-size:0.98rem;font-weight:700;color:var(--primary);}
+    .step-tag{font-size:0.67rem;font-weight:700;padding:0.13em 0.5em;border-radius:20px;margin-left:0.3rem;}
+    .tag-you{background:var(--accent-pale);color:#6b3a00;border:1px solid #d4b07a;}
+    .tag-code{background:#f0e6fa;color:#6b2da8;border:1px solid #ce93d8;}
+    .wt-step-body{padding:1.1rem 1.2rem;}
+
+    /* SAMPLE OUTPUT */
+    .sample-output{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;}
+    .sample-header{background:var(--surface-2);padding:0.5rem 1rem;font-size:0.75rem;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);}
+    .sample-body{padding:0.8rem 1rem;font-size:0.85rem;}
+
+    /* COPY BTN */
+    .copy-btn{position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:rgba(255,255,255,0.65);cursor:pointer;font-size:0.78rem;padding:0.2em 0.55em;transition:all .15s;font-family:var(--font-sans);line-height:1.4;}
+    .copy-btn:hover{background:rgba(255,255,255,0.22);color:#fff;}
+    .copy-btn.copied{background:rgba(39,174,96,0.35);color:#a6e3a1;border-color:rgba(39,174,96,0.4);}
+    .divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+    @media(max-width:640px){h1{font-size:1.65rem;}main{padding:2rem 1.25rem 4rem;}.flow-row{flex-direction:column;}.prep-grid{grid-template-columns:1fr 1fr;}}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html" class="active">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="walkthrough-index.html">따라하기</a><span>›</span>
+  고급 11 — 논문 50편 자동 분류하기
+</div>
+
+<div class="wt-subnav">
+  <div class="wt-group">
+    <span class="wt-group-label bg">초급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-01-survey.html">①설문지</a>
+      <a href="walkthrough-02-abstract.html">②영문초록</a>
+      <a href="walkthrough-03-interview.html">③인터뷰코딩</a>
+      <a href="walkthrough-04-proposal.html">④연구계획서</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label mid">중급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-05-literature-codebook.html">⑤코드북</a>
+      <a href="walkthrough-06-panel-data.html">⑥패널데이터</a>
+      <a href="walkthrough-07-review-response.html">⑦심사대응</a>
+      <a href="walkthrough-08-meta-analysis.html">⑧메타분석</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label adv">고급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-09-r-debugging.html">⑨R디버깅</a>
+      <a href="walkthrough-10-hlm.html">⑩HLM분석</a>
+      <a href="walkthrough-11-api-batch.html" class="active">⑪API자동분류</a>
+    </div>
+  </div>
+</div>
+
+<h1>논문 50편 자동 분류하기</h1>
+
+<div class="page-meta">
+  <span class="meta-tag meta-adv">고급 11</span>
+  <span class="meta-tag meta-time">⏱ 45분</span>
+  <span class="meta-tag meta-adv">API 키 필요</span>
+</div>
+
+<p class="page-subtitle">제목·초록이 담긴 CSV 파일 → Claude API 반복 호출 → 주제 분류 결과 CSV 저장</p>
+
+<p>문헌 검토를 위해 50편의 논문을 수집했다고 가정합니다. 각 논문을 연구 주제별로 분류해야 하는데, Claude Code 터미널에서 50번 복붙하는 대신 Python 스크립트 한 번으로 전체를 처리합니다.</p>
+
+<div class="flow-wrap">
+  <div class="flow-title">전체 흐름</div>
+  <div class="flow-row">
+    <div class="flow-box gold"><span>papers.csv</span><div class="flow-sub">제목 + 초록</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box adv"><span>Python 스크립트</span><div class="flow-sub">classify.py</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box"><span>Claude API</span><div class="flow-sub">Haiku 모델</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box green"><span>results.csv</span><div class="flow-sub">분류 결과 추가</div></div>
+  </div>
+</div>
+
+<!-- ===== 준비물 ===== -->
+
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>준비물 확인</h2>
+
+<div class="prep-grid">
+  <div class="prep-card">
+    <div class="prep-icon">🔑</div>
+    <div class="prep-name">API 키</div>
+    <div class="prep-desc">console.anthropic.com에서 발급. <a href="advanced-06-api.html">고급 06</a> 참고</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">🐍</div>
+    <div class="prep-name">Python 3</div>
+    <div class="prep-desc">터미널에서 <code>python3 --version</code>으로 확인</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📦</div>
+    <div class="prep-name">라이브러리</div>
+    <div class="prep-desc"><code>anthropic</code>, <code>pandas</code>, <code>python-dotenv</code></div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📄</div>
+    <div class="prep-name">papers.csv</div>
+    <div class="prep-desc"><code>title</code>, <code>abstract</code> 열이 있는 CSV 파일</div>
+  </div>
+</div>
+
+<div class="callout callout-warn">
+  <div class="callout-title">⚠️ API 키와 크레딧이 없으면 시작 전 먼저 준비하세요</div>
+  <p><a href="advanced-06-api.html">고급 06 — Claude API 시작하기</a>에서 키 발급과 크레딧 충전 방법을 안내합니다. $5 크레딧이면 이 실습에 충분합니다.</p>
+</div>
+
+<!-- ===== 단계별 실습 ===== -->
+<h2>단계별 실습</h2>
+
+<div class="wt-steps">
+
+  <!-- STEP 1 -->
+  <div class="wt-step">
+    <div class="wt-step-header">
+      <div class="wt-step-num">1</div>
+      <div class="wt-step-title">라이브러리 설치 <span class="step-tag tag-you">터미널</span></div>
+    </div>
+    <div class="wt-step-body">
+      <p>터미널을 열고 아래 명령어를 실행합니다. 이미 설치했다면 건너뛰어도 됩니다.</p>
+      <pre><code>pip3 install anthropic pandas python-dotenv</code></pre>
+      <p style="font-size:0.85rem; color:var(--text-muted);">설치 완료 후 <code>Successfully installed</code> 메시지가 보이면 정상입니다.</p>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="wt-step">
+    <div class="wt-step-header">
+      <div class="wt-step-num">2</div>
+      <div class="wt-step-title">프로젝트 폴더 만들기 <span class="step-tag tag-you">직접 작업</span></div>
+    </div>
+    <div class="wt-step-body">
+      <p>아래 구조로 폴더와 파일을 준비합니다.</p>
+      <pre><code>paper-classifier/
+├── papers.csv       <span class="cmd-comment">← 입력 파일 (논문 목록)</span>
+├── .env             <span class="cmd-comment">← API 키 저장 (Git에 올리지 마세요)</span>
+├── .gitignore       <span class="cmd-comment">← .env 제외 설정</span>
+└── classify.py      <span class="cmd-comment">← 이번 실습에서 만들 스크립트</span></code></pre>
+
+      <p><strong>.env 파일 내용:</strong></p>
+      <pre><code>ANTHROPIC_API_KEY=sk-ant-여기에_실제_키를_붙여넣기</code></pre>
+
+      <p><strong>.gitignore 파일 내용:</strong></p>
+      <pre><code>.env</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="wt-step">
+    <div class="wt-step-header">
+      <div class="wt-step-num">3</div>
+      <div class="wt-step-title">입력 CSV 파일 준비 <span class="step-tag tag-you">직접 작업</span></div>
+    </div>
+    <div class="wt-step-body">
+      <p><code>papers.csv</code>에는 아래와 같이 <code>title</code>과 <code>abstract</code> 열이 필요합니다. Excel에서 만들어 CSV로 저장하거나, 기존 파일의 열 이름을 맞춰주세요.</p>
+
+      <div class="sample-output">
+        <div class="sample-header">📄 papers.csv — 예시 형식</div>
+        <div class="sample-body">
+          <table>
+            <thead><tr><th>title</th><th>abstract</th></tr></thead>
+            <tbody>
+              <tr><td>교사 효능감과 학생 성취의 관계</td><td>본 연구는 초등학교 교사의 자기효능감이 학생의 학업 성취에 미치는 영향을…</td></tr>
+              <tr><td>협동학습이 학업 동기에 미치는 효과</td><td>This study examines the effects of cooperative learning on academic motivation…</td></tr>
+              <tr><td>교육과정 재구성에 관한 질적 연구</td><td>교사의 교육과정 재구성 실천을 심층 인터뷰를 통해 탐색한 연구로…</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin:0.5rem 0 0;">열 이름이 다르면 이후 코드에서 <code>row["title"]</code>을 실제 열 이름으로 수정하세요.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 테스트는 10편으로 먼저</div>
+        <p>처음 실행할 때는 논문 3~10편만 넣어 결과가 올바른지 확인하세요. 전체 50편은 품질 확인 후 처리합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="wt-step">
+    <div class="wt-step-header">
+      <div class="wt-step-num">4</div>
+      <div class="wt-step-title">classify.py 작성 <span class="step-tag tag-code">코드 복사</span></div>
+    </div>
+    <div class="wt-step-body">
+      <p>아래 코드를 복사해 <code>classify.py</code>로 저장합니다. 분류 기준(<code>CATEGORIES</code>)은 연구 주제에 맞게 수정하세요.</p>
+
+      <pre><code><span class="py-kw">from</span> dotenv <span class="py-kw">import</span> load_dotenv
+<span class="py-kw">import</span> anthropic
+<span class="py-kw">import</span> pandas <span class="py-kw">as</span> pd
+<span class="py-kw">import</span> time
+
+<span class="py-cmt"># ──────────────────────────────────────────────────
+# 여기를 수정하세요 — 연구 주제에 맞는 분류 기준
+CATEGORIES = [
+    <span class="py-str">"교수법"</span>,       <span class="py-cmt"># 수업 방법, 교수 전략</span>
+    <span class="py-str">"교육과정"</span>,     <span class="py-cmt"># 교육과정 설계, 재구성</span>
+    <span class="py-str">"교육평가"</span>,     <span class="py-cmt"># 평가 방법, 학업 성취 측정</span>
+    <span class="py-str">"교사교육"</span>,     <span class="py-cmt"># 교사 전문성, 연수</span>
+    <span class="py-str">"학습동기"</span>,     <span class="py-cmt"># 자기효능감, 내재적 동기</span>
+    <span class="py-str">"특수교육"</span>,     <span class="py-cmt"># 장애, 통합교육</span>
+    <span class="py-str">"교육정책"</span>,     <span class="py-cmt"># 제도, 법령, 행정</span>
+    <span class="py-str">"기타"</span>          <span class="py-cmt"># 위 범주에 해당하지 않는 경우</span>
+]
+INPUT_FILE  = <span class="py-str">"papers.csv"</span>     <span class="py-cmt"># 입력 파일명</span>
+OUTPUT_FILE = <span class="py-str">"results.csv"</span>    <span class="py-cmt"># 결과 파일명</span>
+TITLE_COL   = <span class="py-str">"title"</span>          <span class="py-cmt"># 제목 열 이름</span>
+ABSTRACT_COL = <span class="py-str">"abstract"</span>      <span class="py-cmt"># 초록 열 이름</span>
+<span class="py-cmt"># ──────────────────────────────────────────────────</span>
+
+load_dotenv()
+client = anthropic.Anthropic()
+
+<span class="py-kw">def</span> <span class="py-fn">classify_paper</span>(title: str, abstract: str) -> str:
+    <span class="py-str">"""논문 주제를 분류합니다. 분류 결과 하나만 반환합니다."""</span>
+    categories_str = <span class="py-str">", "</span>.join(CATEGORIES)
+    response = client.messages.create(
+        model=<span class="py-str">"claude-haiku-4-5-20251001"</span>,
+        max_tokens=<span class="py-num">30</span>,
+        messages=[{
+            <span class="py-str">"role"</span>: <span class="py-str">"user"</span>,
+            <span class="py-str">"content"</span>: (
+                <span class="py-str">f"다음 논문의 연구 주제를 아래 분류 중 하나로만 답하세요.\n"</span>
+                <span class="py-str">f"분류: {categories_str}\n\n"</span>
+                <span class="py-str">f"제목: {title}\n"</span>
+                <span class="py-str">f"초록: {abstract[:400]}\n\n"</span>
+                <span class="py-str">f"분류 결과(하나만):"</span>
+            )
+        }]
+    )
+    result = response.content[<span class="py-num">0</span>].text.strip()
+    <span class="py-kw">return</span> result <span class="py-kw">if</span> result <span class="py-kw">in</span> CATEGORIES <span class="py-kw">else</span> <span class="py-str">"기타"</span>
+
+<span class="py-cmt"># CSV 읽기</span>
+df = pd.<span class="py-fn">read_csv</span>(INPUT_FILE)
+<span class="py-fn">print</span>(<span class="py-str">f"총 {len(df)}편 처리 시작\n"</span>)
+
+results = []
+errors  = []
+
+<span class="py-kw">for</span> i, row <span class="py-kw">in</span> df.<span class="py-fn">iterrows</span>():
+    title_preview = str(row[TITLE_COL])[:35]
+    <span class="py-fn">print</span>(<span class="py-str">f"[{i+1:3}/{len(df)}] {title_preview}..."</span>, end=<span class="py-str">" "</span>)
+    <span class="py-kw">try</span>:
+        category = <span class="py-fn">classify_paper</span>(str(row[TITLE_COL]), str(row[ABSTRACT_COL]))
+        results.<span class="py-fn">append</span>(category)
+        <span class="py-fn">print</span>(<span class="py-str">f"→ {category}"</span>)
+    <span class="py-kw">except</span> Exception <span class="py-kw">as</span> e:
+        results.<span class="py-fn">append</span>(<span class="py-str">"오류"</span>)
+        errors.<span class="py-fn">append</span>((i, str(e)))
+        <span class="py-fn">print</span>(<span class="py-str">f"→ 오류: {e}"</span>)
+    time.<span class="py-fn">sleep</span>(<span class="py-num">0.3</span>)   <span class="py-cmt"># 호출 간격</span>
+
+<span class="py-cmt"># 결과 저장</span>
+df[<span class="py-str">"category"</span>] = results
+df.<span class="py-fn">to_csv</span>(OUTPUT_FILE, index=<span class="py-kw">False</span>, encoding=<span class="py-str">"utf-8-sig"</span>)
+
+<span class="py-fn">print</span>(<span class="py-str">f"\n완료! {OUTPUT_FILE} 저장됨"</span>)
+<span class="py-fn">print</span>(<span class="py-str">f"오류 건수: {len(errors)}"</span>)
+<span class="py-kw">if</span> errors:
+    <span class="py-kw">for</span> idx, msg <span class="py-kw">in</span> errors:
+        <span class="py-fn">print</span>(<span class="py-str">f"  행 {idx}: {msg}"</span>)</code></pre>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 분류 기준 수정 방법</div>
+        <p>코드 상단의 <code>CATEGORIES</code> 목록을 연구 목적에 맞게 바꾸세요. 예를 들어 메타분석 연구라면 <code>["무선통제실험", "준실험설계", "단일사례", "질적연구", "혼합방법", "문헌고찰"]</code>처럼 연구 설계 유형으로 분류할 수도 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="wt-step">
+    <div class="wt-step-header">
+      <div class="wt-step-num">5</div>
+      <div class="wt-step-title">실행 및 결과 확인 <span class="step-tag tag-you">터미널</span></div>
+    </div>
+    <div class="wt-step-body">
+      <p><code>paper-classifier</code> 폴더로 이동한 후 스크립트를 실행합니다.</p>
+      <pre><code><span class="cmd-comment"># 폴더로 이동</span>
+cd ~/Desktop/paper-classifier
+
+<span class="cmd-comment"># 스크립트 실행</span>
+python3 classify.py</code></pre>
+
+      <p>정상 실행 시 아래처럼 진행 상황이 출력됩니다.</p>
+      <pre><code><span class="cmd-out">총 50편 처리 시작
+
+[  1/50] 교사 효능감과 학생 성취의 관계... → 교사교육
+[  2/50] 협동학습이 학업 동기에 미치는... → 학습동기
+[  3/50] 교육과정 재구성에 관한 질적 연구... → 교육과정
+...
+[50/50] 특수교육 지원 인력의 역할에 대한... → 특수교육
+
+완료! results.csv 저장됨
+오류 건수: 0</span></code></pre>
+
+      <p>실행이 끝나면 같은 폴더에 <code>results.csv</code>가 생성됩니다. Excel로 열어 <code>category</code> 열을 확인합니다.</p>
+
+      <div class="sample-output">
+        <div class="sample-header">📄 results.csv — 결과 예시</div>
+        <div class="sample-body">
+          <table>
+            <thead><tr><th>title</th><th>abstract</th><th>category</th></tr></thead>
+            <tbody>
+              <tr><td>교사 효능감과 학생 성취의 관계</td><td>본 연구는 초등학교 교사의…</td><td><strong>교사교육</strong></td></tr>
+              <tr><td>협동학습이 학업 동기에 미치는 효과</td><td>This study examines…</td><td><strong>학습동기</strong></td></tr>
+              <tr><td>교육과정 재구성에 관한 질적 연구</td><td>교사의 교육과정…</td><td><strong>교육과정</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== 비용 추정 ===== -->
+<h2>비용 추정</h2>
+
+<p>Haiku 모델 기준, 논문 1편 처리에 사용되는 토큰은 대략 다음과 같습니다.</p>
+
+<table>
+  <thead>
+    <tr><th>항목</th><th>토큰 수(편당 평균)</th><th>내용</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>입력 토큰</td><td>약 200~300 토큰</td><td>프롬프트 + 제목 + 초록 앞 400자</td></tr>
+    <tr><td>출력 토큰</td><td>약 5~10 토큰</td><td>분류 결과 한 단어</td></tr>
+    <tr><td><strong>50편 합산</strong></td><td><strong>약 15,000~16,000 토큰</strong></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 비용은 $0.05 미만</div>
+  <p>Haiku는 매우 저렴해서 논문 50편 분류에 $0.01~0.05 정도면 충분합니다. 정확한 요금은 <strong>anthropic.com/pricing</strong>에서 확인하세요.</p>
+</div>
+
+<!-- ===== 트러블슈팅 ===== -->
+<h2>트러블슈팅</h2>
+
+<table>
+  <thead>
+    <tr><th>문제</th><th>원인</th><th>해결 방법</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>AuthenticationError</code></td>
+      <td>API 키 오류 또는 <code>.env</code> 파일 위치가 다름</td>
+      <td><code>.env</code>가 <code>classify.py</code>와 같은 폴더에 있는지 확인. 키 앞뒤 공백 제거</td>
+    </tr>
+    <tr>
+      <td><code>ModuleNotFoundError</code></td>
+      <td>라이브러리 미설치</td>
+      <td><code>pip3 install anthropic pandas python-dotenv</code> 재실행</td>
+    </tr>
+    <tr>
+      <td>분류 결과가 모두 "기타"</td>
+      <td>Claude 응답이 CATEGORIES 목록과 정확히 일치하지 않음</td>
+      <td>프롬프트에 "반드시 목록 중 하나로만 답하세요"를 더 강조하거나, 응답 후처리 로직을 추가</td>
+    </tr>
+    <tr>
+      <td>한글 CSV 깨짐</td>
+      <td>인코딩 문제</td>
+      <td><code>pd.read_csv("papers.csv", encoding="utf-8-sig")</code> 또는 <code>encoding="cp949"</code> 시도</td>
+    </tr>
+    <tr>
+      <td><code>KeyError: 'title'</code></td>
+      <td>CSV 열 이름이 다름</td>
+      <td>코드 상단의 <code>TITLE_COL</code>을 실제 열 이름으로 수정</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===== 응용 ===== -->
+<h2>이 패턴으로 할 수 있는 다른 작업</h2>
+
+<p>이번 실습에서 배운 "CSV 읽기 → API 반복 호출 → 결과 저장" 패턴은 다양한 연구 작업에 응용할 수 있습니다.</p>
+
+<table>
+  <thead>
+    <tr><th>작업</th><th>입력</th><th>API 요청</th><th>출력</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>인터뷰 발췌문 코딩</td>
+      <td>발췌문 CSV</td>
+      <td>코드 목록 제시 후 분류</td>
+      <td>코드 열 추가</td>
+    </tr>
+    <tr>
+      <td>설문 개방형 응답 분류</td>
+      <td>응답 CSV</td>
+      <td>주제 범주 제시 후 분류</td>
+      <td>범주 열 추가</td>
+    </tr>
+    <tr>
+      <td>논문 초록 한국어 요약</td>
+      <td>영문 초록 CSV</td>
+      <td>한 줄 요약 생성</td>
+      <td>요약 열 추가</td>
+    </tr>
+    <tr>
+      <td>연구 방법론 추출</td>
+      <td>초록 CSV</td>
+      <td>양적/질적/혼합 방법론 분류</td>
+      <td>방법론 열 추가</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr class="divider">
+
+<div class="callout callout-result">
+  <div class="callout-title">✅ 실습 완료</div>
+  <p>CSV 파일을 Claude API로 일괄 처리하는 방법을 익혔습니다. <code>CATEGORIES</code>와 프롬프트를 바꾸면 어떤 분류 작업에도 이 패턴을 그대로 사용할 수 있습니다.</p>
+</div>
+
+
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 따라하기 고급 11. 논문 50편 자동 분류하기</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+<script>
+  function initCopyButtons() {
+    document.querySelectorAll('pre').forEach(function(pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn'; btn.textContent = '복사'; btn.title = '클립보드에 복사';
+      btn.addEventListener('click', function() {
+        var code = pre.querySelector('code');
+        var text = (code ? code.innerText : pre.innerText).replace(/복사$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = '✓ 완료'; btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initCopyButtons);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 커스텀 Skill 제작 v2 — Claude 연구 활용 가이드 고급 03</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#ffffff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--b-adv:#8e44ad;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:.15rem;}
+    .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;padding:.4rem .85rem;border-radius:5px;font-size:.85rem;font-weight:500;transition:background .15s,color .15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,.15);color:#fff;}.nav-links a.active{background:rgba(255,255,255,.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem;}.breadcrumb a{color:var(--primary-light);text-decoration:none;}.breadcrumb span{margin:0 .35rem;}
+    .sub-nav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+    .sub-nav a{font-size:.78rem;text-decoration:none;padding:.3rem .7rem;border-radius:4px;color:var(--primary-light);transition:all .15s;}
+    .sub-nav a:hover{background:var(--primary-pale);}.sub-nav a.active{background:var(--primary);color:#fff;font-weight:600;}
+    h1{font-family:var(--font-serif);font-size:2.1rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:.4rem;border-bottom:3px solid var(--accent);padding-bottom:.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:2rem;}
+    h2{font-family:var(--font-serif);font-size:1.45rem;font-weight:700;color:var(--primary);margin:3rem 0 1.1rem;padding-bottom:.45rem;border-bottom:2px solid var(--border);}
+    h3{font-size:1.05rem;font-weight:700;color:var(--text);margin:1.75rem 0 .7rem;}
+    p{margin-bottom:1rem;}ul,ol{padding-left:1.6rem;margin-bottom:1rem;}li{margin-bottom:.4rem;}a{color:var(--primary-light);}strong{color:var(--text);}
+    kbd{background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:.1em .4em;font-family:var(--font-mono);font-size:.82em;}
+    .badge{display:inline-block;font-size:.68rem;font-weight:700;padding:.18em .6em;border-radius:3px;color:#fff;letter-spacing:.05em;vertical-align:middle;}
+    .badge-adv{background:var(--b-adv);}.badge-v2{background:var(--accent);}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:.8rem;letter-spacing:.06em;margin-bottom:.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:.5rem;}.callout p:last-child{margin-bottom:0;}
+    table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+    th{background:var(--primary);color:#fff;padding:.75rem 1rem;text-align:left;font-weight:600;font-size:.82rem;}
+    td{padding:.7rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}tr:last-child td{border-bottom:none;}
+    code{font-family:var(--font-mono);font-size:.84em;background:var(--surface-2);padding:.15em .4em;border-radius:3px;border:1px solid var(--border);}
+    pre{background:#1b2035;color:#cdd6f4;padding:1.25rem;border-radius:8px;overflow-x:auto;margin:1rem 0;font-family:var(--font-mono);font-size:.875rem;line-height:1.6;position:relative;}
+    pre code{background:none;border:none;padding:0;color:inherit;}
+    .cmd-comment{color:#6a7499;}.cmd-out{color:#a6e3a1;}
+    .md-key{color:#94e2d8;}.md-val{color:#f9e2af;}.md-str{color:#a6e3a1;}.md-comment{color:#6a7499;font-style:italic;}
+    .page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;}
+    .page-nav a{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:.875rem;font-weight:600;transition:all .15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}.page-nav .next{margin-left:auto;}
+    .steps{counter-reset:step;list-style:none;padding-left:0;}
+    .steps>li{counter-increment:step;display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-start;}
+    .steps>li::before{content:counter(step);background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem;}
+    .steps>li>div{flex:1;}.steps>li h4{font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:.4rem;}.steps>li p{font-size:.9rem;margin-bottom:.5rem;}
+    .copy-btn{position:absolute;top:.5rem;right:.5rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:rgba(255,255,255,.65);cursor:pointer;font-size:.78rem;padding:.2em .55em;transition:all .15s;font-family:var(--font-sans);line-height:1.4;}
+    .copy-btn:hover{background:rgba(255,255,255,.22);color:#fff;}.copy-btn.copied{background:rgba(39,174,96,.35);color:#a6e3a1;border-color:rgba(39,174,96,.4);}
+    .skill-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.25rem 0;}
+    .skill-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;}
+    .skill-card-icon{font-size:1.5rem;margin-bottom:.5rem;}.skill-card-title{font-weight:700;font-size:.92rem;color:var(--primary);margin-bottom:.35rem;}.skill-card-desc{font-size:.82rem;color:var(--text-muted);line-height:1.6;}
+    .file-viewer{background:#1b2035;border-radius:10px;overflow:hidden;margin:1.25rem 0;}
+    .file-viewer-bar{background:#2a2f45;padding:.6rem 1rem;display:flex;align-items:center;gap:.75rem;}
+    .fv-dot{width:12px;height:12px;border-radius:50%;}.fv-dot.r{background:#e53935;}.fv-dot.y{background:#f6c026;}.fv-dot.g{background:#27ae60;}
+    .fv-name{font-family:var(--font-mono);font-size:.78rem;color:#89b4fa;}
+    .file-viewer-body{padding:1.5rem;font-family:var(--font-mono);font-size:.84rem;line-height:1.7;color:#cdd6f4;white-space:pre;}
+    /* SKILL CREATION STEPS */
+    .skill-steps{list-style:none;padding:0;counter-reset:sk;}
+    .skill-steps>li{counter-increment:sk;margin-bottom:2rem;}
+    .sk-header{display:flex;align-items:center;gap:.85rem;margin-bottom:.9rem;}
+    .sk-num{background:var(--primary);color:#fff;width:2.2rem;height:2.2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0;}
+    .sk-title{font-size:1rem;font-weight:700;color:var(--primary);}
+    .sk-body{padding-left:3.1rem;}
+    .sk-body p{font-size:.9rem;margin-bottom:.65rem;}
+    /* terminal demo */
+    .term-demo{background:#1b2035;border-radius:10px;overflow:hidden;margin:.75rem 0;}
+    .term-bar{background:#2a2f45;padding:.55rem 1rem;display:flex;align-items:center;gap:.5rem;}
+    .term-dot{width:11px;height:11px;border-radius:50%;}
+    .term-dot.r{background:#e53935;}.term-dot.y{background:#f6c026;}.term-dot.g{background:#27ae60;}
+    .term-label{font-family:var(--font-mono);font-size:.73rem;color:#89b4fa;margin-left:.25rem;}
+    .term-body{padding:1.1rem 1.25rem;font-family:var(--font-mono);font-size:.84rem;line-height:1.75;color:#cdd6f4;}
+    .t-prompt{color:#89b4fa;font-weight:700;margin-right:.4rem;}
+    .t-input{color:#cdd6f4;}
+    .t-claude{color:#a6e3a1;}
+    .t-action{color:#f9e2af;}
+    .t-dim{color:#6a7499;}
+    .t-divider{border-top:1px solid #3a3f55;margin:.6rem 0;}
+    /* info cards */
+    .info-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin:1.25rem 0;}
+    .info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+    .info-card .ic-icon{font-size:1.4rem;margin-bottom:.4rem;}
+    .info-card .ic-title{font-weight:700;font-size:.88rem;color:var(--primary);margin-bottom:.35rem;}
+    .info-card .ic-desc{font-size:.8rem;color:var(--text-muted);line-height:1.6;}
+    .info-card .ic-ex{font-size:.77rem;font-family:var(--font-mono);background:var(--surface-2);border-radius:4px;padding:.3rem .5rem;margin-top:.45rem;color:var(--text);}
+    .rename-note{background:var(--accent-pale);border:1px solid #e5c97a;border-radius:7px;padding:.7rem 1rem;font-size:.82rem;color:var(--text);margin-top:.6rem;}
+    .rename-note strong{color:var(--accent);}
+    @media(max-width:640px){.info-cards{grid-template-columns:1fr;}}
+    /* INVOKE BOX */
+    .invoke-box{background:var(--surface);border:2px solid var(--primary);border-radius:10px;padding:1.25rem;margin:1.25rem 0;}
+    .invoke-box h4{font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:.75rem;}
+    .invoke-line{background:#1b2035;border-radius:6px;padding:.75rem 1rem;font-family:var(--font-mono);font-size:.88rem;color:#cdd6f4;margin-bottom:.5rem;}
+    .invoke-note{font-size:.82rem;color:var(--text-muted);}
+    .divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+    @media print{.site-nav,.page-nav{display:none;}body{padding-top:0;background:#fff;}main{padding:1cm 1.5cm;max-width:none;}h2{page-break-before:always;}h2:first-of-type{page-break-before:auto;}.callout,.file-viewer,.skill-cards{page-break-inside:avoid;}}
+    @media(max-width:640px){h1{font-size:1.7rem;}.skill-cards{grid-template-columns:1fr 1fr;}main{padding:2rem 1.25rem 4rem;}}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html" class="active">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+  <div class="breadcrumb">
+    <a href="index.html">홈</a><span>›</span>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a><span>›</span>커스텀 Skill 제작
+  </div>
+  <div class="sub-nav">
+    <a href="advanced-01-git.html">01. Git 기초</a>
+    <a href="advanced-02-worktree.html">02. Worktree</a>
+    <a href="advanced-03-custom-skill_v2.html" class="active">03. 커스텀 Skill</a>
+    <a href="advanced-04-mcp_v2.html">04. MCP 설정</a>
+    <a href="advanced-05-automation_v2.html">05. 자동화</a>
+  </div>
+
+  <h1>커스텀 Skill 제작</h1>
+  <p class="page-subtitle"><span class="badge badge-adv">고급 03</span> &nbsp;<span class="badge badge-v2">v2</span> &nbsp;Skill 호출 문법, 전역/프로젝트 판단 기준, 작동 테스트 절차 강화</p>
+
+  <p>Skill은 자주 쓰는 프롬프트 패턴을 <strong>마크다운 파일로 저장해 두고 <code>/skill-name</code> 명령으로 즉시 불러오는</strong> 기능입니다. 같은 지시를 매 세션마다 타이핑하는 대신, 한 번 작성해 두면 영구적으로 재사용할 수 있습니다.</p>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 이 기능은 어디에 있나요?</div>
+    <p>Skill은 <strong>Claude Code (CLI 및 데스크탑 앱)</strong> 환경에서 동작합니다. <code>claude.ai</code> 웹 인터페이스에는 없는 기능입니다. Claude Code 설치가 완료되어 있어야 합니다 (<a href="intro-03-installation.html">설치 가이드</a>).</p>
+  </div>
+
+  <h2>1. 언제 Skill을 만드나</h2>
+  <div class="skill-cards">
+    <div class="skill-card"><div class="skill-card-icon">🔁</div><div class="skill-card-title">반복 패턴</div><div class="skill-card-desc">매 세션마다 같은 지시를 타이핑하고 있다면 Skill로 만들 타이밍입니다.</div></div>
+    <div class="skill-card"><div class="skill-card-icon">📐</div><div class="skill-card-title">형식 일관성</div><div class="skill-card-desc">APA 인용, 요약 형식 등 정확한 형식이 중요한 작업에 적합합니다.</div></div>
+    <div class="skill-card"><div class="skill-card-icon">📢</div><div class="skill-card-title">팀 공유</div><div class="skill-card-desc">연구팀 전원이 동일한 프롬프트 패턴을 쓸 수 있도록 표준화합니다.</div></div>
+    <div class="skill-card"><div class="skill-card-icon">🎯</div><div class="skill-card-title">복잡한 지시</div><div class="skill-card-desc">여러 단계의 지시문이나 조건부 처리가 필요한 복잡한 작업을 저장합니다.</div></div>
+  </div>
+
+  
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>2. Skill 만들기 — Claude에게 요청하면 됩니다</h2>
+  <p>파일 구조나 경로를 직접 다룰 필요 없습니다. <strong>원하는 스킬을 말로 설명하면 Claude가 파일을 만들고 저장합니다.</strong></p>
+
+  <ul class="skill-steps">
+    <li>
+      <div class="sk-header"><div class="sk-num">1</div><div class="sk-title">원하는 스킬을 말로 설명</div></div>
+      <div class="sk-body">
+        <p>어떤 작업인지, 어떤 형식으로 결과를 원하는지 설명합니다. 파일명도 함께 알려주면 바로 저장됩니다.</p>
+        <div class="term-demo">
+          <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-label">Terminal — Claude Code (CLI)</span></div>
+          <div class="term-body"><span class="t-prompt">&gt;</span> <span class="t-input">논문 리뷰어 코멘트에 반박문을 작성하는 스킬 만들어줘.
+  학술지 제출용이고, APA 스타일, 정중하지만 단호한 톤으로.
+  파일명은 rebuttal 로 해줘.</span></div>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="sk-header"><div class="sk-num">2</div><div class="sk-title">Claude가 파일 생성 및 저장</div></div>
+      <div class="sk-body">
+        <p>Claude가 스킬 파일을 작성하고 자동으로 저장합니다. 완료 메시지를 확인하면 됩니다.</p>
+        <div class="term-demo">
+          <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-label">Terminal — Claude 응답</span></div>
+          <div class="term-body"><span class="t-action">✓ Write</span> <span class="t-claude">~/.claude/skills/rebuttal.md</span>
+<span class="t-divider"></span>
+<span class="t-claude">스킬이 생성됐습니다.
+다음 세션부터 /rebuttal 로 호출하세요.</span></div>
+        </div>
+        <div class="rename-note">
+          <strong>스킬명 변경하고 싶다면?</strong> 파일명이 곧 호출 명령어입니다. 만든 후 이름을 바꾸려면 Claude에게 <em>"스킬 파일명을 review-reply로 바꿔줘"</em>라고 하거나, 파일명을 직접 수정하면 됩니다.
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="sk-header"><div class="sk-num">3</div><div class="sk-title">새 세션에서 호출</div></div>
+      <div class="sk-body">
+        <p>Skill은 <strong>다음 세션(새로 실행한 claude)부터</strong> 인식됩니다. <code>/스킬명</code>으로 호출하고 작업 대상을 덧붙입니다.</p>
+        <div class="term-demo">
+          <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-label">Terminal — 다음 세션</span></div>
+          <div class="term-body"><span class="t-dim"># 세션 재시작 후</span>
+<span class="t-prompt">&gt;</span> <span class="t-input">/rebuttal
+  리뷰어 2번 코멘트 반박문 작성해줘.
+  reviewer_comments.md 파일 참고해서.</span>
+<span class="t-divider"></span>
+<span class="t-action">Read</span> <span class="t-claude">reviewer_comments.md</span>
+<span class="t-claude">리뷰어 2번 코멘트: "측정 도구의 타당도 검증이 부족함"
+
+반박문 초안:
+Dear Reviewer 2,
+We appreciate your detailed feedback regarding
+the validity of measurement instruments...</span></div>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <h3>요청할 때 이 정보를 추가하면 더 좋습니다</h3>
+  <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:.5rem;">없어도 만들어지지만, 아래 정보를 포함하면 첫 번째 결과물 품질이 높아집니다.</p>
+  <div class="info-cards">
+    <div class="info-card">
+      <div class="ic-icon">🎯</div>
+      <div class="ic-title">어떤 상황에서 쓸 건지</div>
+      <div class="ic-desc">매번 쓰는 건지, 특정 논문에서만 쓰는 건지</div>
+      <div class="ic-ex">"투고할 때마다 써" / "이 연구에서만 써"</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">📋</div>
+      <div class="ic-title">원하는 출력 형식</div>
+      <div class="ic-desc">표 / 특정 양식 / 글자 수 제한 / 언어</div>
+      <div class="ic-ex">"표로 / APA / 250자 이내 / 한국어 먼저"</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">✍️</div>
+      <div class="ic-title">기존에 선호하는 방식</div>
+      <div class="ic-desc">항상 지키는 규칙이나 스타일이 있다면</div>
+      <div class="ic-ex">"bullet point, 결론 먼저, 수동태 지양"</div>
+    </div>
+  </div>
+
+  <h2>3. Skill 호출 방법</h2>
+
+  <p>Skill을 만든 후에는 Claude Code 세션에서 <code>/skill-name</code>으로 호출합니다. 호출 방식에 따라 다양하게 활용할 수 있습니다.</p>
+
+  <div class="invoke-box">
+    <h4>호출 패턴별 예시</h4>
+    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem;">같은 Skill을 다양한 방식으로 호출할 수 있습니다.</p>
+
+    <div class="invoke-line">/apa-citation</div>
+    <div class="invoke-note" style="margin-bottom:.75rem;">→ Skill만 호출. Skill 본문대로 동작 (추가 지시 없음)</div>
+
+    <div class="invoke-line">/apa-citation<br>01_literature 폴더의 논문들을 정리해줘. 04_writing/references.md에 저장.</div>
+    <div class="invoke-note" style="margin-bottom:.75rem;">→ 가장 일반적인 방식. Skill을 호출하면서 구체적 대상(폴더, 파일)과 저장 경로를 추가로 지정</div>
+
+    <div class="invoke-line">/abstract-writer<br>04_writing/chapter_draft.md 읽고 영문 초록도 함께 만들어줘 (200 words).</div>
+    <div class="invoke-note">→ Skill에 없는 추가 요청(영문 초록)을 그 자리에서 덧붙이기 가능. Skill + 임시 지시의 조합</div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 Skill은 CLAUDE.md 맥락을 함께 사용합니다</div>
+    <p>Skill 호출 시 Claude는 현재 프로젝트의 <code>CLAUDE.md</code>도 함께 참조합니다. CLAUDE.md에 "APA 7판 사용, 한국어 먼저 정렬"이라고 정의되어 있으면 <code>/apa-citation</code> 호출 시 그 맥락이 자동 반영됩니다.</p>
+  </div>
+
+  <h2>4. 연구자 맞춤 Skill 예제</h2>
+
+  <h3>예제 1 — APA 7판 인용 정리</h3>
+  <div class="file-viewer">
+    <div class="file-viewer-bar"><div class="fv-dot r"></div><div class="fv-dot y"></div><div class="fv-dot g"></div><span class="fv-name">~/.claude/skills/apa-citation.md</span></div>
+    <div class="file-viewer-body"><span class="md-comment">---
+name: apa-citation
+description: 논문 정보나 폴더의 파일을 APA 7판 형식 참고문헌으로 정리
+---</span>
+
+<span class="md-str">사용자가 제공한 논문 정보 또는 지정한 폴더의 파일들을 바탕으로
+APA 7판 형식 참고문헌 목록을 작성하세요.</span>
+
+<span class="md-comment">## 규칙
+- 알파벳/가나다 순 정렬 (한국어 먼저, 이후 영문)
+- 저자 3명 이상: 첫 저자 et al. (한국어: 첫 저자 외)
+- DOI는 https://doi.org/ 형식으로 표기
+- 학술지명, 도서명은 이탤릭체 (*이탤릭*)
+- 권(호) 형식: *학술지명, 권*(호), 쪽수</span>
+
+<span class="md-comment">## 출력
+마크다운 형식으로 참고문헌 목록만 출력하세요.
+파일 저장 경로를 지정받으면 해당 파일에 저장합니다.</span></div>
+  </div>
+
+  <div class="callout callout-prompt">
+    <div class="callout-title">✍️ 호출 예시</div>
+    <p><code>/apa-citation</code><br>01_literature 폴더에 있는 논문들을 정리해줘. 04_writing/references.md에 저장.</p>
+  </div>
+
+  <h3>예제 2 — 논문 초록 작성</h3>
+  <div class="file-viewer">
+    <div class="file-viewer-bar"><div class="fv-dot r"></div><div class="fv-dot y"></div><div class="fv-dot g"></div><span class="fv-name">~/.claude/skills/abstract-writer.md</span></div>
+    <div class="file-viewer-body"><span class="md-comment">---
+name: abstract-writer
+description: 논문 본문을 바탕으로 한국교육학회 스타일 국문 초록 작성 (250자 이내)
+---</span>
+
+<span class="md-str">사용자가 제공한 논문 본문(또는 지정 파일)을 읽고
+한국교육학회 투고 규정에 맞는 국문 초록을 작성하세요.</span>
+
+<span class="md-comment">## 구성 (이 순서대로)
+1. 연구 목적 (1-2문장)
+2. 연구방법 요약 (참여자/대상, 분석 방법)
+3. 주요 결과 (2-3가지 핵심 발견)
+4. 결론 및 함의 (1문장)</span>
+
+<span class="md-comment">## 형식
+- 총 250자 이내
+- 주어-서술어 명확한 완결 문장
+- 수동태 지양, 능동태 사용
+- 전문 용어는 원문 그대로 유지</span>
+
+<span class="md-comment">## 출력
+초록 본문만 출력. 제목, 설명 불필요.</span></div>
+  </div>
+
+  <h3>예제 3 — 질적 코딩 보조</h3>
+  <div class="file-viewer">
+    <div class="file-viewer-bar"><div class="fv-dot r"></div><div class="fv-dot y"></div><div class="fv-dot g"></div><span class="fv-name">~/.claude/skills/qualitative-code.md</span></div>
+    <div class="file-viewer-body"><span class="md-comment">---
+name: qualitative-code
+description: 인터뷰 전사본에서 귀납적 초기 코드 목록 추출 (Braun & Clarke 2006 주제분석)
+---</span>
+
+<span class="md-str">사용자가 제공한 인터뷰 전사본을 읽고
+Braun & Clarke(2006) 주제 분석법 2단계(초기 코딩)를 수행하세요.</span>
+
+<span class="md-comment">## 작업 절차
+1. 전사본 전체를 읽고 반복되거나 강조된 의미 단위 파악
+2. 각 의미 단위에 간결한 코드명 부여 (명사형, 5단어 이내)
+3. 코드명 + 해당 원문 인용 + 코드 메모 한 줄 작성
+4. 유사 코드끼리 잠정적 범주 제안 (5-7개)</span>
+
+<span class="md-comment">## 출력 형식 (마크다운 표)
+| 코드명 | 원문 인용 | 코드 메모 |
+|---|---|---|
+| ... | "..." | ... |
+
+이후 잠정적 범주와 포함 코드 목록.</span>
+
+<span class="md-comment">## 주의
+- 한 번에 한 참여자 파일만 처리 (순차 반복 원칙)
+- 코드는 현상을 기술하되 해석을 최소화
+- 상충하는 증거도 코드로 포함</span></div>
+  </div>
+
+  <h3>예제 4 — 주차별 리딩 리플렉션 페이퍼 <span style="font-size:0.78rem; font-weight:400; color:var(--text-muted);">(실제 활용 사례)</span> &nbsp;<span class="badge badge-adv" style="font-size:0.72rem; vertical-align:middle;">⚡ 고급 활용 예시</span></h3>
+  <div class="callout callout-tip" style="margin-bottom:1rem;">
+    <div class="callout-title">💡 이런 상황에서 만들었습니다</div>
+    <p>매주 수업 전날 Google Drive의 주차별 폴더에 담긴 논문 PDF(3-5편)를 읽고 리플렉션 페이퍼를 작성해야 할 때 — 폴더 탐색, 논문 요약, docx 파일 생성까지 한 번의 명령으로 끝냅니다.</p>
+  </div>
+  <div class="file-viewer">
+    <div class="file-viewer-bar"><div class="fv-dot r"></div><div class="fv-dot y"></div><div class="fv-dot g"></div><span class="fv-name">~/.claude/skills/week/SKILL.md</span></div>
+    <div class="file-viewer-body"><span class="md-comment">---
+name: week
+description: 주차별 리딩 폴더의 PDF를 읽고 리플렉션 페이퍼(.docx)를 작성합니다. 사용법: /week [숫자]
+---</span>
+
+<span class="md-str">사용자 입력에서 주차 번호를 추출하세요. (/week 2 → 2주차)</span>
+
+<span class="md-comment">## 1. 파일 탐색
+Google Drive에서 Week {숫자} 폴더를 찾아 PDF 목록을 확인합니다.
+경로: ~/Library/CloudStorage/GoogleDrive-.../비교교육(청강)/교수님 자료/Week {숫자}</span>
+
+<span class="md-comment">## 2. 논문 요약 (서브에이전트 병렬 처리)
+각 PDF를 독립적인 서브에이전트로 동시에 처리합니다.
+요약 항목: 저자/연도 · 핵심 주장 · 이론적 틀 · 비판 가능한 지점 · 다른 문헌과의 연결</span>
+
+<span class="md-comment">## 3. 리플렉션 페이퍼 작성 (python-docx)
+출력 파일: Week{숫자}_Reflection.docx
+저장 경로: .../비교교육(청강)/리플렉션 페이퍼/
+
+문서 구성: 들어가며 → 내용 정리 → 비판적 성찰 → 나가며
+분량: A4 3-5장 · 한국어 · 학문적 어조 · 저자명/연도 인용</span></div>
+  </div>
+
+  <div class="callout callout-prompt" style="margin-top:0.75rem;">
+    <div class="callout-title">✍️ 호출 예시</div>
+    <p><code>/week 2</code> &nbsp;또는&nbsp; <code>/week 11</code> — 주차 번호만 바꾸면 됩니다.</p>
+  </div>
+
+  <div class="term-demo" style="margin-top:1rem;">
+    <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-label">Terminal — 실행 흐름</span></div>
+    <div class="term-body"><span class="t-prompt">&gt;</span> <span class="t-input">/week 2</span>
+<span class="t-divider"></span>
+<span class="t-claude">Week 2 폴더를 탐색하고 있습니다...</span>
+<span class="t-action">→</span> <span class="t-dim">PDF 3편 발견: Archer(2000), Reay(2004), Bourdieu(1990)</span>
+<span class="t-claude">서브에이전트로 병렬 요약 중...</span>
+<span class="t-action">✓</span> <span class="t-dim">Archer_2000.pdf 요약 완료</span>
+<span class="t-action">✓</span> <span class="t-dim">Reay_2004.pdf 요약 완료</span>
+<span class="t-action">✓</span> <span class="t-dim">Bourdieu_1990.pdf 요약 완료</span>
+<span class="t-divider"></span>
+<span class="t-action">✓ Write</span> <span class="t-claude">.../리플렉션 페이퍼/Week2_Reflection.docx</span>
+<span class="t-divider"></span>
+<span class="t-claude">완료 — 논문 3편 처리
+이번 주 주제: 교육에서의 행위주체성(agency)과 구조의 관계</span></div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ Skill 인식 안 될 때</div>
+    <p><code>/스킬명</code>을 입력했을 때 반응이 없다면 <strong>현재 세션</strong>에서 만든 경우입니다. Skill은 <strong>새 세션부터</strong> 인식됩니다. Claude를 종료 후 다시 실행해 보세요.</p>
+  </div>
+
+  <h2>5. CLAUDE.md vs Skill — 언제 어떤 것을 쓰나</h2>
+
+  <table>
+    <thead><tr><th></th><th>CLAUDE.md</th><th>Skill</th></tr></thead>
+    <tbody>
+      <tr><td><strong>용도</strong></td><td>프로젝트 전반에 항상 적용되는 맥락</td><td>특정 작업에 명시적으로 호출하는 지시</td></tr>
+      <tr><td><strong>활성화</strong></td><td>Claude Code 시작 시 자동 로드</td><td><code>/skill-name</code>으로 수동 호출</td></tr>
+      <tr><td><strong>적합한 내용</strong></td><td>연구 주제, 대상, 사용 용어 정의, 문체</td><td>APA 정리, 초록 작성, 코딩 보조 등 반복 작업</td></tr>
+      <tr><td><strong>범위</strong></td><td>프로젝트 폴더에 위치 → 해당 프로젝트만</td><td>전역/프로젝트 선택 가능</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 함께 쓰는 방법</div>
+    <p>CLAUDE.md에는 프로젝트 맥락(연구 주제, 참여자 정보, 사용 통계 소프트웨어)을 넣고, Skill에는 반복 작업 절차를 넣습니다. Claude는 Skill 호출 시 CLAUDE.md의 맥락을 함께 참조해 더 정확한 결과를 냅니다.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 이 장을 마쳤다면</div>
+    <p>원하는 작업을 말로 설명하면 Claude가 Skill을 만들어줍니다. <strong>새 세션에서</strong> <code>/스킬명</code>으로 호출하고, 호출 시 작업 대상이나 추가 지시를 덧붙일 수 있습니다. 스킬명 변경은 언제든 Claude에게 요청하거나 파일명을 직접 수정하면 됩니다.</p>
+  </div>
+
+  
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 고급 03. 커스텀 Skill 제작</p>
+  <p style="margin-top:.3rem">v2.0 · 2026년 4월 | 호출 문법, 전역/프로젝트 기준, 테스트 절차 강화</p>
+
+  <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; align-items:center; gap:0.6rem;">
+    <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">
+      문의 · 피드백 &nbsp;·&nbsp;
+      <a href="mailto:goldringedu@gmail.com" style="color:var(--primary-light); text-decoration:none; font-weight:500;">goldringedu@gmail.com</a>
+      <button id="copy-email-btn" title="이메일 주소 복사" onclick="copyEmail()" style="margin-left:0.4rem; background:none; border:1px solid var(--border); border-radius:4px; color:var(--text-muted); cursor:pointer; font-size:0.72rem; padding:0.15em 0.5em; font-family:inherit; transition:all 0.15s;">복사</button> &nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a>
+    </p>
+    <p style="margin:0; font-size:0.78rem; color:var(--text-muted);">© 2026 Claude 연구 활용 가이드. 출처 표기 시 자유롭게 활용 가능합니다.</p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre').forEach(function(pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn'; btn.textContent = '복사'; btn.title = '클립보드에 복사';
+      btn.addEventListener('click', function() {
+        var code = pre.querySelector('code');
+        var text = (code ? code.innerText : pre.innerText).replace(/복사$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = '✓ 완료'; btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  });
+</script>
+</body>
+</html>

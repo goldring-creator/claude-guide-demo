@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 활용 06 — Claude가 만들 수 있는 것들 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;
+      --text:#1c1b28;--text-muted:#6b6578;
+      --primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;
+      --accent:#c0891f;--accent-pale:#fdf2de;
+      --c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;
+      --c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;
+      --c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;
+      --c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;
+      --b-intro:#27ae60;--b-mid:#2980b9;--b-adv:#8e44ad;
+      --font-serif:'Noto Serif KR',Georgia,serif;
+      --font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+      --font-mono:'JetBrains Mono','Courier New',monospace;
+      --max-w:860px;--nav-h:60px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb span{margin:0 0.35rem;}
+
+    .sub-nav{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:0.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+    .sub-nav a{font-size:0.78rem;text-decoration:none;padding:0.3rem 0.7rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .sub-nav a:hover{background:var(--primary-pale);}
+    .sub-nav a.active{background:var(--primary);color:#fff;font-weight:600;}
+
+    h1{font-family:var(--font-serif);font-size:2.1rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:2rem;}
+    h2{font-family:var(--font-serif);font-size:1.45rem;font-weight:700;color:var(--primary);margin:3rem 0 1.1rem;padding-bottom:0.45rem;border-bottom:2px solid var(--border);}
+    h3{font-size:1.05rem;font-weight:700;color:var(--text);margin:1.75rem 0 0.7rem;}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+
+    .badge{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.18em 0.6em;border-radius:3px;color:#fff;letter-spacing:0.05em;vertical-align:middle;}
+    .badge-mid{background:var(--b-mid);}
+
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+
+    .page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+
+    hr.divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+
+    /* ── 재료 카드 그리드 ── */
+    .ingredient-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin:1.25rem 0;}
+    .ingredient-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;display:flex;flex-direction:column;gap:0.4rem;}
+    .ingredient-icon{font-size:1.8rem;line-height:1;}
+    .ingredient-title{font-weight:700;font-size:0.92rem;color:var(--primary);}
+    .ingredient-exts{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);background:var(--accent-pale);padding:0.2em 0.5em;border-radius:3px;display:inline-block;margin:0.1rem 0;}
+    .ingredient-desc{font-size:0.8rem;color:var(--text-muted);line-height:1.55;}
+    .ingredient-how{font-size:0.75rem;color:var(--text-muted);border-top:1px solid var(--border);padding-top:0.5rem;margin-top:0.25rem;}
+
+    /* ── 작업 방식 카드 ── */
+    .method-list{display:flex;flex-direction:column;gap:0.75rem;margin:1.25rem 0;}
+    .method-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;}
+    .method-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:#fff;padding:0.25em 0.6em;border-radius:3px;white-space:nowrap;}
+    .m-basic{background:#6c757d;}
+    .m-plan{background:var(--primary);}
+    .m-parallel{background:#2980b9;}
+    .m-hook{background:#27ae60;}
+    .m-skill{background:#8e44ad;}
+    .method-desc{font-size:0.88rem;}
+    .method-desc strong{color:var(--primary);}
+    .method-desc span{font-size:0.8rem;color:var(--text-muted);}
+    .method-link a{font-size:0.78rem;color:var(--primary-light);white-space:nowrap;}
+
+    /* ── 레시피 카드 ── */
+    .recipe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1.25rem 0;}
+    .recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .recipe-header{padding:0.9rem 1.1rem;font-weight:700;font-size:0.9rem;color:#fff;display:flex;align-items:center;gap:0.5rem;}
+    .recipe-header.rh-a{background:#2980b9;}
+    .recipe-header.rh-b{background:#27ae60;}
+    .recipe-header.rh-c{background:var(--primary);}
+    .recipe-header.rh-d{background:#8e44ad;}
+    .recipe-body{padding:0.25rem 0;}
+    .recipe-row{
+      display:grid;
+      grid-template-columns:2.8rem 1fr;
+      align-items:start;
+      gap:0;
+      padding:0.6rem 1.1rem;
+      font-size:0.83rem;
+    }
+    .recipe-label{
+      font-size:0.64rem;font-weight:700;letter-spacing:0.06em;
+      color:#fff;background:rgba(0,0,0,0.18);
+      padding:0.2em 0.4em;border-radius:3px;
+      white-space:nowrap;text-align:center;
+      align-self:flex-start;margin-top:0.1rem;
+    }
+    .recipe-val{color:var(--text);padding-left:0.75rem;}
+    .recipe-ext{font-family:var(--font-mono);font-size:0.75rem;background:var(--accent-pale);color:var(--accent);padding:0.1em 0.35em;border-radius:3px;margin-right:0.2rem;}
+
+    /* ── 체크리스트 ── */
+    .check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;margin:1.25rem 0;}
+    .check-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+    .check-card-title{font-weight:700;font-size:0.88rem;color:var(--primary);margin-bottom:0.6rem;}
+    .check-card ul{padding-left:1.2rem;margin:0;}
+    .check-card li{font-size:0.82rem;color:var(--text-muted);margin-bottom:0.3rem;}
+    .check-card .goto{margin-top:0.6rem;font-size:0.78rem;}
+
+    @media(max-width:640px){
+      h1{font-size:1.7rem;}
+      main{padding:2rem 1.25rem 4rem;}
+      .method-item{grid-template-columns:auto 1fr;}.method-link{display:none;}
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html" class="active">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="usage-01-project-setup.html">활용</a><span>›</span>
+  활용 06 — Claude가 만들 수 있는 것들
+</div>
+
+<div class="sub-nav">
+  <a href="usage-01-project-setup.html">01. 프로젝트 세팅</a>
+  <a href="usage-02-shortcuts.html">02. 단축키</a>
+  <a href="usage-03-literature.html">03. 선행연구 검색</a>
+  <a href="usage-04a-literature-analysis.html">04a. 문헌분석</a>
+  <a href="usage-04b-quantitative_v2.html">04b. 양적분석</a>
+  <a href="usage-04c-qualitative_v2.html">04c. 질적분석</a>
+  <a href="usage-05-model-effort.html">05. 모델 선택</a>
+  <a href="usage-06-ingredients.html" class="active">06. 재료와 조합</a>
+  <a href="usage-07-writing-setup.html">07. 논문작성 세팅</a>
+  <a href="usage-08-paper-writing_v2.html">08. 논문작성 실전</a>
+</div>
+
+<h1>Claude가 만들 수 있는 것들</h1>
+<p class="page-subtitle"><span class="badge badge-mid">활용 06</span> &nbsp;입력 재료 · 출력 파일 · 작업 방식 — 세 가지 재료로 나만의 워크플로우를 설계합니다.</p>
+
+<p>Claude Code의 강점은 기능이 많다는 것이 아닙니다. <strong>재료들을 자유롭게 조합할 수 있다는 것</strong>입니다. 정해진 정답은 없습니다. 내 연구 방식, 작업 패턴, 선호에 따라 조합을 달리하면 됩니다. 이 페이지는 그 재료들을 한눈에 정리한 지도입니다.</p>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 이 페이지를 보는 방법</div>
+  <p>재료 ① 입력 · ② 출력 · ③ 작업 방식을 각각 파악한 뒤, <strong>레시피 섹션</strong>에서 조합 예시를 확인하세요. 그리고 체크리스트로 나에게 맞는 조합을 찾아보세요.</p>
+</div>
+
+<!-- ===== 1. 재료 ① — 입력 ===== -->
+<h2>1. 재료 ① — Claude에게 줄 수 있는 것들</h2>
+
+<p>Claude는 텍스트만 받는 게 아닙니다. 다양한 형태의 입력을 이해하고 처리할 수 있습니다.</p>
+
+<div class="ingredient-grid">
+  <div class="ingredient-card">
+    <div class="ingredient-icon">💬</div>
+    <div class="ingredient-title">텍스트 프롬프트</div>
+    <div class="ingredient-desc">가장 기본적인 입력. 지시, 질문, 배경 설명 모두 텍스트로 전달합니다.</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">📄</div>
+    <div class="ingredient-title">파일</div>
+    <div class="ingredient-exts">.pdf .csv .txt .md .r .py</div>
+    <div class="ingredient-desc">논문 PDF, 설문 데이터, 전사 파일, 분석 코드 등을 직접 읽어서 처리합니다.</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">🖼️</div>
+    <div class="ingredient-title">이미지</div>
+    <div class="ingredient-exts">.png .jpg</div>
+    <div class="ingredient-desc">그래프, 표 스크린샷, 논문 본문 캡처 등을 분석하거나 내용을 추출합니다.</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">🧠</div>
+    <div class="ingredient-title">CLAUDE.md</div>
+    <div class="ingredient-exts">영구 컨텍스트</div>
+    <div class="ingredient-desc">세션이 바뀌어도 사라지지 않는 배경 지식. 연구 맥락, 문체, 실수 기록을 저장합니다.</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">🔌</div>
+    <div class="ingredient-title">외부 서비스 (MCP)</div>
+    <div class="ingredient-exts">웹 검색 · Zotero · Notion</div>
+    <div class="ingredient-desc">MCP를 연결하면 Claude가 직접 외부 데이터를 가져올 수 있습니다. <a href="advanced-04-mcp_v2.html">고급 04 참조</a></div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">📂</div>
+    <div class="ingredient-title">폴더 전체</div>
+    <div class="ingredient-exts">프로젝트 맥락</div>
+    <div class="ingredient-desc">프로젝트 폴더 안에서 시작하면 Claude가 모든 파일의 구조와 관계를 파악합니다.</div>
+  </div>
+</div>
+
+<!-- ===== 2. 재료 ② — 출력 ===== -->
+<h2>2. 재료 ② — Claude가 만들어주는 파일들</h2>
+
+<p>Claude Code는 텍스트 응답뿐 아니라 <strong>실제 파일을 직접 생성하거나 외부 도구를 통해 변환</strong>할 수 있습니다. 크게 6개 카테고리로 나뉩니다.</p>
+
+<div class="ingredient-grid">
+  <div class="ingredient-card">
+    <div class="ingredient-icon">📝</div>
+    <div class="ingredient-title">텍스트 · 마크다운</div>
+    <div class="ingredient-exts">.md .txt</div>
+    <div class="ingredient-desc">논문 초안, 연구 메모, 요약문, 코드북 등 모든 글쓰기 산출물의 기본 형태.</div>
+    <div class="ingredient-how">⚡ 직접 생성 (별도 도구 불필요)</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">🌐</div>
+    <div class="ingredient-title">웹 파일</div>
+    <div class="ingredient-exts">.html .css .js</div>
+    <div class="ingredient-desc">인터랙티브 보고서, 시각화 대시보드, 학술 자료 등 브라우저에서 바로 여는 파일.</div>
+    <div class="ingredient-how">⚡ 직접 생성</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">📊</div>
+    <div class="ingredient-title">데이터 파일</div>
+    <div class="ingredient-exts">.csv .json .yaml .xml</div>
+    <div class="ingredient-desc">코딩 결과, 분석 산출물, 설정 파일. 다른 프로그램(R, Excel)과 바로 연동됩니다.</div>
+    <div class="ingredient-how">⚡ 직접 생성</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">💻</div>
+    <div class="ingredient-title">코드 · 스크립트</div>
+    <div class="ingredient-exts">.py .r .sh .ipynb</div>
+    <div class="ingredient-desc">데이터 분석 코드, 자동화 스크립트, Jupyter 노트북. 직접 실행까지 가능합니다.</div>
+    <div class="ingredient-how">⚡ 직접 생성 + 실행</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">📃</div>
+    <div class="ingredient-title">문서 파일</div>
+    <div class="ingredient-exts">.docx .pdf</div>
+    <div class="ingredient-desc">투고 논문 최종본, 보고서. pandoc을 통해 마크다운 → Word/PDF로 변환합니다.</div>
+    <div class="ingredient-how">🔧 pandoc 경유 (설치 필요)</div>
+  </div>
+  <div class="ingredient-card">
+    <div class="ingredient-icon">🎞️</div>
+    <div class="ingredient-title">프레젠테이션</div>
+    <div class="ingredient-exts">.pptx reveal.js</div>
+    <div class="ingredient-desc">학회 발표 슬라이드, 수업 자료. python-pptx 또는 HTML 슬라이드로 생성합니다.</div>
+    <div class="ingredient-how">🔧 python-pptx 또는 HTML 경유</div>
+  </div>
+</div>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 연구자에게 가장 자주 쓰이는 조합</div>
+  <p>논문 초안은 <code>.md</code>로 작성 → 최종 제출 시 pandoc으로 <code>.docx</code> 변환 → 학회 발표는 <code>.pptx</code>나 HTML 슬라이드로. 데이터 분석은 <code>.r</code> 또는 <code>.py</code>로 코드 작성 → 결과는 <code>.csv</code>로 저장하는 흐름이 일반적입니다.</p>
+</div>
+
+<!-- ===== 3. 재료 ③ — 작업 방식 ===== -->
+
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>3. 재료 ③ — 어떻게 시킬 수 있나 (작업 방식)</h2>
+
+<p>같은 결과물도 어떤 방식으로 작업하느냐에 따라 효율이 달라집니다. 다섯 가지 작업 방식이 있습니다.</p>
+
+<div class="method-list">
+  <div class="method-item">
+    <span class="method-badge m-basic">기본 대화</span>
+    <div class="method-desc">
+      <strong>한 창에서 순차적으로 대화하며 작업</strong><br>
+      <span>가장 직관적인 방식. 짧은 작업, 처음 시작할 때 적합합니다.</span>
+    </div>
+    <div class="method-link"><a href="usage-02-shortcuts.html">→ 활용 02</a></div>
+  </div>
+  <div class="method-item">
+    <span class="method-badge m-plan">플랜 모드</span>
+    <div class="method-desc">
+      <strong>먼저 계획 → 확인 후 실행</strong><br>
+      <span>Shift+Tab으로 전환. 복잡한 작업에서 버그→수정→꼬임 악순환을 막습니다.</span>
+    </div>
+    <div class="method-link"><a href="usage-02-shortcuts.html">→ 활용 02</a></div>
+  </div>
+  <div class="method-item">
+    <span class="method-badge m-parallel">병렬 터미널</span>
+    <div class="method-desc">
+      <strong>터미널 여러 개를 동시에 띄워 병렬 작업</strong><br>
+      <span>문헌 검색 + 논문 작성 + 데이터 분석을 동시에. 5시간 → 1~2시간으로 단축.</span>
+    </div>
+    <div class="method-link"><a href="advanced-02-worktree.html">→ 고급 02</a></div>
+  </div>
+  <div class="method-item">
+    <span class="method-badge m-hook">Hooks 자동화</span>
+    <div class="method-desc">
+      <strong>특정 행동에 자동 반응하는 시스템 구성</strong><br>
+      <span>파일 저장 시 자동 백업, 작업 완료 시 자동 Git 커밋 등. 실수를 시스템이 차단합니다.</span>
+    </div>
+    <div class="method-link"><a href="advanced-05-automation_v2.html">→ 고급 05</a></div>
+  </div>
+  <div class="method-item">
+    <span class="method-badge m-skill">커스텀 스킬</span>
+    <div class="method-desc">
+      <strong>반복 작업을 슬래시 명령어 하나로 자동 실행</strong><br>
+      <span>하루 2번 이상 하는 작업은 스킬로 만들어두면 버튼 하나로 끝납니다.</span>
+    </div>
+    <div class="method-link"><a href="advanced-03-custom-skill_v2.html">→ 고급 03</a></div>
+  </div>
+</div>
+
+<!-- ===== 4. 조합 예시 — 레시피 ===== -->
+<h2>4. 조합 예시 — 연구자 레시피</h2>
+
+<p>입력 재료 + 출력 형태 + 작업 방식을 조합하면 나만의 워크플로우가 됩니다. 아래는 교육학 연구자에게 자주 맞는 조합 예시입니다.</p>
+
+<div class="recipe-grid">
+  <div class="recipe-card">
+    <div class="recipe-header rh-a">📚 레시피 A — 문헌 검토</div>
+    <div class="recipe-body">
+      <div class="recipe-row" style="--lc:#2980b9;">
+        <span class="recipe-label" style="background:#2980b9;">입력</span>
+        <span class="recipe-val">논문 PDF 여러 편, 검색 키워드</span>
+      </div>
+      <div class="recipe-row" style="--lc:#2980b9;">
+        <span class="recipe-label" style="background:#2980b9;">출력</span>
+        <span class="recipe-val">
+          <span class="recipe-ext">.csv</span>요약표
+          <span class="recipe-ext">.md</span>문헌 검토 초안
+          <span class="recipe-ext">.docx</span>최종본
+        </span>
+      </div>
+      <div class="recipe-row" style="--lc:#2980b9;">
+        <span class="recipe-label" style="background:#2980b9;">방식</span>
+        <span class="recipe-val">병렬 터미널 (논문 수집과 요약 동시 진행)</span>
+      </div>
+      <div class="recipe-row" style="--lc:#2980b9;">
+        <span class="recipe-label" style="background:#2980b9;">팁</span>
+        <span class="recipe-val" style="color:var(--text-muted);">10편 이상이면 분할 요청. RISS 수집기로 초기 데이터 확보.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header rh-b">🎤 레시피 B — 질적 연구</div>
+    <div class="recipe-body">
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#27ae60;">입력</span>
+        <span class="recipe-val">인터뷰 녹음 전사 파일(.txt), 코드북</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#27ae60;">출력</span>
+        <span class="recipe-val">
+          <span class="recipe-ext">.csv</span>코딩 결과
+          <span class="recipe-ext">.md</span>주제 분석
+          <span class="recipe-ext">.pptx</span>발표 자료
+        </span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#27ae60;">방식</span>
+        <span class="recipe-val">플랜 모드 → 코딩 설계 확인 후 실행</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#27ae60;">팁</span>
+        <span class="recipe-val" style="color:var(--text-muted);">CLAUDE.md에 코드 정의 저장 → 세션마다 일관된 코딩.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header rh-c">✍️ 레시피 C — 논문 작성</div>
+    <div class="recipe-body">
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:var(--primary);">입력</span>
+        <span class="recipe-val">분석 결과(.csv), CLAUDE.md(문체·스타일)</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:var(--primary);">출력</span>
+        <span class="recipe-val">
+          <span class="recipe-ext">.md</span>초안 (장별)
+          <span class="recipe-ext">.docx</span>투고본
+          <span class="recipe-ext">.bib</span>참고문헌
+        </span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:var(--primary);">방식</span>
+        <span class="recipe-val">기본 대화 + 학습 루프(CLAUDE.md 실수 기록)</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:var(--primary);">팁</span>
+        <span class="recipe-val" style="color:var(--text-muted);">APA 스킬 등 반복 작업은 커스텀 스킬로 만들어두기.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header rh-d">⚙️ 레시피 D — 반복 업무 자동화</div>
+    <div class="recipe-body">
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#8e44ad;">입력</span>
+        <span class="recipe-val">반복적인 작업 패턴</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#8e44ad;">출력</span>
+        <span class="recipe-val">
+          <span class="recipe-ext">.md</span>주차별 리플렉션
+          <span class="recipe-ext">.csv</span>논문 분류 결과
+        </span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#8e44ad;">방식</span>
+        <span class="recipe-val">커스텀 스킬 + Hooks + 병렬 터미널</span>
+      </div>
+      <div class="recipe-row">
+        <span class="recipe-label" style="background:#8e44ad;">팁</span>
+        <span class="recipe-val" style="color:var(--text-muted);">하루 2번 이상 하는 작업은 무조건 스킬로 만드세요.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5. 나만의 조합 찾기 ===== -->
+<h2>5. 나만의 조합 찾기 — 여정으로서의 활용</h2>
+
+<p>7가지 방법을 다 외울 필요 없습니다. Claude Code를 만든 사람도, 해커톤 1등도 결국 <strong>자기에게 맞는 시스템을 찾아가는 과정이 핵심</strong>이었습니다. 이 재료들은 그 여정에서 가장 확실한 이정표입니다.</p>
+
+<p>지금 당장 모든 걸 쓸 필요는 없습니다. 아래 체크리스트로 나에게 해당되는 상황을 확인하고, 그것부터 시작해보세요.</p>
+
+<div class="check-grid">
+  <div class="check-card">
+    <div class="check-card-title">📄 주로 문서를 만든다</div>
+    <ul>
+      <li>논문 초안, 보고서를 자주 씁니다</li>
+      <li>형식과 문체를 일관되게 유지하고 싶습니다</li>
+      <li>Word 파일 최종본이 필요합니다</li>
+    </ul>
+    <div class="goto">→ 시작: <a href="usage-01-project-setup.html">CLAUDE.md 학습 루프</a> + <code>.md → .docx</code> 흐름</div>
+  </div>
+  <div class="check-card">
+    <div class="check-card-title">📊 데이터 분석을 한다</div>
+    <ul>
+      <li>R이나 Python으로 분석합니다</li>
+      <li>같은 분석을 여러 번 반복합니다</li>
+      <li>결과를 표나 그래프로 정리합니다</li>
+    </ul>
+    <div class="goto">→ 시작: 코드 <code>.r/.py</code> 생성 + 결과 <code>.csv</code> 저장 흐름</div>
+  </div>
+  <div class="check-card">
+    <div class="check-card-title">⏱️ 반복 작업이 많다</div>
+    <ul>
+      <li>매주 같은 형태의 자료를 만듭니다</li>
+      <li>비슷한 프롬프트를 반복 입력합니다</li>
+      <li>여러 작업을 동시에 처리하고 싶습니다</li>
+    </ul>
+    <div class="goto">→ 시작: <a href="advanced-03-custom-skill_v2.html">커스텀 스킬</a> + <a href="advanced-02-worktree.html">병렬 터미널</a></div>
+  </div>
+  <div class="check-card">
+    <div class="check-card-title">🎯 복잡한 작업을 설계한다</div>
+    <ul>
+      <li>큰 프로젝트를 단계별로 진행합니다</li>
+      <li>실수나 꼬임이 걱정됩니다</li>
+      <li>품질 검증이 중요합니다</li>
+    </ul>
+    <div class="goto">→ 시작: <a href="usage-02-shortcuts.html">플랜 모드</a> + 검증 루프(성공 기준 먼저 설정)</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="callout callout-tip">
+  <div class="callout-title">✅ 이 장을 마쳤다면</div>
+  <p>Claude가 받을 수 있는 입력(6종), 만들어줄 수 있는 출력(6개 카테고리), 작업 방식(5가지)을 이해했습니다. 이제 이 재료들을 조합해서 논문 작성 환경을 본격적으로 세팅해봅니다.</p>
+</div>
+
+
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 활용 06. Claude가 만들 수 있는 것들</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+</body>
+</html>

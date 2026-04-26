@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 활용 05 — 모델 선택과 사고 깊이 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb span{margin:0 0.35rem;}
+    h1{font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:1.5rem;}
+    h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;color:var(--primary);margin:3rem 0 1rem;padding-bottom:0.4rem;border-bottom:2px solid var(--border);}
+    h3{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--primary);margin:2rem 0 0.75rem;}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    pre{background:#1e1e2e;color:#cdd6f4;padding:1rem 1.25rem;border-radius:8px;overflow-x:auto;font-family:var(--font-mono);font-size:0.82rem;margin:1rem 0;}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    .page-nav{display:flex;justify-content:space-between;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;flex-wrap:wrap;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.7rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+    kbd{display:inline-block;padding:0.15em 0.45em;font-family:var(--font-mono);font-size:0.8em;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;color:var(--text);box-shadow:0 1px 0 var(--border);}
+    hr.divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+
+    /* STRATEGY DIAGRAM */
+    .strategy-diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+    .strategy-row{display:flex;align-items:stretch;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);}
+    .strategy-phase{flex:1;padding:1.1rem 1.25rem;text-align:center;}
+    .strategy-phase.plan{background:var(--primary-pale);border-right:1.5px solid var(--border);}
+    .strategy-phase.exec{background:#e6f5ec;}
+    .strategy-label{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;margin-bottom:0.4rem;}
+    .strategy-phase.plan .strategy-label{color:var(--primary);}
+    .strategy-phase.exec .strategy-label{color:var(--c-result);}
+    .strategy-model{font-size:1.05rem;font-weight:700;margin-bottom:0.2rem;}
+    .strategy-phase.plan .strategy-model{color:var(--primary);}
+    .strategy-phase.exec .strategy-model{color:var(--c-result);}
+    .strategy-desc{font-size:0.78rem;color:var(--text-muted);}
+    .strategy-arrow{display:flex;align-items:center;padding:0 0.5rem;color:var(--text-muted);font-size:1.4rem;background:var(--surface-2);}
+    .strategy-caption{font-size:0.78rem;color:var(--text-muted);text-align:center;margin-top:0.75rem;}
+
+    /* EFFORT METER */
+    .effort-meter{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin:1.5rem 0;}
+    .effort-meter-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;text-align:center;}
+    .effort-track{display:flex;gap:0.35rem;align-items:stretch;height:48px;}
+    .effort-seg{flex:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;cursor:default;}
+    .e-low{background:#6c757d;}
+    .e-medium{background:#2980b9;}
+    .e-high{background:#27ae60;}
+    .e-xhigh{background:var(--primary);}
+    .e-max{background:#8e44ad;}
+    .effort-labels{display:flex;gap:0.35rem;margin-top:0.4rem;}
+    .effort-lbl{flex:1;font-size:0.68rem;color:var(--text-muted);text-align:center;}
+
+    /* SCENARIO CARDS */
+    .scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.85rem;margin:1.25rem 0;}
+    .scenario-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+    .scenario-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:0.35rem;}
+    .scenario-title{font-size:0.95rem;font-weight:700;color:var(--primary);margin-bottom:0.5rem;}
+    .scenario-setting{font-family:var(--font-mono);font-size:0.78rem;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:0.4rem 0.7rem;margin-bottom:0.5rem;}
+    .scenario-why{font-size:0.78rem;color:var(--text-muted);}
+
+    @media(max-width:640px){h1{font-size:1.65rem;}main{padding:2rem 1.25rem 4rem;}.strategy-row{flex-direction:column;}.strategy-arrow{justify-content:center;padding:0.25rem;}.effort-track{height:36px;}.effort-seg{font-size:0.65rem;}}
+    .sub-nav{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:0.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+    .sub-nav a{font-size:0.78rem;text-decoration:none;padding:0.3rem 0.7rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .sub-nav a:hover{background:var(--primary-pale);}
+    .sub-nav a.active{background:var(--primary);color:#fff;font-weight:600;}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html" class="active">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="usage-01-project-setup.html">활용</a><span>›</span>
+  활용 05 — 모델 선택과 사고 깊이
+</div>
+
+<div class="sub-nav">
+  <a href="usage-01-project-setup.html">01. 프로젝트 세팅</a>
+  <a href="usage-02-shortcuts.html">02. 단축키</a>
+  <a href="usage-03-literature.html">03. 선행연구 검색</a>
+  <a href="usage-04a-literature-analysis.html">04a. 문헌분석</a>
+  <a href="usage-04b-quantitative_v2.html">04b. 양적분석</a>
+  <a href="usage-04c-qualitative_v2.html">04c. 질적분석</a>
+  <a href="usage-05-model-effort.html" class="active">05. 모델 선택</a>
+  <a href="usage-06-ingredients.html">06. Claude 산출물</a>
+  <a href="usage-07-writing-setup.html">07. 논문작성 세팅</a>
+  <a href="usage-08-paper-writing_v2.html">08. 논문작성 실전</a>
+</div>
+
+<h1>모델 선택과 사고 깊이 설정</h1>
+<p class="page-subtitle">Claude Code에서 <code>/model</code>과 <code>/effort</code>를 조절하는 방법 — 연구 작업의 복잡도에 맞게 품질과 비용을 최적화합니다.</p>
+
+<div class="callout callout-tip">
+  <div class="callout-title">이 페이지에서 배우는 것</div>
+  <p>단축키와 명령어 전반은 <a href="usage-02-shortcuts.html">활용 02 — 단축키와 슬래시 명령어</a>를 참고하세요. 이 페이지는 <code>/model</code>과 <code>/effort</code> 두 명령어를 깊이 있게 다룹니다.</p>
+</div>
+
+<!-- ===== 1. 왜 조절해야 하는가 ===== -->
+<h2>1. 왜 모델과 사고 깊이를 조절해야 하는가</h2>
+
+<p>Claude Code는 기본 설정만으로도 대부분의 작업을 잘 처리합니다. 하지만 연구자로서 두 가지 상황을 자주 마주칩니다.</p>
+
+<ul>
+  <li><strong>정밀도가 필요한 작업</strong> — 통계 분석 설계, 복잡한 논문 구조 기획, HLM 모형 선택처럼 깊은 추론이 요구되는 경우</li>
+  <li><strong>반복적인 단순 작업</strong> — 영문 초록 번역, 참고문헌 형식 통일, 간단한 요약처럼 빠른 처리가 더 중요한 경우</li>
+</ul>
+
+<p>모델과 사고 깊이를 상황에 맞게 조절하면 <strong>중요한 작업의 품질을 높이면서 전체 비용을 줄일 수 있습니다.</strong></p>
+
+<!-- ===== 2. /model ===== -->
+<h2>2. 모델 선택 — <code>/model</code></h2>
+
+<p>인수 없이 <code>/model</code>을 입력하면 피커가 열립니다. 피커에서 좌우 방향키로 effort 슬라이더도 함께 조정할 수 있습니다.</p>
+
+<h3>모델 별칭(Alias) 완전 가이드</h3>
+
+<table>
+  <thead>
+    <tr><th>별칭</th><th>실제 모델</th><th>특징</th><th>추천 연구 작업</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>sonnet</code></td>
+      <td>최신 Sonnet</td>
+      <td>속도·품질 균형, 대부분 작업에 충분</td>
+      <td>문헌 정리, 초록 교정, 코드 실행</td>
+    </tr>
+    <tr>
+      <td><code>opus</code></td>
+      <td>최신 Opus</td>
+      <td>가장 강력한 추론, 복잡한 설계에 적합</td>
+      <td>연구 설계, 방법론 검토, 통계 전략</td>
+    </tr>
+    <tr>
+      <td><code>haiku</code></td>
+      <td>최신 Haiku</td>
+      <td>매우 빠르고 저렴, 간단한 작업용</td>
+      <td>단순 번역, 형식 변환, 빠른 요약</td>
+    </tr>
+    <tr>
+      <td><strong><code>opusplan</code></strong></td>
+      <td>계획=Opus<br>실행=Sonnet</td>
+      <td>계획 단계에만 Opus를 사용하고 실행은 Sonnet으로 자동 전환</td>
+      <td><strong>복잡한 다단계 작업, 논문 분석, HLM 설계</strong></td>
+    </tr>
+    <tr>
+      <td><code>opus[1m]</code></td>
+      <td>Opus + 1M 컨텍스트</td>
+      <td>100만 토큰 컨텍스트 창, 매우 긴 세션 가능</td>
+      <td>대용량 문서 분석, 긴 세션 연구</td>
+    </tr>
+    <tr>
+      <td><code>sonnet[1m]</code></td>
+      <td>Sonnet + 1M 컨텍스트</td>
+      <td>Sonnet 속도에 긴 컨텍스트 추가</td>
+      <td>대용량 코드베이스, 긴 연구 데이터</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre>
+/model opusplan    # 계획=Opus, 실행=Sonnet
+/model sonnet      # 일반 작업으로 돌아오기
+/model             # 피커 열기 (방향키로 effort 동시 조정)
+</pre>
+
+<h3>opusplan — 가장 실용적인 전략</h3>
+
+<p><code>opusplan</code>은 Claude Code에서 제공하는 하이브리드 모드입니다. <kbd>Shift</kbd>+<kbd>Tab</kbd>으로 <code>plan mode on</code>을 활성화하면 Opus가 계획을 세우고, 실행 단계로 전환되면 자동으로 Sonnet이 이어받습니다.</p>
+
+<div class="strategy-diagram">
+  <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-align:center;margin-bottom:1rem;">opusplan 작동 구조</div>
+  <div class="strategy-row">
+    <div class="strategy-phase plan">
+      <div class="strategy-label">PLAN MODE (Shift+Tab)</div>
+      <div class="strategy-model">Opus</div>
+      <div class="strategy-desc">연구 구조 설계<br>방법론 검토<br>엣지케이스 예측</div>
+    </div>
+    <div class="strategy-arrow">→</div>
+    <div class="strategy-phase exec">
+      <div class="strategy-label">EXECUTION MODE</div>
+      <div class="strategy-model">Sonnet</div>
+      <div class="strategy-desc">코드 작성<br>파일 수정<br>결과 정리</div>
+    </div>
+  </div>
+  <div class="strategy-caption">계획이 정밀하면 실행은 기계적입니다 — 고비용 Opus를 핵심 단계에만 집중 투입합니다.</div>
+</div>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 건축가와 시공팀 비유</div>
+  <p>Opus는 설계도를 그리는 건축가입니다. Sonnet은 그 설계도를 따라 짓는 시공팀입니다. 설계가 정밀할수록 시공팀은 실수 없이 빠르게 완성합니다. 비용이 높은 건축가를 설계에만 쓰는 게 합리적입니다.</p>
+</div>
+
+<!-- ===== 3. /effort ===== -->
+
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>3. 사고 깊이 — <code>/effort</code></h2>
+
+<p>모델이 <em>무엇을 할지</em>를 정한다면, effort는 <em>얼마나 깊이 생각할지</em>를 정합니다. 높은 effort는 토큰(비용)을 더 소모하지만 복잡한 작업에서 품질 차이가 납니다.</p>
+
+<div class="effort-meter">
+  <div class="effort-meter-title">Effort 레벨 스펙트럼 (왼쪽=빠름·저렴 / 오른쪽=깊음·고비용)</div>
+  <div class="effort-track">
+    <div class="effort-seg e-low">low</div>
+    <div class="effort-seg e-medium">medium</div>
+    <div class="effort-seg e-high">high</div>
+    <div class="effort-seg e-xhigh">xhigh</div>
+    <div class="effort-seg e-max">max</div>
+  </div>
+  <div class="effort-labels">
+    <div class="effort-lbl">단순 번역·형식</div>
+    <div class="effort-lbl">비용 절감</div>
+    <div class="effort-lbl">일반 연구</div>
+    <div class="effort-lbl">복잡한 분석</div>
+    <div class="effort-lbl">최고 난이도</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>레벨</th><th>기본값 여부</th><th>세션 간 유지</th><th>추천 연구 상황</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>low</code></td>
+      <td>—</td>
+      <td>✅ 유지</td>
+      <td>영문 초록 번역, 참고문헌 형식 통일, 단순 요약</td>
+    </tr>
+    <tr>
+      <td><code>medium</code></td>
+      <td>Pro·Max 플랜 기본</td>
+      <td>✅ 유지</td>
+      <td>비용이 중요한 작업, 문헌 목록 정리</td>
+    </tr>
+    <tr>
+      <td><code>high</code></td>
+      <td>Opus 4.6·Sonnet 기본</td>
+      <td>✅ 유지</td>
+      <td>일반 논문 작성, 데이터 분석 코드 작성</td>
+    </tr>
+    <tr>
+      <td><strong><code>xhigh</code></strong></td>
+      <td>Opus 4.7 기본</td>
+      <td>✅ 유지</td>
+      <td>복잡한 통계 설계, HLM·SEM 방법론, 논문 심사 대응</td>
+    </tr>
+    <tr>
+      <td><code>max</code></td>
+      <td>—</td>
+      <td>❌ 세션한정</td>
+      <td>가장 까다로운 일회성 작업 (과도한 사용은 역효과 가능)</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre>
+/effort xhigh    # 직접 설정
+/effort          # 인터랙티브 슬라이더
+/effort auto     # 모델 기본값으로 리셋
+</pre>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 ultrathink — 일회성 최대 추론</div>
+  <p>effort 설정을 바꾸지 않고 특정 답변에서만 최대로 깊이 생각하게 하려면 프롬프트에 <strong>ultrathink</strong>를 포함하세요.</p>
+  <p>예: <em>"이 연구 방법론의 한계를 ultrathink로 검토해줘"</em><br>
+  <em>"패널데이터 분석 전략을 ultrathink로 설계해줘"</em></p>
+</div>
+
+<!-- ===== 4. 연계 활용 ===== -->
+<h2>4. 세 가지의 연계 — Shift+Tab · /model · /effort</h2>
+
+<p>세 설정을 조합하면 각 연구 상황에 최적화된 환경을 만들 수 있습니다.</p>
+
+<div class="callout callout-prompt">
+  <div class="callout-title">최강 조합 — 복잡한 연구 설계</div>
+  <p>1. <code>/model opusplan</code> → 계획은 Opus, 실행은 Sonnet<br>
+  2. <code>/effort xhigh</code> → 깊은 추론 활성화<br>
+  3. <kbd>Shift</kbd>+<kbd>Tab</kbd> → <code>plan mode on</code> 전환 후 설계 요청<br>
+  4. 계획 확인 후 다시 <kbd>Shift</kbd>+<kbd>Tab</kbd> → 일반 모드로 실행</p>
+</div>
+
+<h3>연구 시나리오별 추천 설정</h3>
+
+<div class="scenario-grid">
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 01</div>
+    <div class="scenario-title">논문 분석 설계 · HLM · SEM</div>
+    <div class="scenario-setting">/model opusplan
+/effort xhigh
+Shift+Tab → plan mode on</div>
+    <div class="scenario-why">복잡한 설계 오류는 이후 전체에 영향. 계획 단계에 Opus·xhigh 집중 투입.</div>
+  </div>
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 02</div>
+    <div class="scenario-title">일반 R 코드 작성 · 데이터 정리</div>
+    <div class="scenario-setting">/model sonnet
+/effort high</div>
+    <div class="scenario-why">Sonnet·high 조합으로 충분한 품질을 빠르게. 기본 설정과 같아 별도 변경 불필요.</div>
+  </div>
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 03</div>
+    <div class="scenario-title">영문 초록 번역 · 형식 정리</div>
+    <div class="scenario-setting">/model sonnet
+/effort low</div>
+    <div class="scenario-why">반복적 단순 작업. low effort로 속도와 비용 모두 절감.</div>
+  </div>
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 04</div>
+    <div class="scenario-title">심사 의견 반박문 작성</div>
+    <div class="scenario-setting">/model opus
+/effort xhigh</div>
+    <div class="scenario-why">심사위원 관점의 정밀한 논리 구성이 필요. Opus·xhigh로 논증 품질 최대화.</div>
+  </div>
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 05</div>
+    <div class="scenario-title">긴 세션 — 대용량 문헌 분석</div>
+    <div class="scenario-setting">/model sonnet[1m]
+/effort high</div>
+    <div class="scenario-why">컨텍스트가 많이 필요한 경우 1M 윈도우를 활용. Opus[1m]은 더 강력하지만 추가 비용 확인.</div>
+  </div>
+  <div class="scenario-card">
+    <div class="scenario-tag">시나리오 06</div>
+    <div class="scenario-title">일회성 초고난도 작업</div>
+    <div class="scenario-setting">/model opus
+/effort max  ← 세션 한정</div>
+    <div class="scenario-why">max는 세션 종료 후 자동 해제. 과도한 사용은 오히려 overthinking 위험. 꼭 필요할 때만.</div>
+  </div>
+</div>
+
+<!-- ===== 5. CLAUDE.md 영구 설정 ===== -->
+<h2>5. CLAUDE.md에 영구 설정하는 방법</h2>
+
+<p>매 세션마다 명령어를 입력하기 번거롭다면 CLAUDE.md나 Claude Code 설정 파일에 기본값을 지정할 수 있습니다.</p>
+
+<h3>방법 1 — CLAUDE.md에 지시 추가</h3>
+<p>프로젝트의 CLAUDE.md에 아래처럼 기본 설정을 명시하면 Claude가 매 세션 시작 시 읽습니다.</p>
+
+<pre>
+# 기본 설정
+- 복잡한 분석 작업에는 /model opusplan과 /effort xhigh를 사용한다.
+- 단순 번역·형식 작업에는 /effort low를 사용한다.
+- 새 세션 시작 시 현재 작업 성격에 맞는 모델과 effort를 자동으로 제안한다.
+</pre>
+
+<h3>방법 2 — 환경 변수로 고정</h3>
+<p>프로젝트의 <code>.env</code> 파일에 추가하면 항상 적용됩니다.</p>
+
+<pre>
+# .env
+ANTHROPIC_MODEL=opusplan
+CLAUDE_CODE_EFFORT_LEVEL=xhigh
+</pre>
+
+<div class="callout callout-warn">
+  <div class="callout-title">주의 — max는 환경 변수로 고정 가능하지만 신중하게</div>
+  <p><code>CLAUDE_CODE_EFFORT_LEVEL=max</code>로 설정하면 모든 작업에 최대 추론이 적용됩니다. 단순 작업에서도 높은 토큰을 소모하므로 일반적으로 권장하지 않습니다. <code>xhigh</code>가 대부분 상황에서 최적입니다.</p>
+</div>
+
+<hr class="divider">
+
+<div class="callout callout-result">
+  <div class="callout-title">✅ 이 장을 마쳤다면</div>
+  <p><code>/model opusplan</code>으로 계획과 실행 모델을 분리하는 전략을 이해했고, <code>/effort</code>로 사고 깊이를 작업에 맞게 조절할 수 있습니다. <kbd>Shift</kbd>+<kbd>Tab</kbd>으로 plan mode를 활성화하고 opusplan과 함께 쓰는 조합이 핵심입니다. 단순 번역에는 <code>sonnet + low</code>, 복잡한 연구 설계에는 <code>opusplan + xhigh + plan mode</code>를 기억하세요.</p>
+</div>
+
+
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  Claude 연구 활용 가이드 · 사회과학 연구자를 위한 실전 안내서
+
+  <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; align-items:center; gap:0.6rem;">
+    <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">
+      문의 · 피드백 &nbsp;·&nbsp;
+      <a href="mailto:goldringedu@gmail.com" style="color:var(--primary-light); text-decoration:none; font-weight:500;">goldringedu@gmail.com</a>
+      <button id="copy-email-btn" title="이메일 주소 복사" onclick="copyEmail()" style="margin-left:0.4rem; background:none; border:1px solid var(--border); border-radius:4px; color:var(--text-muted); cursor:pointer; font-size:0.72rem; padding:0.15em 0.5em; font-family:inherit; transition:all 0.15s;">복사</button> &nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a>
+    </p>
+    <p style="margin:0; font-size:0.78rem; color:var(--text-muted);">© 2026 Claude 연구 활용 가이드. 출처 표기 시 자유롭게 활용 가능합니다.</p>
+  </div>
+</footer>
+
+</body>
+</html>

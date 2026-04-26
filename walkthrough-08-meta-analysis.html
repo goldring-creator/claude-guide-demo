@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 중급 08 — 문헌 메타분석 코딩 시트 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--b-intro:#27ae60;--b-mid:#2980b9;--b-adv:#8e44ad;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb span{margin:0 0.35rem;}
+    h1{font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:1rem;}
+    h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;color:var(--primary);margin:3rem 0 1rem;padding-bottom:0.4rem;border-bottom:2px solid var(--border);}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    .page-nav{display:flex;justify-content:space-between;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;flex-wrap:wrap;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.7rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+
+    .page-meta{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
+    .meta-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;font-weight:600;padding:0.25em 0.75em;border-radius:20px;}
+    .meta-mid{background:#e5eaf6;color:#1e3d7a;border:1px solid #b0c4e8;}
+    .meta-time{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);}
+
+    .wt-subnav{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.45rem;}
+    .wt-group{display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;}
+    .wt-group-label{font-size:0.68rem;font-weight:700;letter-spacing:0.07em;white-space:nowrap;min-width:32px;}
+    .wt-group-label.bg{color:var(--b-intro);}.wt-group-label.mid{color:var(--b-mid);}.wt-group-label.adv{color:var(--b-adv);}
+    .wt-group-links{display:flex;gap:0.25rem;flex-wrap:wrap;}
+    .wt-group-links a{font-size:0.76rem;text-decoration:none;padding:0.18rem 0.55rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .wt-group-links a:hover{background:var(--primary-pale);}
+    .wt-group-links a.active{background:var(--b-mid);color:#fff;font-weight:600;}
+
+    .flow-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;text-align:center;}
+    .flow-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .flow-row{display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;}
+    .flow-box{background:var(--primary-pale);border:1.5px solid #b0c4e8;border-radius:8px;padding:0.5rem 0.9rem;font-size:0.82rem;font-weight:600;color:var(--primary);text-align:center;min-width:80px;}
+    .flow-box.green{background:#e6f9ee;border-color:#a5d6a7;color:#176338;}
+    .flow-box.you{background:var(--surface-2);border-color:var(--border);color:var(--text-muted);}
+    .flow-sub{font-size:0.65rem;font-weight:400;color:var(--text-muted);margin-top:0.1rem;}
+    .flow-arr{color:var(--text-muted);font-size:1.3rem;line-height:1;}
+
+    .prep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin:1rem 0;}
+    .prep-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.9rem;}
+    .prep-icon{font-size:1.3rem;margin-bottom:0.3rem;}
+    .prep-name{font-size:0.85rem;font-weight:700;color:var(--primary);margin-bottom:0.15rem;}
+    .prep-desc{font-size:0.75rem;color:var(--text-muted);}
+
+    .wt-steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0;}
+    .wt-step{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
+    .wt-step-header{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.2rem;background:var(--surface-2);border-bottom:1px solid var(--border);}
+    .wt-step-num{width:30px;height:30px;border-radius:50%;background:var(--b-mid);color:#fff;font-weight:700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .wt-step-title{font-size:0.98rem;font-weight:700;color:var(--primary);}
+    .step-tag{font-size:0.67rem;font-weight:700;padding:0.13em 0.5em;border-radius:20px;margin-left:0.3rem;}
+    .tag-you{background:var(--accent-pale);color:#6b3a00;border:1px solid #d4b07a;}
+    .tag-claude{background:var(--primary-pale);color:var(--primary);border:1px solid #b0c4e8;}
+    .wt-step-body{padding:1.1rem 1.2rem;}
+
+    .terminal-mock{background:#1e1e2e;border-radius:10px;overflow:hidden;margin:1rem 0;}
+    .t-bar{background:#313244;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.35rem;}
+    .t-dot{width:11px;height:11px;border-radius:50%;}
+    .t-dot.r{background:#f38ba8;}.t-dot.y{background:#f9e2af;}.t-dot.g{background:#a6e3a1;}
+    .t-title-bar{margin-left:auto;font-size:0.7rem;color:#9399b2;font-family:var(--font-mono);}
+    .t-body{padding:0.9rem 1.1rem;display:flex;flex-direction:column;gap:0.5rem;}
+    .t-claude{background:rgba(166,227,161,0.1);border-left:3px solid #a6e3a1;padding:0.5rem 0.75rem;border-radius:0 5px 5px 0;}
+    .t-claude .t-who{font-size:0.65rem;color:#a6e3a1;margin-bottom:0.25rem;font-family:var(--font-mono);}
+    .t-claude p{color:#cdd6f4;font-size:0.8rem;margin:0;font-family:var(--font-mono);white-space:pre-wrap;}
+
+    .check-list{list-style:none;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;}
+    .check-list li{display:flex;align-items:flex-start;gap:0.65rem;padding:0.7rem 1rem;border-bottom:1px solid var(--border);font-size:0.88rem;}
+    .check-list li:last-child{border-bottom:none;}
+    .check-box{width:17px;height:17px;border:2px solid #b0c4e8;border-radius:3px;flex-shrink:0;margin-top:0.22rem;}
+
+    /* PRISMA FLOW */
+    .prisma-flow{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1.25rem 0;}
+    .prisma-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .prisma-col{display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
+    .prisma-box{background:var(--primary-pale);border:1.5px solid #b0c4e8;border-radius:6px;padding:0.6rem 1rem;font-size:0.8rem;font-weight:600;color:var(--primary);text-align:center;width:100%;max-width:280px;}
+    .prisma-box.exclude{background:#fdecea;border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .prisma-box.include{background:#e6f9ee;border-color:#a5d6a7;color:#176338;}
+    .prisma-arrow{font-size:1.1rem;color:var(--text-muted);}
+    .prisma-row{display:flex;align-items:center;gap:1rem;justify-content:center;}
+    .prisma-n{font-size:0.8rem;font-weight:700;color:var(--primary);}
+
+    @media(max-width:640px){h1{font-size:1.65rem;}main{padding:2rem 1.25rem 4rem;}.flow-row{flex-direction:column;}}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html" class="active">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="walkthrough-index.html">따라하기</a><span>›</span>
+  중급 08 — 문헌 메타분석 코딩 시트
+</div>
+
+<div class="wt-subnav">
+  <div class="wt-group">
+    <span class="wt-group-label bg">초급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-01-survey.html">①설문지</a>
+      <a href="walkthrough-02-abstract.html">②영문초록</a>
+      <a href="walkthrough-03-interview.html">③인터뷰코딩</a>
+      <a href="walkthrough-04-proposal.html">④연구계획서</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label mid">중급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-05-literature-codebook.html">⑤문헌코드북</a>
+      <a href="walkthrough-06-panel-data.html">⑥패널데이터</a>
+      <a href="walkthrough-07-review-response.html">⑦심사대응</a>
+      <a href="walkthrough-08-meta-analysis.html" class="active">⑧메타분석</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label adv">고급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-09-r-debugging.html">⑨R디버깅</a>
+      <a href="walkthrough-10-hlm.html">⑩HLM분석</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-meta">
+  <span class="meta-tag meta-mid">중급</span>
+  <span class="meta-tag meta-time">⏱ 약 50분</span>
+  <span class="meta-tag meta-time">📄 논문 PDF 또는 초록 텍스트 필요</span>
+</div>
+
+<h1>문헌 메타분석 코딩 시트</h1>
+<p class="page-subtitle">포함/배제 기준 설정 → 논문 폴더 → 효과크기·표본 자동 추출 → 코딩 시트 생성</p>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 관련 가이드</div>
+  <p>문헌 분석 방법론은 <a href="usage-04a-literature-analysis.html">활용 04a — 연구방법: 문헌분석</a>을 참고하세요. 선행연구 검색은 <a href="usage-03-literature.html">활용 03</a>에서 시작하세요.</p>
+</div>
+
+<!-- PRISMA 흐름도 -->
+
+<div class="paywall-wrap">
+  <div class="paywall-blur">
+<h2>논문 선별 흐름 (PRISMA 스타일)</h2>
+<div class="prisma-flow">
+  <div class="prisma-title">메타분석 논문 선별 프로세스</div>
+  <div class="prisma-col">
+    <div class="prisma-box">
+      데이터베이스 검색<br>
+      <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted);">Google Scholar, RISS, DBpia, ERIC 등</span>
+    </div>
+    <div class="prisma-arrow">↓</div>
+    <div class="prisma-row">
+      <div class="prisma-col">
+        <div class="prisma-box">제목·초록 선별<br><span class="prisma-n">(N = 전체 검색 결과)</span></div>
+        <div class="prisma-arrow">↓</div>
+        <div class="prisma-box exclude">제목/초록으로 제외<br><span style="font-size:0.7rem;">주제 무관, 중복 제거</span></div>
+      </div>
+    </div>
+    <div class="prisma-arrow">↓</div>
+    <div class="prisma-box">전문(Full-text) 검토<br><span class="prisma-n">(N = 선별 통과)</span></div>
+    <div class="prisma-arrow">↓</div>
+    <div class="prisma-box exclude">전문 검토 후 제외<br><span style="font-size:0.7rem;">포함 기준 미충족</span></div>
+    <div class="prisma-arrow">↓</div>
+    <div class="prisma-box include">
+      최종 포함 논문<br>
+      <span class="prisma-n">(N = 메타분석 대상)</span>
+    </div>
+  </div>
+</div>
+
+<h2>전체 워크플로우</h2>
+<div class="flow-wrap">
+  <div class="flow-title">메타분석 코딩 시트 제작 플로우</div>
+  <div class="flow-row">
+    <div class="flow-box you">
+      포함/배제 기준
+      <div class="flow-sub">연구자 + Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      논문 선별
+      <div class="flow-sub">연구자 + Claude 보조</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      효과크기 추출
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box green">
+      코딩 시트 완성
+      <div class="flow-sub">연구자 검증</div>
+    </div>
+  </div>
+</div>
+
+<h2>준비물</h2>
+<div class="prep-grid">
+  <div class="prep-card">
+    <div class="prep-icon">📄</div>
+    <div class="prep-name">논문 20편 이상</div>
+    <div class="prep-desc">PDF 또는 초록+결과 섹션 텍스트.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📋</div>
+    <div class="prep-name">연구 주제·연구문제</div>
+    <div class="prep-desc">메타분석의 핵심 가설 또는 연구 질문.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📊</div>
+    <div class="prep-name">효과크기 유형 결정</div>
+    <div class="prep-desc">Cohen's d, Hedges' g, r, OR 중 선택.</div>
+  </div>
+</div>
+
+<h2>단계별 실습</h2>
+
+<div class="wt-steps">
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">1</div>
+    <div class="wt-step-title">포함·배제 기준 수립<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>저는 "[연구 주제]"에 관한 메타분석을 수행하려 합니다.<br><br>
+      PICOS 기준을 활용하여 포함·배제 기준을 제안해 주세요:<br>
+      - P (Population): 대상 집단<br>
+      - I (Intervention/Predictor): 독립변수/처치<br>
+      - C (Comparison): 비교 조건<br>
+      - O (Outcome): 종속변수/결과<br>
+      - S (Study design): 연구 설계 유형<br><br>
+      또한 실용적인 배제 기준 (언어, 발행 연도, 미발표 자료 포함 여부 등)도 제안해 주세요.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">2</div>
+    <div class="wt-step-title">논문별 포함 여부 선별 보조<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>초록을 붙여넣으면 포함 기준에 맞는지 빠르게 판단합니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>아래 논문 초록들이 제 메타분석의 포함 기준을 충족하는지 판단해 주세요.<br><br>
+      포함 기준:<br>
+      - [연구자가 위에서 확정한 기준 붙여넣기]<br><br>
+      결과 형식: 논문번호 / 포함(Y)/제외(N) / 판단 이유 1문장<br><br>
+      === 논문 1 ===<br>
+      [초록 붙여넣기]<br><br>
+      === 논문 2 ===<br>
+      [초록 붙여넣기]</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">3</div>
+    <div class="wt-step-title">효과크기 및 통계량 추출<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>각 논문에서 메타분석에 필요한 통계량을 추출합니다. 효과크기가 직접 보고되지 않는 경우 t값, F값, r값 등에서 변환할 수 있습니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>아래 논문에서 메타분석을 위한 통계량을 추출해 주세요.<br><br>
+      추출 항목: 논문ID / 저자(연도) / 표본크기(n) / 효과크기(d 또는 r) / SE / 95%CI / 연구설계 / 조절변수 후보<br><br>
+      효과크기가 직접 보고되지 않는 경우: t값, F값, 또는 p값에서 변환 계산도 보여주세요.<br><br>
+      [논문 결과 섹션 붙여넣기]</p>
+    </div>
+    <div class="terminal-mock">
+      <div class="t-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="t-title-bar">Claude — 효과크기 추출 예시</span></div>
+      <div class="t-body">
+        <div class="t-claude">
+          <div class="t-who">Claude</div>
+          <p>논문 Kim2023:
+- 표본크기: n=312
+- 보고된 통계: β=.34, t(310)=6.42, p<.001
+- r로 변환: r = t/√(t²+df) = 6.42/√(41.2+310) = .33
+- Cohen's d 변환: d = 2r/√(1-r²) = .69
+- 95% CI: [.55, .83] (계산 근거 포함)
+- 연구설계: 횡단 상관연구
+- 조절변수 후보: 교직 경력, 학교급</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">4</div>
+    <div class="wt-step-title">전체 코딩 시트 생성 및 이중 코딩 계획<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>지금까지 추출한 모든 논문 정보를 하나의 메타분석 코딩 시트로 정리해 주세요.<br><br>
+      포함 열: 논문ID, 저자, 연도, 학술지, 국가, 연구설계, n, d(효과크기), SE, 하한CI, 상한CI, 조절변수1, 조절변수2, 비고<br><br>
+      추가로: 이중 코딩(inter-rater reliability)을 위해 두 번째 코더가 확인해야 할 항목과 Cohen's kappa 계산 방법도 안내해 주세요.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wt-steps -->
+
+<h2>완료 체크리스트</h2>
+<ul class="check-list">
+  <li><span class="check-box"></span>PICOS 기반 포함·배제 기준이 문서화됨</li>
+  <li><span class="check-box"></span>전체 검색 결과에서 PRISMA 흐름에 따라 최종 포함 논문이 선별됨</li>
+  <li><span class="check-box"></span>20편 이상의 논문에서 효과크기가 추출됨</li>
+  <li><span class="check-box"></span>효과크기 변환 계산 과정이 기록됨</li>
+  <li><span class="check-box"></span>이중 코딩으로 코더 간 신뢰도가 확인됨 (κ ≥ .80 권장)</li>
+  <li><span class="check-box"></span>코딩 시트가 R의 <code>metafor</code> 패키지 입력 형식으로 준비됨</li>
+</ul>
+
+
+  </div>
+  <div class="paywall-gate">
+  <div class="lock-icon">🔒</div>
+  <div class="gate-title">이 이후 내용은 전체 가이드에서 확인하세요</div>
+  <div class="gate-desc">이 챕터의 나머지 섹션 전체 · 활용·고급 파트 모든 챕터<br>따라하기 실습 11개 · 연구 스킬 73종 패키지 포함</div>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+  <div class="gate-note">일회성 구매 · 구매 즉시 파일 제공 · 향후 업데이트 무료</div>
+</div>
+</div>
+<div class="demo-page-cta">
+  <p>이 페이지의 전체 내용과 가이드 모든 챕터를 보려면 전체 가이드를 구매하세요.</p>
+  <a class="gate-btn" href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a>
+</div>
+
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 교육학·사회과학 연구자를 위한 참고서</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+    <p style="margin:0;font-size:0.8rem;color:var(--text-muted);">문의 · 피드백 &nbsp;·&nbsp; <a href="mailto:goldringedu@gmail.com" style="color:var(--primary-light);text-decoration:none;font-weight:500;">goldringedu@gmail.com</a> &nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+    <p style="margin:0;font-size:0.78rem;color:var(--text-muted);">© 2026 Claude 연구 활용 가이드. 출처 표기 시 자유롭게 활용 가능합니다.</p>
+  </div>
+</footer>
+
+</body>
+</html>

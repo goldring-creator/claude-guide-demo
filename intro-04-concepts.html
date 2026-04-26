@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 핵심 개념 용어집 — Claude 연구 활용 가이드 입문 04</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f1; --surface: #ffffff; --surface-2: #f1ece3; --border: #ddd8cf;
+      --text: #1c1b28; --text-muted: #6b6578;
+      --primary: #1e3d7a; --primary-light: #2a56ad; --primary-pale: #e5eaf6;
+      --accent: #c0891f; --accent-pale: #fdf2de;
+      --c-prompt-bg: #e8f0fb; --c-prompt: #1d4fad; --c-prompt-bd: #3b6fd4;
+      --c-result-bg: #e6f5ec; --c-result: #176338; --c-result-bd: #27ae60;
+      --c-tip-bg: #fef9e6; --c-tip: #8a5f00; --c-tip-bd: #d4a017;
+      --c-warn-bg: #fdecea; --c-warn: #b01c1c; --c-warn-bd: #e53935;
+      --b-intro: #27ae60; --b-mid: #2980b9; --b-adv: #8e44ad;
+      --font-serif: 'Noto Serif KR', Georgia, serif;
+      --font-sans: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --max-w: 860px; --nav-h: 60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.85; padding-top: var(--nav-h); }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); background: var(--primary); display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+    .nav-logo { font-family: var(--font-serif); color: #fff; font-size: 0.95rem; font-weight: 700; text-decoration: none; margin-right: auto; }
+    .nav-links { display: flex; gap: 0.15rem; }
+    .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 5px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s; white-space: nowrap; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.active { background: rgba(255,255,255,0.2); color: #fff; }
+    .nav-links a.dim { color: rgba(255,255,255,0.35); cursor: default; pointer-events: none; }
+
+    main { max-width: var(--max-w); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .breadcrumb a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.35rem; }
+
+    .sub-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2.5rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .sub-nav a { font-size: 0.78rem; text-decoration: none; padding: 0.3rem 0.7rem; border-radius: 4px; color: var(--primary-light); transition: all 0.15s; }
+    .sub-nav a:hover { background: var(--primary-pale); }
+    .sub-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+
+    h1 { font-family: var(--font-serif); font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.25; margin-bottom: 0.4rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; }
+    h2 { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: var(--primary); margin: 3rem 0 1.1rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 1.75rem 0 0.7rem; }
+    p { margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a { color: var(--primary-light); }
+    kbd { background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px; padding: 0.1em 0.45em; font-family: var(--font-mono); font-size: 0.82em; }
+
+    .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.18em 0.6em; border-radius: 3px; color: #fff; letter-spacing: 0.05em; vertical-align: middle; }
+    .badge-intro { background: var(--b-intro); } .badge-mid { background: var(--b-mid); } .badge-adv { background: var(--b-adv); }
+
+    .callout { padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0; border-left: 4px solid; }
+    .callout-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .callout-prompt { background: var(--c-prompt-bg); border-color: var(--c-prompt-bd); color: var(--c-prompt); }
+    .callout-result { background: var(--c-result-bg); border-color: var(--c-result-bd); color: var(--c-result); }
+    .callout-tip { background: var(--c-tip-bg); border-color: var(--c-tip-bd); color: var(--c-tip); }
+    .callout-warn { background: var(--c-warn-bg); border-color: var(--c-warn-bd); color: var(--c-warn); }
+    .callout p { color: var(--text); margin-bottom: 0.5rem; } .callout p:last-child { margin-bottom: 0; }
+
+    code { font-family: var(--font-mono); font-size: 0.84em; background: var(--surface-2); padding: 0.15em 0.4em; border-radius: 3px; border: 1px solid var(--border); }
+    pre { background: #1b2035; color: #cdd6f4; padding: 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.6; }
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+
+    .page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+    .page-nav a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; text-decoration: none; color: var(--primary); font-size: 0.875rem; font-weight: 600; transition: all 0.15s; }
+    .page-nav a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .page-nav .next { margin-left: auto; }
+
+    /* SCREENSHOTS */
+    .screenshot-seq { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.25rem 0; }
+    .screenshot-step { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .screenshot-step img { width: 100%; display: block; }
+    .screenshot-caption { font-size: 0.73rem; color: var(--text-muted); padding: 0.45rem 0.7rem; text-align: center; border-top: 1px solid var(--border); }
+    @media (max-width: 600px) { .screenshot-seq { grid-template-columns: 1fr; } }
+
+    /* CONCEPT CARDS */
+    .concept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      scroll-margin-top: 80px;
+    }
+    .concept-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+    .concept-icon { font-size: 2.2rem; flex-shrink: 0; line-height: 1; }
+    .concept-title-wrap { flex: 1; }
+    .concept-ko { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-bottom: 0.15rem; }
+    .concept-en { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+    .concept-def { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--primary-pale); border-radius: 6px; }
+    .concept-body { font-size: 0.9rem; }
+    .concept-body p { margin-bottom: 0.75rem; }
+    .concept-analogy { background: var(--accent-pale); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; margin: 0.75rem 0; font-size: 0.87rem; }
+    .concept-analogy-title { font-size: 0.72rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+    .concept-example { background: var(--c-prompt-bg); border-left: 3px solid var(--c-prompt-bd); padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; margin: 0.75rem 0; font-size: 0.85rem; }
+    .concept-example-title { font-size: 0.72rem; font-weight: 700; color: var(--c-prompt); margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+    .concept-example p { color: var(--text); margin-bottom: 0; }
+
+    /* QUICK REF TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin: 1.25rem 0; background: var(--surface); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    th { background: var(--primary); color: #fff; padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: var(--surface-2); }
+    tr:last-child td { border-bottom: none; }
+
+    /* RELATION DIAGRAM */
+    .relation-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 2rem; margin: 1.5rem 0; overflow-x: auto;
+    }
+    .relation-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; text-align: center; }
+    .rel-diagram {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; flex-wrap: wrap;
+    }
+    .rel-node {
+      background: var(--primary-pale); border: 2px solid var(--primary);
+      border-radius: 8px; padding: 0.6rem 1rem;
+      text-align: center; min-width: 90px;
+    }
+    .rel-node .rel-en { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+    .rel-node .rel-ko { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+    .rel-node.center { background: var(--primary); border-color: var(--primary); }
+    .rel-node.center .rel-ko { color: #fff; }
+    .rel-node.center .rel-en { color: rgba(255,255,255,0.7); }
+    .rel-node.accent { background: var(--accent-pale); border-color: var(--accent); }
+    .rel-node.accent .rel-ko { color: var(--accent); }
+    .rel-arrow { font-size: 1.2rem; color: var(--text-muted); padding: 0 0.5rem; }
+    .rel-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .rel-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+    .rel-label { font-size: 0.72rem; color: var(--text-muted); text-align: center; }
+
+    /* JUMP LINKS */
+    .jump-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .jump-links a { font-size: 0.78rem; text-decoration: none; padding: 0.3rem 0.75rem; border: 1px solid var(--border); border-radius: 20px; color: var(--primary); background: var(--surface); transition: all 0.15s; }
+    .jump-links a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    @media print {
+      .site-nav, .page-nav { display: none; }
+      body { padding-top: 0; background: #fff; }
+      main { padding: 1cm 1.5cm; max-width: none; }
+      .concept-card { page-break-inside: avoid; margin-bottom: 1rem; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: auto; }
+    }
+    @media (max-width: 640px) { h1 { font-size: 1.7rem; } main { padding: 2rem 1.25rem 4rem; } }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html" class="active">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+  <div class="breadcrumb">
+    <a href="index.html">홈</a><span>›</span>
+    <a href="intro-01-what-is-claude.html">입문</a><span>›</span>
+    핵심 개념 용어집
+  </div>
+
+  <div class="sub-nav">
+    <a href="intro-01-what-is-claude.html">01. Claude란?</a>
+    <a href="intro-02-plans-platforms.html">02. 요금제·플랫폼</a>
+    <a href="intro-03-installation.html">03. 설치·첫 실행</a>
+    <a href="intro-04-concepts.html" class="active">04. 핵심 개념</a>
+  </div>
+
+  <h1>핵심 개념 용어집</h1>
+  <p class="page-subtitle"><span class="badge badge-intro">입문 04</span> &nbsp;Claude를 제대로 활용하기 위해 반드시 알아야 할 6가지 개념</p>
+
+  <p>Claude Code를 사용하다 보면 특정 용어가 반복해서 등장합니다. 이 용어들을 이해하면 가이드의 나머지 내용이 훨씬 명확해집니다. 각 개념을 연구자 관점에서 풀어 설명합니다.</p>
+
+  <div class="jump-links">
+    <a href="#ctx">컨텍스트</a>
+    <a href="#session">세션</a>
+    <a href="#claudemd">CLAUDE.md</a>
+    <a href="#skill">Skill</a>
+    <a href="#mcp">MCP</a>
+    <a href="#api">API</a>
+  </div>
+
+  <!-- ===== 개념 1: Context ===== -->
+  <div class="concept-card" id="ctx">
+    <div class="concept-header">
+      <div class="concept-icon">🧠</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">컨텍스트</div>
+        <div class="concept-en">Context / Context Window</div>
+      </div>
+    </div>
+    <div class="concept-def">Claude가 현재 대화에서 기억하고 있는 내용의 총량</div>
+    <div class="concept-body">
+      <p>Claude는 대화가 길어질수록 앞에서 나눈 내용을 점점 "잊어"갑니다. 컨텍스트는 Claude가 한 번에 기억할 수 있는 정보의 한계입니다. 논문 여러 편을 동시에 분석하거나 대화가 매우 길어지면 컨텍스트가 가득 찰 수 있습니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>연구자가 책상 위에 꺼내놓을 수 있는 논문 더미의 크기. 책상이 너무 넓으면 멀리 있는 논문을 제대로 참고하기 어렵습니다.</p>
+      </div>
+      <p><strong>실용적 대처법:</strong></p>
+      <ul>
+        <li>대화가 길어지면 <code>/compact</code>를 입력해 컨텍스트를 요약·압축</li>
+        <li>새로운 분석 주제를 시작할 땐 <code>/clear</code>로 컨텍스트 초기화<sup>*</sup>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem; padding-left:0.2rem;">* /clear 사용 시 기존 작업 메모리 삭제, 새로운 작업 시에 활용</div>
+        </li>
+        <li>중요한 지시사항은 CLAUDE.md 파일에 저장 (아래 설명)</li>
+      </ul>
+      <div class="concept-example">
+        <div class="concept-example-title">💬 실제 상황</div>
+        <p>"논문 정리를 하다가 갑자기 Claude가 이전 지시사항을 잊어버린 것 같아요" → 컨텍스트가 가득 찬 것. <code>/compact</code> 실행 후 핵심 지시사항을 다시 알려주세요.</p>
+      </div>
+      <div class="screenshot-seq" style="margin-top:1rem;">
+        <div class="screenshot-step">
+          <img src="../images/work-demo.png" alt="작업 중 /compact 입력 화면">
+          <div class="screenshot-caption">/compact 입력 → 대화 내용이 자동 요약됩니다</div>
+        </div>
+        <div class="screenshot-step">
+          <img src="../images/compact-02.png" alt="/compact 후 컨텍스트 20% 사용 화면">
+          <div class="screenshot-caption">Context 61% 사용에서 20%로 압축 및 여유 공간 확보</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 개념 2: Session ===== -->
+  <div class="concept-card" id="session">
+    <div class="concept-header">
+      <div class="concept-icon">⏱️</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">세션</div>
+        <div class="concept-en">Session</div>
+      </div>
+    </div>
+    <div class="concept-def">Claude Code를 실행(<code>claude</code>)한 순간부터 종료(<code>/exit</code>)까지의 작업 단위</div>
+    <div class="concept-body">
+      <p>세션이 끝나면 대화 내용은 저장되지만, Claude가 갖고 있던 실시간 컨텍스트는 사라집니다. 다음 날 다시 작업을 시작하면 새 세션이 시작됩니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>한 연구 회의(미팅). 회의가 끝나면 메모(파일)는 남지만, 그 자리의 분위기와 즉각적인 맥락은 다음 회의 때 다시 설명해야 합니다.</p>
+      </div>
+      <p><strong>이전 세션 이어받기:</strong></p>
+      <pre><code><span style="color:#6a7499"># 가장 최근 세션 이어받기</span>
+claude --continue
+
+<span style="color:#6a7499"># 또는 단축 옵션</span>
+claude -c</code></pre>
+      <div class="concept-example">
+        <div class="concept-example-title">💬 실제 상황</div>
+        <p>어제 작업하던 논문 분석을 오늘 이어서 하고 싶다면 → <code>cd 연구폴더</code> 후 <code>claude --continue</code>를 실행하세요. Claude가 이전 대화를 불러옵니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 개념 3: CLAUDE.md ===== -->
+  <div class="concept-card" id="claudemd">
+    <div class="concept-header">
+      <div class="concept-icon">📋</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">CLAUDE.md</div>
+        <div class="concept-en">Project Configuration File</div>
+      </div>
+    </div>
+    <div class="concept-def">연구 프로젝트의 규칙과 선호사항을 저장하는 파일 — Claude의 "장기 기억"</div>
+    <div class="concept-body">
+      <p>CLAUDE.md는 연구 폴더에 만드는 특별한 텍스트 파일입니다. Claude Code를 실행할 때마다 자동으로 이 파일을 읽고, 여기 적힌 지시사항을 항상 따릅니다. 매번 같은 지시를 반복하지 않아도 됩니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>RA에게 처음 업무를 시작할 때 건네주는 "업무 매뉴얼". 한 번 작성해두면 매번 같은 설명을 반복하지 않아도 됩니다.</p>
+      </div>
+      <p><strong>CLAUDE.md 만드는 방법:</strong> Claude에게 <code>"CLAUDE.md 파일 만들어줘, 내 연구 프로젝트 설정을 담을 거야"</code>라고 말하면 자동으로 생성해줍니다. 직접 만들고 싶다면 메모장(Windows) 또는 TextEdit(Mac)에서 파일을 만들고 이름을 <code>CLAUDE.md</code>로 저장하면 됩니다.</p>
+      <p><strong>예시 내용:</strong></p>
+      <div class="concept-example">
+        <div class="concept-example-title">💬 실제 활용 예시 — CLAUDE.md 내용</div>
+        <p># 연구 프로젝트 설정<br><br>
+        ## 기본 규칙<br>
+        - 나는 교육학 박사과정생이야. 전공은 교사교육 및 교원정책이야.<br>
+        - 논문 작성 시 항상 한국어로 작성하고, APA 7판 인용 형식을 사용해.<br>
+        - 학술적 문체를 유지하되, 지나치게 딱딱하지 않게 써줘.<br><br>
+        ## 폴더 구조<br>
+        - papers/ : 분석할 논문 PDF<br>
+        - data/ : 연구 데이터<br>
+        - drafts/ : 논문 초안<br><br>
+        ## 주의사항<br>
+        - 인용할 때는 반드시 실제 논문 출처를 확인하라고 알려줘.</p>
+      </div>
+      <p>위 내용을 CLAUDE.md 파일로 저장하면, 매 세션마다 Claude가 자동으로 읽고 따릅니다.</p>
+    </div>
+  </div>
+
+  <!-- ===== 개념 4: Skill ===== -->
+  <div class="concept-card" id="skill">
+    <div class="concept-header">
+      <div class="concept-icon">🔧</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">스킬</div>
+        <div class="concept-en">Skill</div>
+      </div>
+    </div>
+    <div class="concept-def">특정 작업 방식을 Claude에게 가르치는 "레시피 패키지"</div>
+    <div class="concept-body">
+      <p>Skill은 SKILL.md 파일이 들어있는 폴더입니다. 이 파일에 작업 지침이 담겨 있어서, Claude가 특정 상황에서 그 지침을 따라 일관된 방식으로 작업합니다. 한 번 설치하면 관련 작업을 시킬 때마다 자동으로 불러옵니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>요리 레시피처럼, Skill은 "이 재료로 이렇게 만들어라"는 지침입니다. 레시피가 있으면 매번 처음부터 설명하지 않아도 됩니다.</p>
+      </div>
+      <p><strong>연구자에게 유용한 Skill 예시:</strong></p>
+      <ul>
+        <li><strong>literature-review</strong> — 논문 검색·요약·정리 전용 워크플로우</li>
+        <li><strong>academic-writing</strong> — 학술 문체 논문 초안 작성</li>
+        <li><strong>citation-assistant</strong> — APA 인용 자동 생성·검증</li>
+        <li><strong>quantitative-analysis</strong> — 통계 분석 코드 작성 및 해석</li>
+      </ul>
+      <div class="concept-example">
+        <div class="concept-example-title">💬 Skill 사용 방법 (활용 파트에서 상세 설명)</div>
+        <p>Claude Code 실행 후: <code>/literature-review</code> 입력<br>
+        → Claude가 논문 정리 전용 모드로 전환되어 체계적으로 작업합니다.</p>
+      </div>
+      <div class="callout callout-tip" style="margin-top: 0.75rem;">
+        <div class="callout-title">💡 참고</div>
+        <p>Skill 설치 방법과 연구에 유용한 Skill 목록은 <strong><a href="usage-07-writing-setup.html">활용 파트 — 논문작성 세팅</a></strong>에서 다룹니다. 고급 파트에서는 <strong><a href="advanced-03-custom-skill_v2.html">나만의 커스텀 Skill을 만드는 법</a></strong>을 설명합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 개념 5: MCP ===== -->
+  <div class="concept-card" id="mcp">
+    <div class="concept-header">
+      <div class="concept-icon">🔌</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">MCP <span style="font-size:0.65rem;font-weight:700;padding:0.15em 0.55em;border-radius:3px;background:#e8f0fb;color:#1d4fad;vertical-align:middle;margin-left:0.3rem;">⏭️ 입문 단계에서는 건너뛰어도 됩니다</span></div>
+        <div class="concept-en">Model Context Protocol</div>
+      </div>
+    </div>
+    <div class="concept-def">Claude를 외부 도구·서비스와 연결하는 표준 규격</div>
+    <div class="concept-body">
+      <p>MCP는 Claude가 외부 서비스(웹 브라우저, 파일 시스템, 데이터베이스, Zotero 등)와 통신할 수 있게 하는 연결 규격입니다. MCP 서버를 설정하면 Claude가 인터넷 검색, 파일 접근, 외부 API 호출 등을 직접 수행할 수 있습니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>도서관 사서(Claude)가 외부 데이터베이스(RISS, Zotero, 웹)에 직접 접속할 수 있는 권한카드. MCP가 없으면 사서에게 자료를 복사해서 전달해야 하지만, MCP가 있으면 사서가 직접 검색합니다.</p>
+      </div>
+      <p><strong>연구자에게 유용한 MCP 예시:</strong></p>
+      <ul>
+        <li><strong>파일시스템 MCP</strong> — 지정한 폴더에 파일 읽기·쓰기 (Claude Code 기본 제공)</li>
+        <li><strong>웹 검색 MCP</strong> — 실시간 학술 DB 검색</li>
+        <li><strong>Zotero MCP</strong> — 참고문헌 관리 프로그램과 직접 연동</li>
+        <li><strong>Google Drive MCP</strong> — 구글 드라이브 파일 직접 읽기·저장</li>
+      </ul>
+      <div class="callout callout-warn" style="margin-top: 0.75rem;">
+        <div class="callout-title">⚠️ 입문 단계에서는</div>
+        <p>MCP 설정은 입문 단계에서 필수가 아닙니다. Claude Code만으로 대부분의 연구 작업이 가능합니다. MCP 설정 방법은 <strong><a href="usage-01-project-setup.html">활용 파트 — 연구 프로젝트 세팅</a></strong>과 <strong><a href="advanced-04-mcp_v2.html">고급 파트 — MCP 고급 설정</a></strong>에서 다룹니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 개념 6: API ===== -->
+  <div class="concept-card" id="api">
+    <div class="concept-header">
+      <div class="concept-icon">⚙️</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">API <span style="font-size:0.65rem;font-weight:700;padding:0.15em 0.55em;border-radius:3px;background:#e8f0fb;color:#1d4fad;vertical-align:middle;margin-left:0.3rem;">⏭️ 입문 단계에서는 건너뛰어도 됩니다</span></div>
+        <div class="concept-en">Application Programming Interface</div>
+      </div>
+    </div>
+    <div class="concept-def">코드에서 직접 Claude를 호출하는 프로그래밍 방식 연결</div>
+    <div class="concept-body">
+      <p>API는 Python·R 코드 안에서 Claude에게 직접 요청을 보내는 방법입니다. 웹 인터페이스나 터미널 없이, 코드가 자동으로 Claude를 호출하고 결과를 받아서 처리합니다. 수백 개의 논문을 자동 분류하거나 반복적인 작업을 완전 자동화할 때 사용합니다.</p>
+      <div class="concept-analogy">
+        <div class="concept-analogy-title">🔎 연구자 비유</div>
+        <p>Claude에게 직통 전화선을 연결하는 것. 전화를 걸면 바로 연결되고, 통화 내용(질문과 답변)이 자동으로 기록·처리됩니다. 단, 이 전화선을 설치하려면 약간의 기술이 필요합니다.</p>
+      </div>
+      <div class="callout callout-tip" style="margin-top:0.75rem">
+        <div class="callout-title">💡 입문 단계에서는 API 불필요</div>
+        <p>이 가이드의 입문·활용 파트는 API 없이 Claude Code만으로 진행됩니다. API 키 발급부터 Python 코드 실습까지는 <strong><a href="advanced-06-api.html">고급 06 — Claude API 시작하기</a></strong>에서 다룹니다. 지금 당장 이해할 필요는 없습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 개념 7: 병렬 작업 ===== -->
+  <div class="concept-card" id="parallel">
+    <div class="concept-header">
+      <div class="concept-icon">🔀</div>
+      <div class="concept-title-wrap">
+        <div class="concept-ko">병렬 작업</div>
+        <div class="concept-en">Parallel Work</div>
+      </div>
+    </div>
+    <div class="concept-def">여러 작업을 동시에 처리해 전체 소요 시간을 줄이는 방식</div>
+    <div class="concept-body">
+      <p>독립적인 논문 5편을 하나씩 분석하면 5번 기다려야 하지만, 한 번에 지시하면 Claude가 동시에 처리합니다. CLI를 여러 개 열어 완전히 독립된 병렬 작업도 가능합니다.</p>
+      <p style="font-size:0.88rem;color:var(--text-muted);">처음에는 순차 작업으로도 충분합니다. 대규모 자동화가 필요해지면 → <a href="advanced-02-worktree.html">고급 02 Worktree 병렬 작업</a>에서 자세히 다룹니다.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 빠른 참조표 ===== -->
+  <h2>빠른 참조 — 한눈에 보기</h2>
+
+  <table>
+    <thead>
+      <tr><th>개념</th><th>한 줄 설명</th><th>언제 중요한가</th><th>난이도</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>컨텍스트</strong></td>
+        <td>Claude의 현재 작업 기억 용량</td>
+        <td>대화가 길어질 때 (<code>/compact</code>)</td>
+        <td><span class="badge badge-intro">입문</span></td>
+      </tr>
+      <tr>
+        <td><strong>세션</strong></td>
+        <td>Claude Code 한 번의 실행 단위</td>
+        <td>이전 작업 이어받을 때 (<code>claude -c</code>)</td>
+        <td><span class="badge badge-intro">입문</span></td>
+      </tr>
+      <tr>
+        <td><strong>CLAUDE.md</strong></td>
+        <td>프로젝트별 규칙 저장 파일</td>
+        <td>매 세션 자동 적용, 반복 설명 불필요</td>
+        <td><span class="badge badge-intro">입문</span></td>
+      </tr>
+      <tr>
+        <td><strong>Skill</strong></td>
+        <td>특정 작업 전용 지침 패키지</td>
+        <td>논문 정리·분석·작성 워크플로우</td>
+        <td><span class="badge badge-mid">활용</span></td>
+      </tr>
+      <tr>
+        <td><strong>MCP</strong></td>
+        <td>외부 서비스 연결 규격</td>
+        <td>Zotero·웹검색·Drive 연동 시</td>
+        <td><span class="badge badge-mid">활용</span></td>
+      </tr>
+      <tr>
+        <td><strong>API</strong></td>
+        <td>코드에서 Claude 직접 호출</td>
+        <td>수백 건 대규모 자동화 시</td>
+        <td><span class="badge badge-adv">고급</span></td>
+      </tr>
+      <tr>
+        <td><strong>병렬 작업</strong></td>
+        <td>터미널 여러 개로 동시 독립 처리</td>
+        <td>논문 여러 편 동시 분석, Worktree 조합</td>
+        <td><span class="badge badge-mid">활용</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 관계도 ===== -->
+  <h2>개념 간 관계</h2>
+  <div class="relation-box">
+    <div class="relation-title">연구자의 Claude 생태계</div>
+    <div class="rel-wrap">
+      <div class="rel-row">
+        <div class="rel-node accent">
+          <div class="rel-en">CLAUDE.md</div>
+          <div class="rel-ko">프로젝트 설정</div>
+        </div>
+        <div class="rel-arrow">+</div>
+        <div class="rel-node accent">
+          <div class="rel-en">Skill</div>
+          <div class="rel-ko">작업 레시피</div>
+        </div>
+        <div class="rel-arrow">→</div>
+        <div class="rel-node center">
+          <div class="rel-en">Claude Code</div>
+          <div class="rel-ko">핵심 에이전트</div>
+        </div>
+        <div class="rel-arrow">↔</div>
+        <div class="rel-node accent">
+          <div class="rel-en">MCP</div>
+          <div class="rel-ko">외부 연결</div>
+        </div>
+      </div>
+      <div class="rel-row">
+        <div class="rel-label">장기 기억 설정</div>
+        <div style="width:1.5rem"></div>
+        <div class="rel-label">반복 작업 자동화</div>
+        <div style="width:2rem"></div>
+        <div class="rel-label">세션 + 컨텍스트로 작동</div>
+        <div style="width:1.5rem"></div>
+        <div class="rel-label">Zotero, 웹, Drive</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 다음 단계 ===== -->
+  <h2>입문 파트 완료 — 다음 단계</h2>
+  <p>입문 파트 4개 섹션을 모두 읽으셨다면, 이제 Claude Code를 실제 연구에 활용할 준비가 된 것입니다.</p>
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 입문 파트 완료 체크리스트</div>
+    <p>□ Claude Code와 채팅봇의 차이를 이해했다</p>
+    <p>□ Pro 플랜을 구독하고 Claude Code를 설치했다</p>
+    <p>□ 터미널에서 <code>claude</code>를 실행해봤다</p>
+    <p>□ 컨텍스트, 세션, CLAUDE.md, Skill, MCP, API가 무엇인지 이해했다</p>
+  </div>
+
+  <p>다음 단계인 <strong>활용 파트</strong>에서는 실제 연구 프로젝트 세팅부터 선행연구 서치, 데이터 분석, 논문 작성까지 단계별로 다룹니다.</p>
+
+  <div class="page-nav">
+    <a href="intro-03-installation.html">← 설치 및 첫 실행</a>
+    <a href="index.html" class="next">홈으로 돌아가기 →</a>
+  </div>
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 입문 04. 핵심 개념 용어집</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월 · 입문 파트 완료</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] Claude란 무엇인가 — Claude 연구 활용 가이드 입문 01</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================
+       CLAUDE 연구 가이드 — SHARED DESIGN SYSTEM v1.0
+       ================================================ */
+    :root {
+      --bg:            #f8f6f1;
+      --surface:       #ffffff;
+      --surface-2:     #f1ece3;
+      --border:        #ddd8cf;
+      --text:          #1c1b28;
+      --text-muted:    #6b6578;
+      --primary:       #1e3d7a;
+      --primary-light: #2a56ad;
+      --primary-pale:  #e5eaf6;
+      --accent:        #c0891f;
+      --accent-pale:   #fdf2de;
+      --c-prompt-bg: #e8f0fb; --c-prompt: #1d4fad; --c-prompt-bd: #3b6fd4;
+      --c-result-bg: #e6f5ec; --c-result: #176338; --c-result-bd: #27ae60;
+      --c-tip-bg:    #fef9e6; --c-tip:    #8a5f00; --c-tip-bd:    #d4a017;
+      --c-warn-bg:   #fdecea; --c-warn:   #b01c1c; --c-warn-bd:   #e53935;
+      --b-intro: #27ae60; --b-mid: #2980b9; --b-adv: #8e44ad;
+      --font-serif: 'Noto Serif KR', Georgia, serif;
+      --font-sans:  'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+      --max-w: 860px; --nav-h: 60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.85; padding-top: var(--nav-h); }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); background: var(--primary); display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+    .nav-logo { font-family: var(--font-serif); color: #fff; font-size: 0.95rem; font-weight: 700; text-decoration: none; margin-right: auto; white-space: nowrap; }
+    .nav-links { display: flex; gap: 0.15rem; }
+    .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 5px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .nav-links a:hover  { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.active { background: rgba(255,255,255,0.2);  color: #fff; }
+    .nav-links a.dim    { color: rgba(255,255,255,0.35); cursor: default; pointer-events: none; }
+
+    main { max-width: var(--max-w); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    /* BREADCRUMB */
+    .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .breadcrumb a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.35rem; }
+
+    /* SUB-NAV */
+    .sub-nav {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    }
+    .sub-nav a {
+      font-size: 0.78rem; text-decoration: none;
+      padding: 0.3rem 0.7rem; border-radius: 4px;
+      color: var(--primary-light);
+      transition: all 0.15s;
+    }
+    .sub-nav a:hover  { background: var(--primary-pale); }
+    .sub-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+
+    /* HEADINGS */
+    h1 { font-family: var(--font-serif); font-size: 2.1rem; font-weight: 700; color: var(--primary); line-height: 1.25; margin-bottom: 0.4rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; }
+    h2 { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: var(--primary); margin: 3rem 0 1.1rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 1.75rem 0 0.7rem; }
+    p  { margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a  { color: var(--primary-light); }
+    strong { color: var(--text); }
+    kbd { background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px; padding: 0.1em 0.4em; font-family: var(--font-mono); font-size: 0.82em; }
+
+    .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.18em 0.6em; border-radius: 3px; color: #fff; letter-spacing: 0.05em; vertical-align: middle; }
+    .badge-intro { background: var(--b-intro); } .badge-mid { background: var(--b-mid); } .badge-adv { background: var(--b-adv); }
+
+    .callout { padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0; border-left: 4px solid; }
+    .callout-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .callout-prompt { background: var(--c-prompt-bg); border-color: var(--c-prompt-bd); color: var(--c-prompt); }
+    .callout-result { background: var(--c-result-bg); border-color: var(--c-result-bd); color: var(--c-result); }
+    .callout-tip    { background: var(--c-tip-bg);    border-color: var(--c-tip-bd);    color: var(--c-tip);    }
+    .callout-warn   { background: var(--c-warn-bg);   border-color: var(--c-warn-bd);   color: var(--c-warn);   }
+    .callout p { color: var(--text); margin-bottom: 0.5rem; } .callout p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1.25rem 0; background: var(--surface); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    th { background: var(--primary); color: #fff; padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: var(--surface-2); }
+    tr:last-child td { border-bottom: none; }
+
+    code { font-family: var(--font-mono); font-size: 0.84em; background: var(--surface-2); padding: 0.15em 0.4em; border-radius: 3px; border: 1px solid var(--border); }
+    pre { background: #1b2035; color: #cdd6f4; padding: 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.6; }
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+
+    .page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+    .page-nav a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; text-decoration: none; color: var(--primary); font-size: 0.875rem; font-weight: 600; transition: all 0.15s; }
+    .page-nav a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .page-nav .next { margin-left: auto; }
+
+    /* COMPARISON BOX */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+    .compare-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+    .compare-card.highlight { border-color: var(--primary); border-width: 2px; }
+    .compare-card-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .compare-card-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; }
+    .compare-card ul { font-size: 0.84rem; padding-left: 1.2rem; }
+    .compare-card li { margin-bottom: 0.3rem; }
+
+    /* USE CASE CARDS */
+    .usecase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+    .usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .usecase-icon  { font-size: 1.75rem; margin-bottom: 0.6rem; }
+    .usecase-title { font-weight: 700; font-size: 0.95rem; color: var(--primary); margin-bottom: 0.4rem; }
+    .usecase-desc  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+
+    /* LIMIT ITEMS */
+    .limit-list { list-style: none; padding: 0; }
+    .limit-list li { display: flex; gap: 0.75rem; padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; align-items: flex-start; }
+    .limit-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .limit-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; color: var(--c-warn); }
+    .limit-desc  { font-size: 0.83rem; color: var(--text-muted); }
+
+    /* ETHICS ITEMS */
+    .ethics-step { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
+    .ethics-num { background: var(--primary); color: #fff; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .ethics-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 0.3rem; }
+    .ethics-body p  { font-size: 0.85rem; margin: 0; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    @media print {
+      .site-nav, .page-nav { display: none; }
+      body { padding-top: 0; background: #fff; }
+      main { padding: 1cm 1.5cm; max-width: none; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: auto; }
+      .callout, table, .compare-grid { page-break-inside: avoid; }
+      .compare-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      h1 { font-size: 1.7rem; }
+      .compare-grid { grid-template-columns: 1fr; }
+      main { padding: 2rem 1.25rem 4rem; }
+    }
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html" class="active">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+  <div class="breadcrumb">
+    <a href="index.html">홈</a><span>›</span>
+    <a href="intro-01-what-is-claude.html">입문</a><span>›</span>
+    Claude란 무엇인가
+  </div>
+
+  <div class="sub-nav">
+    <a href="intro-01-what-is-claude.html" class="active">01. Claude란?</a>
+    <a href="intro-02-plans-platforms.html">02. 요금제·플랫폼</a>
+    <a href="intro-03-installation.html">03. 설치·첫 실행</a>
+    <a href="intro-04-concepts.html">04. 핵심 개념</a>
+  </div>
+
+  <h1>Claude란 무엇인가</h1>
+  <p class="page-subtitle"><span class="badge badge-intro">입문 01</span> &nbsp;채팅봇과의 차이, 연구 활용 사례, AI의 한계, 학술 윤리</p>
+
+  <!-- ===== 1. RA 비유 ===== -->
+  <h2>1. Claude는 연구실 RA입니다</h2>
+  <p>Claude를 처음 접하면 자연스럽게 ChatGPT와 비교하게 됩니다. 둘 다 AI이고 질문에 답해주는 건 맞지만, 연구자 관점에서 핵심 차이는 <strong>"파일을 직접 다룰 수 있는가"</strong>입니다.</p>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 핵심 비유</div>
+    <p><strong>ChatGPT·claude.ai 웹</strong>은 "질문하면 답해주는 도서관 사서"입니다. 대화창에서만 작동하고, 대화가 끝나면 기억이 사라집니다.</p>
+    <p><strong>Claude Code (CLI)</strong>는 "내 연구실에 24시간 상주하는 RA(Research Assistant)"입니다. 내 컴퓨터 폴더에 직접 들어와서 파일을 읽고, 분석하고, 결과를 새 파일로 저장합니다. 시킨 일이 <em>파일로 남습니다</em>.</p>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="compare-card-label">일반 AI 챗봇</div>
+      <div class="compare-card-title">채팅창 안에서만</div>
+      <ul>
+        <li>대화창에 붙여넣기 → 답변 확인</li>
+        <li>결과를 직접 복사해서 저장해야 함</li>
+        <li>창을 닫으면 기억이 사라짐</li>
+        <li>파일 20개를 분석하려면 20번 반복</li>
+        <li>PDF, R 파일 직접 처리 불가</li>
+      </ul>
+    </div>
+    <div class="compare-card highlight">
+      <div class="compare-card-label">Claude Code</div>
+      <div class="compare-card-title">내 폴더 안에서 직접</div>
+      <ul>
+        <li>연구 폴더를 기준으로 직접 작업</li>
+        <li>결과가 자동으로 파일로 저장됨</li>
+        <li>CLAUDE.md로 설정을 기억함</li>
+        <li>폴더 안 파일 수십 개를 한 번에 처리</li>
+        <li>PDF, CSV, R 스크립트 직접 읽고 생성</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>이 가이드 전체는 <strong>Claude Code (CLI)</strong>(터미널에서 실행하는 버전)를 중심으로 설명합니다. 웹 버전(claude.ai)과의 차이는 <a href="intro-02-plans-platforms.html">입문 02</a>에서 자세히 다룹니다.</p>
+
+  <!-- ===== 2. 연구 활용 ===== -->
+  <h2>2. 교육학·사회과학 연구에서의 활용</h2>
+  <p>Claude Code는 연구의 세 단계 모두에서 실질적인 도움을 줍니다.</p>
+
+  <div class="usecase-grid">
+    <div class="usecase-card">
+      <div class="usecase-icon">🔍</div>
+      <div class="usecase-title">선행연구 정리</div>
+      <div class="usecase-desc">PDF 20편을 폴더에 넣고 "각 논문의 연구목적·방법론·결과를 표로 정리해줘"라고 하면, literature-notes.md 파일로 자동 정리됩니다. APA 형식 참고문헌도 자동 생성.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="usecase-icon">📊</div>
+      <div class="usecase-title">데이터 분석</div>
+      <div class="usecase-desc">SPSS·R을 잘 몰라도 됩니다. "이 CSV 파일로 기술통계 분석하고 결과를 표로 정리해줘"라고 하면 R 스크립트를 작성하고 실행해서 결과를 보여줍니다.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="usecase-icon">✍️</div>
+      <div class="usecase-title">논문 작성</div>
+      <div class="usecase-desc">분석 결과 파일과 선행연구 파일을 읽고, 학술 문체로 결과절 초안을 작성합니다. APA 7판 인용 형식, 특정 학술지 스타일도 지정 가능.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-prompt">
+    <div class="callout-title">📋 실제 활용 예시 — 선행연구 정리</div>
+    <p>papers/ 폴더에 있는 PDF 파일들을 모두 읽고,<br>
+    각 논문을 아래 형식으로 literature-notes.md에 정리해줘:<br><br>
+    ## [저자, 연도] 논문 제목<br>
+    - 연구 목적:<br>
+    - 연구 방법:<br>
+    - 주요 결과:<br>
+    - 내 연구와의 관련성:</p>
+  </div>
+
+  <div class="callout callout-result">
+    <div class="callout-title">✅ 결과</div>
+    <p>Claude가 PDF를 한 편씩 읽고 지정한 형식으로 literature-notes.md를 자동으로 작성합니다. 논문 20편 기준 약 15~30분 소요 (논문 분량·PDF 품질에 따라 다름).</p>
+  </div>
+
+  <!-- ===== 3. AI 한계 ===== -->
+  <h2>3. Claude의 한계 — 반드시 알아야 할 것</h2>
+  <p>Claude는 강력한 도구이지만, 연구자라면 다음 한계를 명확히 인지하고 사용해야 합니다.</p>
+
+  <ul class="limit-list">
+    <li>
+      <div class="limit-icon">🎭</div>
+      <div>
+        <div class="limit-title">환각 (Hallucination)</div>
+        <div class="limit-desc">Claude는 없는 논문을 있는 것처럼 인용하거나, 실제와 다른 통계 수치를 생성할 수 있습니다. <strong>Claude가 제시한 모든 인용·수치는 반드시 원문으로 확인</strong>하세요. 선행연구 작성 후 출처 검증은 필수입니다.</div>
+      </div>
+    </li>
+    <li>
+      <div class="limit-icon">📅</div>
+      <div>
+        <div class="limit-title">최신 정보 제한 (Knowledge Cutoff)</div>
+        <div class="limit-desc">Claude의 학습 데이터는 특정 시점까지만 반영됩니다 (Claude Sonnet 4.6 기준 2025년 8월, 약 8개월 이상 전 정보). 최근 발표된 논문·정책·데이터는 Claude가 모를 수 있습니다. 최신 연구는 직접 검색해서 파일로 제공해야 합니다.</div>
+      </div>
+    </li>
+    <li>
+      <div class="limit-icon">🧮</div>
+      <div>
+        <div class="limit-title">수치 계산 오류</div>
+        <div class="limit-desc">Claude는 복잡한 수학적 계산에서 오류를 범할 수 있습니다. 통계 분석은 반드시 R·Python 등 실제 실행 환경을 통해 검증하세요. Claude가 "결과는 β=.43입니다"라고 했다고 맹신하지 마세요.</div>
+      </div>
+    </li>
+    <li>
+      <div class="limit-icon">🔒</div>
+      <div>
+        <div class="limit-title">개인정보·민감 데이터</div>
+        <div class="limit-desc">학교·기관의 학생 정보, 인터뷰 원자료 등 민감한 데이터를 Claude에 직접 업로드하지 마세요. 기관의 데이터 보안 정책을 먼저 확인하고, 가명화·익명화 처리 후 사용하는 것을 권장합니다.</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 연구자에게 가장 중요한 원칙</div>
+    <p><strong>Claude는 초안(draft) 생성 도구입니다.</strong> 최종 논문에 들어가는 모든 내용 — 인용, 수치, 논리 — 은 연구자 본인이 직접 검토하고 책임져야 합니다. Claude는 작업 속도를 높여주는 도구이지, 판단을 대신하는 도구가 아닙니다.</p>
+  </div>
+
+  <!-- ===== 4. 학술 윤리 ===== -->
+  <h2>4. AI 사용과 학술 윤리</h2>
+  <p>AI 도구를 연구에 활용할 때는 학술 공동체의 기대와 소속 기관의 정책을 준수해야 합니다.</p>
+
+  <h3>AI 사용 공개 원칙</h3>
+  <p>현재 대부분의 국제 학술지와 한국 학술 기관은 AI 사용을 <em>저자 기여(authorship)</em>로 인정하지 않습니다. 대신 <strong>사용 사실 공개(disclosure)</strong>를 요구하는 추세입니다.</p>
+
+  <div class="ethics-step">
+    <div class="ethics-num">1</div>
+    <div class="ethics-body">
+      <h4>소속 기관·학술지 정책 먼저 확인</h4>
+      <p>투고 예정 학술지의 Author Guidelines에서 AI 관련 정책을 확인합니다. Nature, APA 학술지 등 주요 저널은 명시적인 AI 사용 공개를 요구합니다.</p>
+    </div>
+  </div>
+  <div class="ethics-step">
+    <div class="ethics-num">2</div>
+    <div class="ethics-body">
+      <h4>어떤 부분에 AI를 사용했는지 기록</h4>
+      <p>초안 작성, 문법 교정, 번역, 데이터 분석 스크립트 생성 등 구체적으로 어떤 용도로 사용했는지 연구노트에 기록해 두세요.</p>
+    </div>
+  </div>
+  <div class="ethics-step">
+    <div class="ethics-num">3</div>
+    <div class="ethics-body">
+      <h4>감사의 글(Acknowledgments)에 표기</h4>
+      <p>많은 학술지는 감사의 글 또는 방법론 절에 AI 사용 사실을 표기하도록 권장합니다. 예시: "초안 작성 과정에서 Anthropic의 Claude를 보조 도구로 활용하였으며, 모든 내용은 저자가 직접 검토·수정하였습니다."</p>
+    </div>
+  </div>
+  <div class="ethics-step">
+    <div class="ethics-num">4</div>
+    <div class="ethics-body">
+      <h4>AI가 쓴 글 = 저자의 책임</h4>
+      <p>AI가 생성한 텍스트라도 논문에 포함되면 저자의 책임입니다. 사실 오류, 표절, 부적절한 내용이 포함되어 있으면 저자가 책임을 집니다. 반드시 검토하세요.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>기관·학술지 유형</th><th>AI 사용 정책 현황 (2025년 기준)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>APA 학술지 (교육·심리학)</td><td>AI 도구 사용 시 방법론 절에 명시 요구</td></tr>
+      <tr><td>Nature, Science 계열</td><td>저자 기여 불인정, 사용 사실 공개 필수</td></tr>
+      <tr><td>한국연구재단 등재지</td><td>기관별·학술지별 상이 — 개별 확인 필요</td></tr>
+      <tr><td>대학원 논문 (석·박사)</td><td>학교·지도교수 기준 우선 확인 필요</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">💡 실용적 조언</div>
+    <p>AI 사용 여부를 숨기려 하지 마세요. 학술 커뮤니티는 투명성을 중요하게 여기며, AI 탐지 도구가 점점 발전하고 있습니다. 명확하게 공개하고 책임 있게 활용하는 것이 장기적으로 더 안전한 전략입니다.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="page-nav">
+    <a href="index.html">← 홈으로</a>
+    <a href="intro-02-plans-platforms.html" class="next">다음: 요금제 및 플랫폼 →</a>
+  </div>
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 입문 01. Claude란 무엇인가</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <p style="margin-top:0.5rem">&nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+</footer>
+
+</body>
+</html>

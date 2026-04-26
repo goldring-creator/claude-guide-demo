@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[데모] 초급 01 — 설문지 처음부터 만들기 · Claude 연구 활용 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8f6f1;--surface:#fff;--surface-2:#f1ece3;--border:#ddd8cf;--text:#1c1b28;--text-muted:#6b6578;--primary:#1e3d7a;--primary-light:#2a56ad;--primary-pale:#e5eaf6;--accent:#c0891f;--accent-pale:#fdf2de;--c-prompt-bg:#e8f0fb;--c-prompt:#1d4fad;--c-prompt-bd:#3b6fd4;--c-result-bg:#e6f5ec;--c-result:#176338;--c-result-bd:#27ae60;--c-tip-bg:#fef9e6;--c-tip:#8a5f00;--c-tip-bd:#d4a017;--c-warn-bg:#fdecea;--c-warn:#b01c1c;--c-warn-bd:#e53935;--b-intro:#27ae60;--b-mid:#2980b9;--b-adv:#8e44ad;--font-serif:'Noto Serif KR',Georgia,serif;--font-sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;--max-w:860px;--nav-h:60px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.85;padding-top:var(--nav-h);}
+    .site-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .nav-logo{font-family:var(--font-serif);color:#fff;font-size:0.95rem;font-weight:700;text-decoration:none;margin-right:auto;white-space:nowrap;}
+    .nav-links{display:flex;gap:0.15rem;}
+    .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;padding:0.4rem 0.85rem;border-radius:5px;font-size:0.85rem;font-weight:500;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.active{background:rgba(255,255,255,0.2);color:#fff;}
+    main{max-width:var(--max-w);margin:0 auto;padding:2.5rem 2rem 5rem;}
+    footer{text-align:center;padding:2rem;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border);}
+    .breadcrumb{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+    .breadcrumb a{color:var(--primary-light);text-decoration:none;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .breadcrumb span{margin:0 0.35rem;}
+    h1{font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--primary);line-height:1.25;margin-bottom:0.4rem;border-bottom:3px solid var(--accent);padding-bottom:0.75rem;}
+    .page-subtitle{color:var(--text-muted);font-size:1rem;margin-bottom:1rem;}
+    h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;color:var(--primary);margin:3rem 0 1rem;padding-bottom:0.4rem;border-bottom:2px solid var(--border);}
+    h3{font-size:1.02rem;font-weight:700;color:var(--text);margin:1.5rem 0 0.6rem;}
+    p{margin-bottom:1rem;}
+    ul,ol{padding-left:1.6rem;margin-bottom:1rem;}
+    li{margin-bottom:0.4rem;}
+    a{color:var(--primary-light);}
+    strong{color:var(--text);}
+    code{font-family:var(--font-mono);font-size:0.84em;background:var(--surface-2);padding:0.15em 0.4em;border-radius:3px;border:1px solid var(--border);}
+    .callout{padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;border-left:4px solid;}
+    .callout-title{font-weight:700;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .callout-prompt{background:var(--c-prompt-bg);border-color:var(--c-prompt-bd);color:var(--c-prompt);}
+    .callout-result{background:var(--c-result-bg);border-color:var(--c-result-bd);color:var(--c-result);}
+    .callout-tip{background:var(--c-tip-bg);border-color:var(--c-tip-bd);color:var(--c-tip);}
+    .callout-warn{background:var(--c-warn-bg);border-color:var(--c-warn-bd);color:var(--c-warn);}
+    .callout p{color:var(--text);margin-bottom:0.5rem;}.callout p:last-child{margin-bottom:0;}
+    .page-nav{display:flex;justify-content:space-between;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);gap:1rem;flex-wrap:wrap;}
+    .page-nav a{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--primary);font-size:0.875rem;font-weight:600;transition:all 0.15s;}
+    .page-nav a:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .page-nav .next{margin-left:auto;}
+
+    /* WALKTHROUGH COMPONENTS */
+    .page-meta{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
+    .meta-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;font-weight:600;padding:0.25em 0.75em;border-radius:20px;}
+    .meta-bg{background:#e6f9ee;color:#176338;border:1px solid #a5d6a7;}
+    .meta-mid{background:#e5eaf6;color:#1e3d7a;border:1px solid #b0c4e8;}
+    .meta-adv{background:#f0e6fa;color:#6b2da8;border:1px solid #ce93d8;}
+    .meta-time{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);}
+
+    /* SUB-NAV */
+    .wt-subnav{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.45rem;}
+    .wt-group{display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;}
+    .wt-group-label{font-size:0.68rem;font-weight:700;letter-spacing:0.07em;white-space:nowrap;min-width:32px;}
+    .wt-group-label.bg{color:var(--b-intro);}
+    .wt-group-label.mid{color:var(--b-mid);}
+    .wt-group-label.adv{color:var(--b-adv);}
+    .wt-group-links{display:flex;gap:0.25rem;flex-wrap:wrap;}
+    .wt-group-links a{font-size:0.76rem;text-decoration:none;padding:0.18rem 0.55rem;border-radius:4px;color:var(--primary-light);transition:all 0.15s;}
+    .wt-group-links a:hover{background:var(--primary-pale);}
+    .wt-group-links a.active{background:var(--primary);color:#fff;font-weight:600;}
+
+    /* FLOW DIAGRAM */
+    .flow-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;text-align:center;}
+    .flow-title{font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:1rem;}
+    .flow-row{display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;}
+    .flow-box{background:var(--primary-pale);border:1.5px solid #b0c4e8;border-radius:8px;padding:0.5rem 0.9rem;font-size:0.82rem;font-weight:600;color:var(--primary);text-align:center;min-width:80px;}
+    .flow-box.green{background:#e6f9ee;border-color:#a5d6a7;color:#176338;}
+    .flow-box.gold{background:var(--accent-pale);border-color:var(--accent);color:#5a3e00;}
+    .flow-box.you{background:var(--surface-2);border-color:var(--border);color:var(--text-muted);}
+    .flow-sub{font-size:0.65rem;font-weight:400;color:var(--text-muted);margin-top:0.1rem;}
+    .flow-arr{color:var(--text-muted);font-size:1.3rem;line-height:1;}
+
+    /* PREP GRID */
+    .prep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin:1rem 0;}
+    .prep-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.9rem;}
+    .prep-icon{font-size:1.3rem;margin-bottom:0.3rem;}
+    .prep-name{font-size:0.85rem;font-weight:700;color:var(--primary);margin-bottom:0.15rem;}
+    .prep-desc{font-size:0.75rem;color:var(--text-muted);}
+
+    /* STEPS */
+    .wt-steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0;}
+    .wt-step{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
+    .wt-step-header{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.2rem;background:var(--surface-2);border-bottom:1px solid var(--border);}
+    .wt-step-num{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .wt-step-title{font-size:0.98rem;font-weight:700;color:var(--primary);}
+    .step-tag{font-size:0.67rem;font-weight:700;padding:0.13em 0.5em;border-radius:20px;margin-left:0.3rem;}
+    .tag-you{background:var(--accent-pale);color:#6b3a00;border:1px solid #d4b07a;}
+    .tag-claude{background:var(--primary-pale);color:var(--primary);border:1px solid #b0c4e8;}
+    .wt-step-body{padding:1.1rem 1.2rem;}
+
+    /* TERMINAL MOCK */
+    .terminal-mock{background:#1e1e2e;border-radius:10px;overflow:hidden;margin:1rem 0;}
+    .t-bar{background:#313244;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.35rem;}
+    .t-dot{width:11px;height:11px;border-radius:50%;}
+    .t-dot.r{background:#f38ba8;}.t-dot.y{background:#f9e2af;}.t-dot.g{background:#a6e3a1;}
+    .t-title-bar{margin-left:auto;font-size:0.7rem;color:#9399b2;font-family:var(--font-mono);}
+    .t-body{padding:0.9rem 1.1rem;display:flex;flex-direction:column;gap:0.5rem;}
+    .t-user{background:rgba(137,180,250,0.12);border-left:3px solid #89b4fa;padding:0.5rem 0.75rem;border-radius:0 5px 5px 0;}
+    .t-user .t-who{font-size:0.65rem;color:#89b4fa;margin-bottom:0.25rem;font-family:var(--font-mono);}
+    .t-user p{color:#cdd6f4;font-size:0.8rem;margin:0;font-family:var(--font-mono);white-space:pre-wrap;}
+    .t-claude{background:rgba(166,227,161,0.1);border-left:3px solid #a6e3a1;padding:0.5rem 0.75rem;border-radius:0 5px 5px 0;}
+    .t-claude .t-who{font-size:0.65rem;color:#a6e3a1;margin-bottom:0.25rem;font-family:var(--font-mono);}
+    .t-claude p{color:#cdd6f4;font-size:0.8rem;margin:0;font-family:var(--font-mono);white-space:pre-wrap;}
+
+    /* CHECKLIST */
+    .check-list{list-style:none;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;}
+    .check-list li{display:flex;align-items:flex-start;gap:0.65rem;padding:0.7rem 1rem;border-bottom:1px solid var(--border);font-size:0.88rem;}
+    .check-list li:last-child{border-bottom:none;}
+    .check-box{width:17px;height:17px;border:2px solid #b0c4e8;border-radius:3px;flex-shrink:0;margin-top:0.22rem;}
+
+    /* SAMPLE OUTPUT */
+    .sample-output{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;}
+    .sample-header{background:var(--surface-2);padding:0.5rem 1rem;font-size:0.75rem;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);}
+    .sample-body{padding:1rem;font-size:0.85rem;}
+    .sample-body table{font-size:0.82rem;margin:0.5rem 0;}
+
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:1.25rem 0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+    th{background:var(--primary);color:#fff;padding:0.7rem 1rem;text-align:left;font-weight:600;font-size:0.82rem;}
+    td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:nth-child(even) td{background:var(--surface-2);}
+    tr:last-child td{border-bottom:none;}
+
+    @media(max-width:640px){h1{font-size:1.65rem;}main{padding:2rem 1.25rem 4rem;}.flow-row{flex-direction:column;}}
+  
+    /* ── DEMO PAYWALL ── */
+    .demo-banner{background:linear-gradient(135deg,#1e3d7a 0%,#2a56ad 100%);color:#fff;
+      padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+      font-size:.82rem;gap:.75rem;flex-wrap:wrap;position:fixed;top:60px;left:0;right:0;z-index:90;}
+    .demo-banner a{color:#ffd96b;font-weight:700;text-decoration:none;}
+    .demo-banner a:hover{text-decoration:underline;}
+    body{padding-top:calc(var(--nav-h) + 34px) !important;}
+    .paywall-wrap{position:relative;overflow:hidden;border-radius:0 0 12px 12px;}
+    .paywall-blur{filter:blur(5px) brightness(.96);pointer-events:none;user-select:none;
+      max-height:420px;overflow:hidden;}
+    .paywall-gate{position:absolute;bottom:0;left:0;right:0;height:100%;
+      background:linear-gradient(to bottom,transparent 0%,rgba(248,246,241,.65) 30%,rgba(248,246,241,.97) 62%,#f8f6f1 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding-bottom:2.2rem;text-align:center;}
+    .paywall-gate .lock-icon{font-size:2rem;margin-bottom:.6rem;}
+    .paywall-gate .gate-title{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;
+      color:var(--primary);margin-bottom:.4rem;}
+    .paywall-gate .gate-desc{color:var(--text-muted);font-size:.88rem;margin-bottom:1.3rem;
+      max-width:400px;line-height:1.6;}
+    .gate-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+      font-size:.97rem;padding:.85rem 2rem;border-radius:8px;text-decoration:none;
+      box-shadow:0 4px 18px rgba(192,137,31,.35);transition:background .15s,transform .1s;}
+    .gate-btn:hover{background:#a5771a;transform:translateY(-2px);}
+    .gate-note{margin-top:.75rem;font-size:.76rem;color:var(--text-muted);}
+    .demo-page-cta{margin:3rem 0 1rem;padding:2rem;background:var(--primary-pale);
+      border:1px solid var(--border);border-radius:10px;text-align:center;}
+    .demo-page-cta p{margin-bottom:1rem;color:var(--text-muted);font-size:.9rem;}
+    /* 잠긴 카드 스타일 */
+    .card-locked{position:relative;opacity:.72;pointer-events:none;}
+    .card-locked::after{content:"🔒";position:absolute;top:.75rem;right:.75rem;
+      font-size:1rem;background:rgba(0,0,0,.12);border-radius:50%;
+      width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;}
+
+  </style>
+</head>
+<body>
+<div class="demo-banner"><span>📖 <strong>미리보기 데모</strong> — 일부 내용만 공개됩니다</span><a href="https://gumroad.com/l/YOUR_PRODUCT" target="_blank">전체 가이드 구매하기 →</a></div>
+
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-logo">📚 Claude 연구 활용 가이드</a>
+  <div class="nav-links">
+    <a href="index.html">홈</a>
+    <a href="intro-01-what-is-claude.html">입문</a>
+    <a href="usage-01-project-setup.html">활용</a>
+    <a href="advanced-01-git.html">고급</a>
+    <a href="walkthrough-index.html" class="active">따라하기</a>
+  </div>
+</nav>
+
+<main>
+
+<div class="breadcrumb">
+  <a href="index.html">홈</a><span>›</span>
+  <a href="walkthrough-index.html">따라하기</a><span>›</span>
+  초급 01 — 설문지 처음부터 만들기
+</div>
+
+<div class="wt-subnav">
+  <div class="wt-group">
+    <span class="wt-group-label bg">초급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-01-survey.html" class="active">①설문지</a>
+      <a href="walkthrough-02-abstract.html">②영문초록</a>
+      <a href="walkthrough-03-interview.html">③인터뷰코딩</a>
+      <a href="walkthrough-04-proposal.html">④연구계획서</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label mid">중급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-05-literature-codebook.html">⑤문헌코드북</a>
+      <a href="walkthrough-06-panel-data.html">⑥패널데이터</a>
+      <a href="walkthrough-07-review-response.html">⑦심사대응</a>
+      <a href="walkthrough-08-meta-analysis.html">⑧메타분석</a>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-group-label adv">고급</span>
+    <div class="wt-group-links">
+      <a href="walkthrough-09-r-debugging.html">⑨R디버깅</a>
+      <a href="walkthrough-10-hlm.html">⑩HLM분석</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-meta">
+  <span class="meta-tag meta-bg">초급</span>
+  <span class="meta-tag meta-time">⏱ 약 30분</span>
+  <span class="meta-tag meta-time">📋 Claude Code or claude.ai</span>
+</div>
+
+<h1>설문지 처음부터 만들기</h1>
+<p class="page-subtitle">연구 주제 한 줄 → 리커트 문항 자동 생성 → 신뢰도·타당도 검토 → Word 형식 출력</p>
+
+<div class="callout callout-tip">
+  <div class="callout-title">💡 관련 가이드</div>
+  <p>이 실습은 <a href="usage-01-project-setup.html">활용 01 — 연구 프로젝트 세팅</a>과 <a href="usage-07-writing-setup.html">활용 07 — 논문작성 세팅</a>을 먼저 읽었다고 가정합니다. Claude 프로젝트 세팅이 안 된 상태라면 활용 01을 먼저 완료하세요.</p>
+</div>
+
+<!-- 전체 플로우 -->
+<h2>전체 워크플로우</h2>
+<div class="flow-wrap">
+  <div class="flow-title">설문지 제작 플로우</div>
+  <div class="flow-row">
+    <div class="flow-box you">
+      연구 주제 정리
+      <div class="flow-sub">연구자</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      변수·구성개념 정의
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      문항 초안 생성
+      <div class="flow-sub">Claude</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">
+      신뢰도·타당도 검토
+      <div class="flow-sub">Claude + 연구자</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box green">
+      최종 설문지
+      <div class="flow-sub">완성</div>
+    </div>
+  </div>
+</div>
+
+<!-- 준비물 -->
+<h2>준비물</h2>
+<div class="prep-grid">
+  <div class="prep-card">
+    <div class="prep-icon">🎯</div>
+    <div class="prep-name">연구 주제 1~3문장</div>
+    <div class="prep-desc">무엇을 측정하려는지 한 문단으로 정리해 두세요.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📐</div>
+    <div class="prep-name">측정 변수 목록</div>
+    <div class="prep-desc">없어도 됩니다. Claude가 도출을 도와줍니다.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">📚</div>
+    <div class="prep-name">참조 선행연구 1~2편</div>
+    <div class="prep-desc">있으면 더 정교한 문항이 나옵니다. 없어도 진행 가능.</div>
+  </div>
+  <div class="prep-card">
+    <div class="prep-icon">💻</div>
+    <div class="prep-name">Claude Code 또는 claude.ai</div>
+    <div class="prep-desc">설치·로그인 → <a href="intro-03-installation.html">입문 03</a> 참고</div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<h2>단계별 실습</h2>
+
+<div class="wt-steps">
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">1</div>
+    <div class="wt-step-title">연구 목적과 측정 변수 정의 요청<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>먼저 연구 주제를 Claude에 설명하고, 어떤 변수를 측정해야 하는지 도출을 요청합니다. 이 단계에서 무엇을 측정할지 명확해집니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>나는 교육학 연구자입니다. 아래 연구 주제에 대한 설문지를 만들고 싶습니다.<br><br>
+      [연구 주제: 예) "초등학교 교사의 디지털 리터러시가 수업 효능감에 미치는 영향"]<br><br>
+      이 연구를 위해 측정해야 할 주요 구성개념(변수)을 3~5개 제안해 주세요. 각 변수에 대해 간략한 정의와 선행연구에서 자주 사용되는 하위 차원(sub-dimension)도 함께 알려주세요.</p>
+    </div>
+    <div class="callout callout-result">
+      <div class="callout-title">Claude 응답 예시</div>
+      <p>이 연구에서 측정해야 할 주요 구성개념을 다음과 같이 제안합니다:<br><br>
+      <strong>1. 디지털 리터러시 (Digital Literacy)</strong><br>
+      정의: 디지털 기술을 효과적으로 이해·사용·평가하는 능력<br>
+      하위 차원: 기술 활용 능력, 디지털 정보 비판적 이해, 디지털 콘텐츠 제작, 온라인 안전·윤리<br><br>
+      <strong>2. 수업 효능감 (Teaching Efficacy)</strong><br>
+      정의: 교사가 학생의 학습에 긍정적 영향을 줄 수 있다는 믿음<br>
+      하위 차원: 개인 교수 효능감, 일반 교수 효능감, 교과 교수 효능감<br><br>
+      (이하 계속...)</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">2</div>
+    <div class="wt-step-title">리커트 문항 초안 생성 요청<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>변수별로 리커트 척도 문항을 생성합니다. 5점 척도 기준, 변수당 5~8개 문항을 요청하는 것이 적당합니다. 역문항(reverse coding) 포함을 꼭 명시하세요.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>위에서 제안한 변수들을 바탕으로 리커트 5점 척도 설문 문항을 작성해 주세요.<br><br>
+      조건:<br>
+      - 각 변수당 5~7개 문항<br>
+      - 5점 척도: 1=전혀 그렇지 않다 / 5=매우 그렇다<br>
+      - 역문항(reverse item)을 변수당 1~2개 포함하고 (R) 표시 해주세요<br>
+      - 응답자: 현직 초등학교 교사<br>
+      - 문항은 '나는 ~한다/~이다' 형식으로 작성해 주세요</p>
+    </div>
+    <div class="terminal-mock">
+      <div class="t-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="t-title-bar">Claude — 설문 문항 생성 결과 미리보기</span></div>
+      <div class="t-body">
+        <div class="t-claude">
+          <div class="t-who">Claude</div>
+          <p>■ 디지털 리터러시 척도
+
+DL1. 나는 수업에 필요한 디지털 도구를 능숙하게 활용할 수 있다.
+DL2. 나는 온라인에서 수집한 정보의 신뢰성을 비판적으로 판단할 수 있다.
+DL3. 나는 디지털 콘텐츠를 직접 제작하여 수업 자료로 활용한다.
+DL4. 나는 디지털 기기 사용에 관한 윤리적 기준을 학생에게 지도한다.
+DL5. (R) 나는 새로운 디지털 도구를 배우는 것이 어렵게 느껴진다.
+
+■ 수업 효능감 척도
+
+TE1. 나는 어떤 학생도 잘 가르칠 자신이 있다.
+TE2. 나는 학생의 학습 동기를 효과적으로 높일 수 있다.
+...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">3</div>
+    <div class="wt-step-title">신뢰도·타당도 검토 요청<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>생성된 문항이 실제로 측정 목적에 맞는지 검토를 받습니다. 내용타당도·안면타당도 관점의 피드백을 요청하세요.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>위에서 작성한 설문 문항을 내용타당도(content validity) 관점에서 검토해 주세요:<br><br>
+      1. 각 구성개념을 충분히 포괄하고 있는지<br>
+      2. 중복되거나 의미가 겹치는 문항은 없는지<br>
+      3. 초등학교 교사 응답자가 이해하기 어려운 표현이 있는지<br>
+      4. 사회적 바람직성 편향(social desirability bias)이 우려되는 문항<br><br>
+      문제가 있는 문항은 구체적으로 지적하고 대안 표현을 제시해 주세요.</p>
+    </div>
+    <div class="callout callout-result">
+      <div class="callout-title">Claude 응답 예시</div>
+      <p><strong>검토 결과:</strong><br><br>
+      [개선 권고] DL3 "나는 디지털 콘텐츠를 직접 제작하여 수업 자료로 활용한다"<br>
+      → '제작'이 너무 넓은 개념. '영상 편집', 'PPT 제작' 등 구체화 권장<br>
+      대안: "나는 수업용 디지털 자료(영상, 인포그래픽 등)를 직접 제작한다"<br><br>
+      [중복 의심] TE1과 TE3은 내용이 유사합니다. 하나를 삭제하거나 통합 권장.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">4</div>
+    <div class="wt-step-title">문항 수정 및 최종 확정<span class="step-tag tag-you">연구자</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>Claude의 검토 의견을 바탕으로 직접 수정합니다. 수정한 후 다시 Claude에게 확인을 요청해도 됩니다.</p>
+    <div class="callout callout-tip">
+      <div class="callout-title">💡 팁</div>
+      <p>수정된 문항을 Claude에 다시 붙여넣고 "수정 후 최종 버전을 검토해 주세요"라고 하면 2차 피드백을 받을 수 있습니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wt-step">
+  <div class="wt-step-header">
+    <div class="wt-step-num">5</div>
+    <div class="wt-step-title">Word 형식 출력 요청<span class="step-tag tag-claude">Claude</span></div>
+  </div>
+  <div class="wt-step-body">
+    <p>최종 문항을 복사해서 바로 사용할 수 있는 형식으로 정리해 달라고 요청합니다.</p>
+    <div class="callout callout-prompt">
+      <div class="callout-title">프롬프트</div>
+      <p>최종 확정된 설문 문항을 아래 형식으로 정리해 주세요:<br><br>
+      - 연구 제목과 설문 소개문 포함<br>
+      - 개인정보 수집 동의 안내 문구 포함<br>
+      - 인구통계 문항 (학교급, 교직 경력, 성별, 연령대) 추가<br>
+      - 각 척도별 섹션 구분선과 안내 문구 포함<br>
+      - 문항 번호는 전체 연번으로 (1, 2, 3, ...)<br>
+      - 역문항 표시는 제거하고 자연스럽게 배열</p>
+    </div>
+
+    <div class="sample-output">
+      <div class="sample-header">출력 예시 — 설문지 구조</div>
+      <div class="sample-body">
+        <table>
+          <tr><th>섹션</th><th>내용</th><th>문항 수</th></tr>
+          <tr><td>소개문</td><td>연구 목적, 익명성 보장, 소요 시간</td><td>—</td></tr>
+          <tr><td>인구통계</td><td>학교급, 경력, 성별, 연령대</td><td>4</td></tr>
+          <tr><td>디지털 리터러시</td><td>5점 리커트, 6문항</td><td>6</td></tr>
+          <tr><td>수업 효능감</td><td>5점 리커트, 6문항</td><td>6</td></tr>
+          <tr><td>마무리</td><td>감사 인사, 연락처</td><td>—</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wt-steps -->
+
+<!-- 완료 체크리스트 -->
+<h2>완료 체크리스트</h2>
+<ul class="check-list">
+  <li><span class="check-box"></span>연구 목적에 맞는 구성개념(변수) 2개 이상 정의됨</li>
+  <li><span class="check-box"></span>변수당 5개 이상의 문항 생성됨</li>
+  <li><span class="check-box"></span>각 변수에 역문항 1개 이상 포함됨</li>
+  <li><span class="check-box"></span>내용타당도 검토 피드백 반영하여 수정됨</li>
+  <li><span class="check-box"></span>인구통계 문항 및 소개문 포함됨</li>
+  <li><span class="check-box"></span>최종 설문지를 Word 또는 Google Forms에 옮김</li>
+</ul>
+
+<div class="callout callout-warn">
+  <div class="callout-title">⚠️ 주의</div>
+  <p>Claude가 생성한 문항은 반드시 연구자가 직접 검토해야 합니다. 특히 측정 이론적 근거가 필요한 연구(학위논문 등)에서는 관련 선행 척도를 함께 검토하고, 지도교수의 확인을 받으세요.</p>
+</div>
+
+<div class="page-nav">
+  <a href="walkthrough-index.html">← 따라하기 목록</a>
+  <a href="walkthrough-02-abstract.html" class="next">초급 02 — 영문 초록 번역 →</a>
+</div>
+
+</main>
+
+
+<footer>
+  <p>Claude 연구 활용 가이드 — 교육학·사회과학 연구자를 위한 참고서</p>
+  <p style="margin-top:0.3rem">v1.0 · 2026년 4월</p>
+  <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+    <p style="margin:0;font-size:0.8rem;color:var(--text-muted);">문의 · 피드백 &nbsp;·&nbsp; <a href="mailto:goldringedu@gmail.com" style="color:var(--primary-light);text-decoration:none;font-weight:500;">goldringedu@gmail.com</a> &nbsp;·&nbsp; <a href="https://qr.kakaopay.com/Ej8xm8gwa" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;background:#FFE400;color:#3C1E1E;text-decoration:none;padding:0.18em 0.7em;border-radius:5px;font-size:0.78rem;font-weight:700;vertical-align:middle;">☕ 카카오페이 후원</a></p>
+    <p style="margin:0;font-size:0.78rem;color:var(--text-muted);">© 2026 Claude 연구 활용 가이드. 출처 표기 시 자유롭게 활용 가능합니다.</p>
+  </div>
+</footer>
+
+</body>
+</html>
